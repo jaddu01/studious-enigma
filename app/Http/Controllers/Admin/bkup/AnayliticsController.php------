@@ -1,0 +1,412 @@
+<?php
+
+namespace App\Http\Controllers\Admin;
+
+use App\City;
+use App\Category;
+use App\DeliveryDay;
+use App\DeliveryTime;
+use App\Helpers\Helper;
+use App\OrderStatusNew;
+use App\ProductOrderItem;
+use App\VendorCommission;
+use App\Scopes\StatusScope;
+use App\ProductOrder;
+use App\Notifications\OrderStatus;
+use App\User;
+use App\VendorProduct;
+use App\Zone;
+use Carbon\Carbon;
+use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\Validator;
+use Maatwebsite\Excel\Facades\Excel;
+use Proengsoft\JsValidation\Facades\JsValidatorFacade;
+use DataTables;
+use PDF;
+
+class AnayliticsController extends Controller
+{
+    protected $user;
+    protected $order;
+    protected $productOrderItem;
+    protected $method;
+    function __construct(Request $request,User $user, ProductOrder $order,ProductOrderItem $productOrderItem,OrderStatusNew $orderstatusnew,VendorCommission $vendorcommission)
+    {
+        parent::__construct();
+        $this->user=$user;
+        $this->order=$order;
+        $this->productOrderItem=$productOrderItem;
+        $this->vendorcommission=$vendorcommission;
+        $this->orderstatusnew=$orderstatusnew;
+        $this->method=$request->method();
+    }
+
+
+    /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+
+	public function orders(Request $request){
+
+        $zones = Zone::get()->pluck('name','id');
+        $vandors=$this->user->where(['user_type'=>'vendor','role'=>'user'])->get()->pluck('full_name','id');
+        $shoper=$this->user->where(['user_type'=>'shoper','role'=>'user'])->get()->pluck('full_name','id');
+        $driver=$this->user->where(['user_type'=>'driver','role'=>'user'])->get()->pluck('full_name','id');
+		
+		return view('admin/pages/analytics/order' ,compact(['zones','vandors','driver','shoper']));
+	} 
+    public function customers(Request $request){
+
+        return view('admin/pages/analytics/customer');
+    } 
+    public function products(Request $request){
+        $zones = Zone::get()->pluck('name','id');
+        $vandors=$this->user->where(['user_type'=>'vendor','role'=>'user'])->get()->pluck('full_name','id');
+        $customer=$this->user->where(['user_type'=>'user','role'=>'user'])->get()->pluck('full_name','id');
+        
+        return view('admin/pages/analytics/product' ,compact(['zones','vandors','customer']));
+    } 
+
+    public function slotTimes(Request $request){
+        $zones = Zone::get()->pluck('name','id');
+        return view('admin/pages/analytics/slotTimes' ,compact(['zones']));
+    } 
+    public function zone(Request $request){
+        return view('admin/pages/analytics/zone');
+    } 
+
+    public function anyData(Request $request)
+    {
+   //return $request->user_id;
+    //$vendors = $this->vendorCommission->with(['User'])->select('*')->get();
+    $newdata = [];
+    $vendors = $this->order->with(['ProductOrderItem','zone',"OrderStatusNew",'vendor'])->select('*',DB::raw('count(id) AS no_of_orders'),DB::raw("SUM(total_amount) as sum_total"),DB::raw("SUM(delivery_charge) as sum_delivery_charge"),DB::raw("SUM(admin_discount) as sum_admin_discount"))->groupBy('created_at');
+
+
+     //echo"<pre>";print_r($request->all);die;
+        if($request->has('transaction_status') and !empty($request->transaction_status)){
+
+            $vendors->where(['transaction_status'=>$request->transaction_status]);
+        }
+        if($request->has('zone_id') and !empty($request->zone_id)){
+
+            $vendors->where(['zone_id'=>$request->zone_id]);
+        }
+        if($request->has('vendor_id') and !empty($request->vendor_id)){
+
+            $vendors->where(['vendor_id'=>$request->vendor_id]);
+        }
+      
+        if ($request->has('from_date') and !empty($request->from_date)) {
+            $vendors->whereDate('created_at','>=',$request->from_date." 00:00:00");
+        }
+        if ($request->has('to_date') and !empty($request->to_date)) {
+            $vendors->whereDate('created_at','<=',$request->to_date." 23:59:59");
+        }
+        if($request->has('order_type') and !empty($request->order_type)){
+             $filterBy = $request->order_type;
+            if($filterBy !='days'){
+                $vendors = $this->order->with(['ProductOrderItem','zone',"OrderStatusNew",'vendor'])->select('*',DB::raw('count(id) AS no_of_orders'),DB::raw("SUM(total_amount) as sum_total"),DB::raw("SUM(delivery_charge) as sum_delivery_charge"),DB::raw("SUM(admin_discount) as sum_admin_discount"))->groupBy(DB::raw($filterBy.'(created_at)'));
+            }
+        }
+        $vendors= $vendors->get()->toArray();
+        //$vendors= $vendors->toSql();
+        //dd($vendors);
+      // echo "<pre>";print_r($vendors);die;
+        foreach($vendors as $vendordata){
+            $admin_commission = $this->vendorcommission->where(['vendor_id'=>$vendordata['vendor_id']])->get()->toArray();
+            //echo "<pre>";print_r($admin_commission);
+            if(!empty($admin_commission)){
+                 $new_array_order['vendor_commission']=$admin_commission[0]['percent'];
+            }else{
+                 $new_array_order['vendor_commission']=0;
+            }
+            $new_array_order['start_date']= date('d-m-Y',strtotime($vendordata['created_at']));
+            $filterByDate = $request->order_type;
+             if($filterByDate =='WEEK'){
+                //$endDate = strtotime($vendordata['created_at']);
+                $endDate = date('d-m-Y', strtotime($vendordata['created_at']. ' + 7 days'));
+                $new_array_order['end_date']=$endDate;
+             }else{
+                $new_array_order['end_date']=$vendordata['created_at'];
+             }
+            //$new_array_order['end_date']=$vendordata['created_at'];
+            $new_array_order['no_of_orders']= $vendordata['no_of_orders'];
+            $new_array_order['order_code']=$vendordata['order_code'];
+            $new_array_order['order_id']=$vendordata['id'];
+            $new_array_order['id']=$vendordata['id'];
+            $new_array_order['created_at']=$vendordata['created_at'];
+            $new_array_order['vendor']=$vendordata['vendor']['name'];
+            $new_array_order['vendor_id']=$vendordata['vendor']['id'];
+            $new_array_order['sub_total']=$vendordata['total_amount'];
+            $new_array_order['vendor_invoice']=$vendordata['total_amount'];
+            $new_array_order['total_amount']=($vendordata['sum_total']+$vendordata['sum_delivery_charge'])-$vendordata['sum_admin_discount'];
+            $new_array_order['delivery_charge']=$vendordata['sum_delivery_charge'];
+            $new_array_order['admin_discount']=$vendordata['sum_admin_discount'];
+            $new_array_order['varience_revenue']=0.00;
+            $new_array_order['varience']=$vendordata['total_amount']-$new_array_order['vendor_invoice'];
+            $new_array_order['promo_code']=$vendordata['total_amount']-$vendordata['offer_total'];
+            $new_array_order['vendor_revenue']=($new_array_order['vendor_invoice']*($new_array_order['vendor_commission']/100));
+            $new_array_order['total_revenue']=$new_array_order['delivery_charge']+$new_array_order['varience_revenue']+$new_array_order['vendor_revenue']+$new_array_order['admin_discount']+$new_array_order['promo_code'];
+             $new_array_order['product_revenue']=$new_array_order['total_revenue']-$new_array_order['delivery_charge'];
+            
+           /* $new_array_order['revenue_percentage']=number_format($new_array_order['total_revenue']/$new_array_order['total_amount'],2);*/
+        
+            $newdata[]=$new_array_order;
+        }
+            if ($request->has('delivery_charge') and !empty($request->delivery_charge)) {
+                $filterBy = $request->delivery_charge;
+                $newdata = array_filter($newdata, function ($var) use ($filterBy) {
+                    if($filterBy == 'y'){
+                        return ($var['delivery_charge'] > 0.00);
+                        
+                    }else{ 
+                        return ($var['delivery_charge'] == 0.00);
+                    }
+                    
+                    });
+            }
+            if ($request->has('varience_revenue') and !empty($request->varience_revenue)) {
+                $filterBy = $request->varience_revenue;
+                $newdata = array_filter($newdata, function ($var) use ($filterBy) {
+                     if($filterBy == 'positive'){
+                        return ($var['varience_revenue'] >= 0.00);
+                    }else{ 
+                        return ($var['varience_revenue'] == 0.00);
+                    }
+                });
+            
+            }
+       
+        
+       return Datatables::of($newdata) 
+        ->addColumn('start_date',function ($newdata){
+            return isset($newdata['start_date']) ? $newdata['start_date']: '';
+        })
+        ->addColumn('end_date',function ($newdata){
+            return isset($newdata['end_date']) ? $newdata['end_date']: '';
+        })
+        ->addColumn('no_of_orders',function ($newdata){
+            return isset($newdata['no_of_orders']) ? $newdata['no_of_orders']: '';    
+        })
+        ->addColumn('total_amount',function ($newdata){
+            return isset($newdata['total_amount']) ? $newdata['total_amount']: '';    
+
+        })
+        ->addColumn('delivery_charge',function ($newdata){
+            return isset($newdata['delivery_charge']) ? $newdata['delivery_charge']: '';
+
+        })
+        
+        ->addColumn('product_revenue',function ($newdata){
+            return isset($newdata['product_revenue']) ? $newdata['product_revenue']: '';    
+        })
+        ->addColumn('total_revenue',function ($newdata){
+            return isset($newdata['total_revenue']) ? $newdata['total_revenue']: '';
+        })
+        ->addColumn('revenue_percentage',function ($newdata){
+            return isset($newdata['revenue_percentage']) ? $newdata['revenue_percentage']: '';
+
+        })
+       ->make(true);
+
+    }
+
+     public function customerData(Request $request)
+    {
+    $newdata = [];
+    //$customers = $this->user->with(['productOrder'])->where('user_type','user')->select('*',DB::raw('count(id) AS all_customers'),DB::raw("(CASE WHEN order_code!='' THEN count(order_code) ELSE 0 END) as test"))->groupBy('created_at');
+
+    $customers = DB::table("users")
+    ->join('product_orders', 'users.id','=', 'product_orders.user_id')
+    ->select("*",DB::raw('count(users.id) AS all_customers'),DB::raw('count(product_orders.order_code) AS customer_ordered'))
+    ->where('users.user_type','user');
+        if($request->has('order_type') and !empty($request->order_type)){
+            $filterBy = $request->order_type;
+            if($filterBy !='days'){
+                $customers->groupBy(DB::raw($filterBy.'(users.created_at)'));
+            }
+        }else{
+            $customers->groupBy('users.created_at');
+        }
+
+        if ($request->has('from_date') and !empty($request->from_date)) {
+            $customers->whereDate('users.created_at','>=',$request->from_date." 00:00:00");
+        }
+        if ($request->has('to_date') and !empty($request->to_date)) {
+            $customers->whereDate('users.created_at','<=',$request->to_date." 23:59:59");
+        }
+       
+        $customers= $customers->get();
+        //$customers= $customers->toSql();
+        //dd($customers);
+       //echo "<pre>";print_r($customers);die;
+        foreach($customers as $customerdata){
+           
+            $new_array_order['start_date']= date('d-m-Y',strtotime($customerdata->created_at));
+            $filterByDate = $request->order_type;
+            if($filterByDate =='WEEK'){
+                $endDate = date('d-m-Y', strtotime($customerdata->created_at. ' + 7 days'));
+                $new_array_order['end_date'] = $endDate;
+            }else{
+                $new_array_order['end_date'] = date('d-m-Y', strtotime($customerdata->created_at));
+            }
+            $new_array_order['all_customers']= $customerdata->all_customers;
+            /*$new_array_order['customers_joined']=$customerdata->customers_joined;*/
+            $new_array_order['customers_ordered']=$customerdata->customer_ordered;
+            $newdata[]=$new_array_order;
+        }
+       
+       return Datatables::of($newdata) 
+        ->addColumn('start_date',function ($newdata){
+            return isset($newdata['start_date']) ? $newdata['start_date']: '';
+        })
+        ->addColumn('end_date',function ($newdata){
+            return isset($newdata['end_date']) ? $newdata['end_date']: '';
+        })
+        ->addColumn('all_customers',function ($newdata){
+            return isset($newdata['all_customers']) ? $newdata['all_customers']: '';    
+        })
+        ->addColumn('customers_joined',function ($newdata){
+            return isset($newdata['all_customers']) ? $newdata['all_customers']: '';   
+            //return isset($newdata['customers_joined']) ? $newdata['customers_joined']: '';
+        })
+        ->addColumn('customers_ordered',function ($newdata){
+            return isset($newdata['customers_ordered']) ? $newdata['customers_ordered']: '';
+        })
+       ->make(true);
+
+    }
+
+    public function productData(Request $request)
+    {
+    $newdata = [];
+    $vendors =  DB::table('product_order_items AS PI')
+                ->join('vendor_products AS VP','PI.vendor_product_id','=','VP.id')
+                ->join('product_orders AS PO','PI.order_id','=','PO.id')
+                ->join('product_translations AS PT','PT.product_id','=','VP.product_id')
+                ->select(DB::raw('COUNT(VP.product_id) AS orders'),DB::raw('SUM(PI.qty) AS total_qty'),'PT.name','VP.id')
+                ->groupBy('VP.product_id');
+
+                if($request->has('zone_id') and !empty($request->zone_id)){
+                    $vendors->where(['PO.zone_id'=>$request->zone_id]);
+                }
+                if($request->has('vendor_id') and !empty($request->vendor_id)){
+                    $vendors->where(['PO.vendor_id'=>$request->vendor_id]);
+                }
+                if($request->has('customer_id') and !empty($request->customer_id)){
+                    $vendors->where(['PO.user_id'=>$request->customer_id]);
+                }
+                if ($request->has('from_date') and !empty($request->from_date)) {
+                    $vendors->whereDate('PI.created_at','>=',$request->from_date." 00:00:00");
+                }
+                if ($request->has('to_date') and !empty($request->to_date)) {
+                    $vendors->whereDate('PI.created_at','<=',$request->to_date." 23:59:59");
+                }
+                $vendors = $vendors->get()->toArray();
+
+               return Datatables::of($vendors) 
+                    ->addColumn('product',function ($vendors){
+                        return isset($vendors->name) ? $vendors->name: '';
+                    })
+                    ->addColumn('total_qty',function ($vendors){
+                        return isset($vendors->total_qty) ? $vendors->total_qty: '';
+                    })
+                    ->addColumn('orders',function ($vendors){
+                        return isset($vendors->orders) ? $vendors->orders: '';    
+                    })
+               ->make(true);
+    }
+
+    public function slotTimesData(Request $request)
+    {
+    $newdata = [];
+    $vendors =  DB::table('product_order_items AS PI')
+                ->join('vendor_products AS VP','PI.vendor_product_id','=','VP.id')
+                ->join('product_orders AS PO','PI.order_id','=','PO.id')
+                ->join('product_translations AS PT','PT.product_id','=','VP.product_id')
+                ->select(DB::raw('COUNT(VP.product_id) AS orders'),DB::raw('SUM(PI.qty) AS total_qty'),'PT.name','VP.id')
+                ->groupBy('VP.product_id');
+
+                if($request->has('zone_id') and !empty($request->zone_id)){
+                    $vendors->where(['PO.zone_id'=>$request->zone_id]);
+                }
+                if($request->has('vendor_id') and !empty($request->vendor_id)){
+                    $vendors->where(['PO.vendor_id'=>$request->vendor_id]);
+                }
+                if($request->has('customer_id') and !empty($request->customer_id)){
+                    $vendors->where(['PO.user_id'=>$request->customer_id]);
+                }
+                if ($request->has('from_date') and !empty($request->from_date)) {
+                    $vendors->whereDate('PI.created_at','>=',$request->from_date." 00:00:00");
+                }
+                if ($request->has('to_date') and !empty($request->to_date)) {
+                    $vendors->whereDate('PI.created_at','<=',$request->to_date." 23:59:59");
+                }
+                $vendors = $vendors->get()->toArray();
+
+               return Datatables::of($vendors) 
+                    ->addColumn('slot_times',function ($vendors){
+                        return isset($vendors->name) ? $vendors->name: '';
+                    })
+                    ->addColumn('all_orders',function ($vendors){
+                        return isset($vendors->total_qty) ? $vendors->total_qty: '';
+                    })
+                    ->addColumn('orders',function ($vendors){
+                        return isset($vendors->orders) ? $vendors->orders: '';    
+                    })
+               ->make(true);
+    }
+
+    public function zoneData(Request $request)
+    {
+    $newdata = [];
+    $vendors =  DB::table('product_order_items AS PI')
+                ->join('vendor_products AS VP','PI.vendor_product_id','=','VP.id')
+                ->join('product_orders AS PO','PI.order_id','=','PO.id')
+                ->join('zone_translations AS ZT','PO.zone_id','=','ZT.zone_id')
+                ->select(DB::raw('COUNT(VP.product_id) AS orders'),DB::raw('SUM(PO.total_amount) AS sum_total'),'ZT.name','VP.id')
+                ->groupBy('VP.product_id');
+                
+                if($request->has('zone_id') and !empty($request->zone_id)){
+                    $vendors->where(['PO.zone_id'=>$request->zone_id]);
+                }
+                if($request->has('order_status') and !empty($request->order_status)){
+                    $vendors->where(['PO.order_status'=>$request->order_status]);
+                }
+               
+                if ($request->has('from_date') and !empty($request->from_date)) {
+                    $vendors->whereDate('PO.created_at','>=',$request->from_date." 00:00:00");
+                }
+                if ($request->has('to_date') and !empty($request->to_date)) {
+                    $vendors->whereDate('PO.created_at','<=',$request->to_date." 23:59:59");
+                }
+                $vendors = $vendors->get()->toArray();
+                //echo"<pre>";print_r($vendors);die;
+
+
+               return Datatables::of($vendors) 
+                    ->addColumn('zone',function ($vendors){
+                        return isset($vendors->name) ? $vendors->name: '';
+                    })
+                    ->addColumn('all_orders',function ($vendors){
+                        return isset($vendors->orders) ? $vendors->orders: '';
+                    })
+                    ->addColumn('orders',function ($vendors){
+                        return isset($vendors->orders) ? $vendors->orders: '';    
+                    })
+                    ->addColumn('total_amount',function ($vendors){
+                        return isset($vendors->sum_total) ? $vendors->sum_total: '';    
+                    })
+               ->make(true);
+    }
+
+  
+    
+}

@@ -1,0 +1,746 @@
+<?php
+
+namespace App\Http\Controllers\Admin;
+
+
+use App\City;
+use App\Category;
+use App\DeliveryDay;
+use App\DeliveryTime;
+use App\Helpers\Helper;
+use App\OrderStatusNew;
+use App\DeliveryLocation;
+use App\ProductOrderItem;
+use App\Scopes\StatusScope;
+use App\ProductOrder;
+use App\Notifications\OrderStatus;
+use App\User;
+use App\VendorProduct;
+use App\Zone;
+use Carbon\Carbon;
+use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\Validator;
+use Maatwebsite\Excel\Facades\Excel;
+use Proengsoft\JsValidation\Facades\JsValidatorFacade;
+use DataTables;
+use PDF;
+
+
+
+class OrderController extends Controller
+{
+    protected $user;
+    protected $order;
+    protected $productOrderItem;
+    protected $method;
+    function __construct(Request $request,User $user, ProductOrder $order,ProductOrderItem $productOrderItem,OrderStatusNew $orderstatusnew)
+    {
+        parent::__construct();
+        $this->user=$user;
+        $this->order=$order;
+        $this->productOrderItem=$productOrderItem;
+        $this->orderstatusnew=$orderstatusnew;
+        $this->method=$request->method();
+    }
+
+    /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function index()
+    {
+		
+        if ($this->user->can('view', ProductOrder::class)) {
+          return abort(403,'not able to access');
+        }
+        $zones = Zone::get()->pluck('name','id');
+        $vandors=$this->user->where(['user_type'=>'vendor','role'=>'user'])->get()->pluck('full_name','id');
+        $shoper=$this->user->where(['user_type'=>'shoper','role'=>'user'])->get()->pluck('full_name','id');
+        $driver=$this->user->where(['user_type'=>'driver','role'=>'user'])->get()->pluck('full_name','id');
+        return view('admin/pages/order/index',compact(['zones','vandors','driver','shoper']));
+    }
+
+    /**
+     * Show the form for creating a new resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function create()
+    {
+        if ($this->user->can('create', ProductOrder::class)) {
+            return abort(403,'not able to access');
+        }
+
+        $validator = JsValidatorFacade::make($this->offer->rules('POST'));
+        $vandors=$this->user->where(['user_type'=>'vendor','role'=>'user'])->get()->pluck('full_name','id');
+
+        return view('admin/pages/offer/add')->with('vandors',$vandors)->with('validator',$validator);
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    
+
+    /**
+     * Display the specified resource.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    
+
+    /**
+     * Show the form for editing the specified resource.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function edit($id)
+    {
+        $validator = JsValidatorFacade::make($this->offer->rules('PUT'));
+        $offer=$this->offer->withoutGlobalScope(StatusScope::class)->findOrFail($id);
+        $vandors=$this->user->where(['user_type'=>'vendor','role'=>'user'])->get()->pluck('full_name','id');
+        return view('admin/pages/offer/edit')->with('offer',$offer)->with('vandors',$vandors)->with('validator',$validator);
+    }
+
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    
+    /**
+     * Remove the specified resource from storage.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function destroy($id)
+    {
+
+        $flight = $this->offer->withoutGlobalScope(StatusScope::class)->findOrFail($id);
+        $flight->delete();
+        $flight->deleteTranslations();
+        if($flight){
+            return response()->json([
+                'status' => true,
+                'message' => 'deleted'
+            ],200);
+        }else{
+            return response()->json([
+                'status' => false,
+                'message' => 'some thing is wrong'
+            ],400);
+        }
+
+
+    }
+    
+    /**
+     * @return mixed
+     */
+   public function anyData(Request $request)
+    {   //die('asd');
+
+        $orders = $this->order->with(['User','zone'])->select('*');
+
+        if($request->has('order_status') and !empty($request->order_status)){
+
+            $orders->where(['order_status'=>$request->order_status]);
+        }
+        if($request->has('order_type') and $request->order_type=='today'){
+
+            $orders->whereDate('delivery_date','=',date('Y-m-d'));
+        }
+        if($request->has('zone_id') and !empty($request->zone_id)){
+
+            $orders->where(['zone_id'=>$request->zone_id]);
+        }
+        if($request->has('vendor_id') and !empty($request->vendor_id)){
+
+            $orders->where(['vendor_id'=>$request->vendor_id]);
+        }
+        if($request->has('shopper_id') and !empty($request->shopper_id)){
+
+            $orders->where(['shopper_id'=>$request->shopper_id]);
+        }
+        if($request->has('driver_id') and !empty($request->driver_id)){
+
+            $orders->where(['driver_id'=>$request->driver_id]);
+        }
+
+        if ($request->has('delivery_from_date') and !empty($request->delivery_from_date)) {
+            $orders->whereDate('delivery_date','>=',$request->delivery_from_date);
+        }
+        if ($request->has('delivery_to_date') and !empty($request->delivery_to_date)) {
+            $orders->whereDate('delivery_date','<=',$request->delivery_to_date);
+        }
+        if ($request->has('created_from_date') and !empty($request->created_from_date)) {
+            $orders->whereDate('created_at','>=',$request->created_from_date." 00:00:00");
+        }
+        if ($request->has('created_to_date') and !empty($request->created_to_date)) {
+            $orders->whereDate('created_at','<=',$request->created_to_date." 23:59:59");
+        }
+        if ($request->has('total_amount_from') and !empty($request->total_amount_from)) {
+            $orders->where('total_amount','>=',$request->total_amount_from);
+        }
+        if ($request->has('total_amount_to') and !empty($request->total_amount_to)) {
+            $orders->where('total_amount','<=',$request->total_amount_to);
+        }
+        $orders->orderBy('created_at','DESC')->get();
+
+        //$order =contact::query();
+        return Datatables::of($orders)
+             ->addColumn('order_status',function ($orders){
+              if(array_key_exists($orders->order_status, Helper::$order_status)){
+                return Helper::$order_status[$orders->order_status];
+              }else{
+                return "";
+              }
+                 
+            })
+             
+            ->addColumn('time_slot',function ($orders){
+				      if(!empty( $orders->delivery_time)){
+                return $orders->delivery_time->from_time.'-'.$orders->delivery_time->to_time;
+        			}else{
+        				
+        			return "";	
+        			}
+            })
+            ->editColumn('total_amount',function ($orders){
+              return isset($orders->total_amount) ? $orders->total_amount+$orders->delivery_charge - $orders->admin_discount : '';
+
+            })
+            ->addColumn('address',function ($orders){
+              return isset($orders->shipping_location->address) ? $orders->shipping_location->address : '';
+                //return $orders->shipping_location->address;
+
+            })
+            ->addColumn('action',function ($orders){
+              if($orders->order_status == 'S'){
+
+                return '<a href="'.route('order.show',$orders->id).'"  class="btn btn-success">Show</a><a href="'.route('order.show',$orders->id).'"  class="btn btn-success">Edit</a><a href="'.route('order.invoice',$orders->id).'"  class="btn btn-success">Invoice</a><a href="'.route('order.track',$orders->id).'"  class="btn btn-success">Track Order</a><a    onclick="makeAcall('.$orders->id.')"      class="btn btn-success">Call</a><a  onclick="popupchangestatus('.$orders->id.')" class="btn btn-success">Change Status</a><a href="'.route('order.statuslist',$orders->id).'"  class="btn btn-success">Check Status</a>';
+              }else{
+                
+                  return '<a href="'.route('order.show',$orders->id).'"  class="btn btn-success">Show</a><a href="'.route('order.show',$orders->id).'"  class="btn btn-success">Edit</a><a href="'.route('order.invoice',$orders->id).'"  class="btn btn-success">Invoice</a><a    onclick="makeAcall('.$orders->id.')"      class="btn btn-success">Call</a><a  onclick="popupchangestatus('.$orders->id.')" class="btn btn-success">Change Status</a><a href="'.route('order.statuslist',$orders->id).'"  class="btn btn-success">Check Status</a>';
+              }
+            })
+
+            ->filterColumn('user_phone', function($query, $keyword) {
+                $sql = "exists (select * from `users` where `product_orders`.`user_id` = `users`.`id` and CONCAT(users.phone_code,'-',users.phone_number)  like ? and `users`.`deleted_at` is null order by `updated_at` desc) ";
+                $query->whereRaw($sql, ["%{$keyword}%"]);
+            })
+            ->rawColumns(['image','action'])
+            ->make(true);
+            
+           // $category = $this->offer->with('User')->get();
+          
+        //$start = $request->start;
+        
+    }
+    
+    
+    
+    
+       public function anyDataOrderStatus(Request $request)
+    {   //die('asd');
+       
+     $orders = $this->orderstatusnew->with(["ProductOrder",'User'])->where('order_id', '=', $request->order_id)->orderBy('order_id', 'DESC')->get();
+  
+       
+      //echo "<pre>"; print_r($orders->toArray());
+      // die;
+       
+        //$order =contact::query();
+        $datatable = Datatables::of($orders);
+        
+        foreach($orders as $orderlist){
+
+                     $datatable->addColumn('order_code', function($orderlist){
+						 return $orderlist->ProductOrder->order_code;
+                  
+
+                 });
+                     $datatable->addColumn('message', function($orderlist){
+
+                     return Helper::$order_status[$orderlist->status]; 
+
+                 });
+                     $datatable->addColumn('name', function($orderlist){
+
+					return $orderlist->user->name; 
+
+                 });
+                 $datatable->addColumn('created_at',function ($orderlist){
+					return $orderlist->created_at;
+
+            });
+
+             }
+
+    
+            return $datatable->make(true);;
+            
+           // $category = $this->offer->with('User')->get();
+          
+        //$start = $request->start;
+        
+    }
+    
+    
+    
+    
+    public function show($id)
+    {
+        $orders_details = $this->order->with(['ProductOrderItem','zone'])->findOrFail($id);
+    // echo "<pre>"; print_r($orders_details->toArray());die;
+      //  print_r($orders_details->toArray());
+        return view('admin/pages/order/show')->with('orders_details',$orders_details);
+    }
+    
+    
+    public function statuslist($id)
+    {
+        $orders_details = $this->order->with(['ProductOrderItem','zone',"OrderStatusNew"])->findOrFail($id);
+				// echo "<pre>";print_r($orders_details->toArray());
+ 
+      return view('admin/pages/order/statuslist')->with('orders_details',$orders_details)->with('orderID',$id);
+    }
+    
+    
+    
+    
+    public function editQty(Request $request,$id)
+    {
+
+        $productOrderItem = $this->productOrderItem->findOrFail($id);
+
+        if($request->isMethod('post')){
+
+            $validator = Validator::make($request->all(),['qty'=>'required|integer|min:1']);
+
+            if ($validator->fails()) {
+                return redirect()->back()
+                    ->withErrors($validator)
+                    ->withInput();
+            }
+            DB::beginTransaction();
+
+            try {
+
+                $venderProduct = VendorProduct::where(['id' => $productOrderItem->vendor_product_id])->firstOrFail();
+                $item_price = $productOrderItem->price / $productOrderItem->qty;
+                if ($productOrderItem->qty >= $request->qty) {
+
+                    VendorProduct::where(['id' => $productOrderItem->vendor_product_id])->increment('qty', ($productOrderItem->qty - $request->qty));
+
+                    $this->order->where(['id' => $productOrderItem->order_id])->decrement('total_amount', $productOrderItem->price - $item_price * $request->qty);
+                    
+                  //  $this->order->where(['id' => $productOrderItem->order_id])->decrement('offer_total', $productOrderItem->price - $item_price * $request->qty);
+
+                    $productOrderItem->update(['qty' => $request->qty, 'price' => $item_price * $request->qty]);
+                    Session::flash('success', trans('order.item_remove_create_success'));
+                } else {
+                    if ($venderProduct->qty >= $request->qty) {
+
+                        VendorProduct::where(['id' => $productOrderItem->vendor_product_id])->decrement('qty', ($request->qty - $productOrderItem->qty));
+
+                        $this->order->where(['id' => $productOrderItem->order_id])->increment('total_amount', $item_price * $request->qty - $productOrderItem->price);
+                        
+                       // $this->order->where(['id' => $productOrderItem->order_id])->increment('offer_total', $item_price * $request->qty - $productOrderItem->price);
+
+                        $productOrderItem->update(['qty' => $request->qty, 'price' => $item_price * $request->qty]);
+                        Session::flash('success', trans('order.item_remove_create_success'));
+                    } else {
+                        Session::flash('danger', trans('order.out_of_stock'));
+                    }
+                }
+
+                DB::commit();
+            } catch (\Exception $e) {
+                Session::flash('danger',$e->getMessage());
+                DB::rollBack();
+            }
+
+        }
+        return view('admin/pages/order/edit_qty')->with('ProductOrderItem',$productOrderItem);
+
+    }
+    public function removeOrderItem(Request $request,$id)
+    {
+        DB::beginTransaction();
+        try {
+            $productOrderItem = $this->productOrderItem->findOrFail($id);
+
+            VendorProduct::where(['id'=>$productOrderItem->vendor_product_id])->increment('qty',$productOrderItem->qty);
+
+            $this->order->where(['id'=>$productOrderItem->order_id])->decrement('total_amount',$productOrderItem->price);
+            $productOrderItem->delete();
+            Session::flash('success',trans('order.item_remove_create_success'));
+            DB::commit();
+        } catch (\Exception $e) {
+            Session::flash('danger',$e->getMessage());
+            DB::rollBack();
+        }
+        //
+
+        return redirect()->back();
+
+    }
+
+    public function addProduct(Request $request,$id){
+      $order =  $this->order->findOrFail($id);
+      $venderProducts = VendorProduct::where(['user_id'=>$order->vendor_id])->with(['Product.image','Product'=>function($q){
+          $q->listsTranslations('name');
+      }])->get();
+   
+     
+      if($request->isMethod('post')){
+		
+          DB::beginTransaction();
+		
+          try {
+              $venderProduct = VendorProduct::with(['Product.image','offer'])->findOrFail($request->vendor_product_id);
+
+              $is_offer = 'no';
+              $offer_value = 0;
+              $offer_type = null;
+              $offer_data = json_encode(array());
+              $productData = json_encode(['vendor_product'=>$venderProduct]);
+              if ($venderProduct->is_offer) {
+                  $offer_value = $venderProduct->offer->offer_value;
+                  $offer_type = $venderProduct->offer->offer_type;
+                  $offer_data = json_encode($venderProduct->offer);
+                  $is_offer = 'yes';
+
+              }
+              $request->request->add([
+                  'vendor_product_id' => $request->vendor_product_id,
+                  'order_id' => $id,
+                  'price' => $venderProduct->offer_price * $request->qty,
+                  'qty' => $request->qty,
+                  'is_offer' => $is_offer,
+                  'offer_value' => $offer_value,
+                  'offer_type' => $offer_type,
+                  'offer_data' => $offer_data,
+                  'data' => $productData,
+
+              ]);
+
+              $this->productOrderItem->fill($request->all())->save();
+              $venderProduct->decrement('qty',$request->qty);
+              $offer_total = $venderProduct->offer_price * $request->qty;
+              $offer_value = $offer_value * $request->qty;
+              $order->increment('total_amount',$offer_total);
+              $order->increment('offer_total',$offer_value);
+              Session::flash('success',trans('order.item_remove_create_success'));
+              DB::commit();
+          } catch (\Exception $e) {
+              Session::flash('danger',$e->getMessage());
+              DB::rollBack();
+          }
+      }
+        return view('admin/pages/order/add_item',compact(['order','venderProducts']));
+
+    }
+
+
+    public function modifyAddress(Request $request,$id){
+        $order =  $this->order->with(['User.deliveryLocation'])->findOrFail($id);
+        
+        $deliveryLocationArray = collect($order->user->deliveryLocation)->pluck('name','id');
+        //return $deliveryLocationArray;
+
+        $shipping_location = collect($order->shipping_location)->toArray();
+        $deliveryLocationArray[0] = 'New Address';
+       
+        //return $deliveryLocationArray;
+        //return $order->shipping_location;
+        if($request->isMethod('post')){
+            try {
+                $input = $request->all();
+                if($request->shipping_location == 0){
+                  $input['user_id'] = $order->user_id;
+                  $DeliveryLocation = new DeliveryLocation;
+                  $id = $DeliveryLocation->create($input)->id;
+                  //$id = $savedData->id;
+                }else{
+                  $DeliveryLocation = DeliveryLocation::find($input['shipping_location']);
+                  $DeliveryLocation->update($input);
+                }
+                
+                if($request->shipping_location == 0){
+                    $shipping_location['id'] = $id;
+                }else{
+                    $shipping_location['id'] = $request->shipping_location;
+                }
+               
+                /*$shipping_location['id'] = $request->shipping_location;*/
+                $shipping_location['name'] = $request->name;
+                $shipping_location['address'] = $request->address;
+                $shipping_location['lat'] = $request->lat;
+                $shipping_location['lng'] = $request->lng;
+              
+                $order->update(['shipping_location' => json_encode($shipping_location, true)]);
+                //$order =  $this->order->with(['User.deliveryLocation'])->findOrFail($id);
+                return redirect()->back()->with('success', trans('order.modify_address_success'));
+                //Session::flash('success',trans('order.item_remove_create_success'));
+
+            } catch (\Exception $e) {
+                Session::flash('danger',$e->getMessage());
+
+            }
+        }
+        return view('admin/pages/order/modify-address',compact(['order','deliveryLocationArray']));
+
+    }
+
+    function modifyDeliveryDateOrSlot(Request $request,$id){
+        $order =  $this->order->with(['User'])->findOrFail($id);
+
+        if($request->ajax()){
+
+            $delivery_date = $request->delivery_date;
+            $day = Carbon::createFromFormat('Y-m-d',$request->delivery_date)->format('l');
+
+            $delivaryDay =  DeliveryDay::whereTranslation('name',$day)->with(['deliveryTime'])->first();
+
+            $data =   view('admin/pages/order/ajax/modify-delivery-date-or-slot',compact(['order','day','delivaryDay','delivery_date']))->render();
+
+          return response()->json([
+              'data'=>$data
+          ],200);
+        }
+        if($request->isMethod('post')){
+            $validator = Validator::make($request->all(),[
+                'delivery_date'=>'required',
+                'delivery_time_id'=>'required'
+            ]);
+
+            if ($validator->fails()) {
+                return redirect()->back()
+                    ->withErrors($validator)
+                    ->withInput();
+            }
+            try {
+                $deliveryTime = DeliveryTime::findOrFail($request->delivery_time_id);
+                $order->update(['delivery_date' => $request->delivery_date, 'delivery_time_id' => $request->delivery_time_id, 'delivery_time' => json_encode($deliveryTime, true)]);
+                Session::flash('success',trans('order.item_remove_create_success'));
+
+            } catch (\Exception $e) {
+                Session::flash('danger',$e->getMessage());
+
+            }
+        }
+        return view('admin/pages/order/modify-delivery-date-or-slot',compact(['order']));
+
+    }
+    /**
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+
+    public function changeShopperAndDriver(Request $request,$id){
+
+        $order =  $this->order->findOrFail($id);
+
+        $shoper=$this->user->where(['user_type'=>'shoper','role'=>'user'])->get()->pluck('full_name','id');
+        $driver=$this->user->where(['user_type'=>'driver','role'=>'user'])->get()->pluck('full_name','id');
+        if($request->isMethod('post')){
+
+            try {
+
+                $order->fill(['driver_id' => $request->driver_id,'shopper_id'=>$request->shopper_id])->update();
+                Session::flash('success',trans('order.item_remove_create_success'));
+            } catch (\Exception $e) {
+                Session::flash('danger',$e->getMessage());
+
+            }
+        }
+        return view('admin/pages/order/change-shopper-and-driver',compact(['shoper','driver','order']));
+
+    }
+
+    public function addDiscount(Request $request,$id){
+        $order =  $this->order->findOrFail($id);
+        if($request->isMethod('post')){
+            try {
+                $order->update(['admin_discount' => $request->admin_discount]);
+                Session::flash('success',trans('order.add_discount'));
+            } catch (\Exception $e) {
+                Session::flash('danger',$e->getMessage());
+            }
+        }
+        return view('admin/pages/order/add-discount',compact(['order']));
+
+    }
+
+     public function changeStatus(Request $request){
+
+            $order= $this->order->findOrFail($request->id);
+            $order->fill(['order_status'=>$request->status])->save();
+            $order->user->notify(new OrderStatus($order));
+
+            if($request->ajax()){
+                if($order){
+                    return response()->json([
+                        'status' => true,
+                        'message' => 'update'
+                    ],200);
+                }else{
+                    return response()->json([
+                        'status' => false,
+                        'message' => 'some thing is wrong'
+                    ],400);
+                }
+            }
+        }
+
+    public function exportOrder($type)
+    {
+        $orders = $this->order->select(['id', 'order_code', 'user_id', 'zone_id', 'vendor_id', 'shopper_id', 'driver_id', 'vendor_product_id', 'order_status', 'delivery_time_id', 'delivery_date', 'payment_mode_id', 'delivery_charge', 'tax', 'total_amount', 'offer_total', 'admin_discount', 'transaction_id', 'transaction_status', 'cart_id', 'deleted_at', 'created_at', 'updated_at'])->get();
+
+       // dd($orders);
+        return Excel::create('orders', function($excel) use ($orders) {
+
+            $excel->sheet('order', function($sheet) use ($orders)
+            {
+
+                $sheet->fromArray($orders);
+
+            });
+
+        })->export($type);
+
+
+    }
+    
+    
+    	public function showDetail($id)
+    	{
+    		$orders_details = $this->order->with(['ProductOrderItem','zone','vendor','driver','shopper','User'])->findOrFail($id);
+    		
+    		$phone_array=array('driver'=>$orders_details->driver->phone_number,'shopper'=>$orders_details->shopper->phone_number,'user'=>$orders_details->user->phone_number);
+    		return  response()->json([
+    		'status' => true,
+    		'data'=>$phone_array,
+
+    		],200);
+
+    	}
+        
+        
+        public function invoice($id)
+        {
+    		
+    	$orders_details = $this->order->with(['ProductOrderItem','vendor','driver','shopper','User','zone','PaymentMode'])->findOrFail($id);
+    	return view('admin/pages/order/invoice')->with('orders_details',$orders_details)->with('id',$id); 
+            
+        }
+        
+    	public function pdfdownload($id)
+    	{
+
+    		$orders_details = $this->order->with(['ProductOrderItem','vendor','driver','shopper','User','zone','PaymentMode'])->findOrFail($id);
+
+
+    		$pdf = PDF::loadView('admin.pages.order.pdfdownload', compact('orders_details'));
+    		return $pdf->download('invoice.pdf');
+    		//return view('admin/pages/order/pdfdownload')->with('orders_details',$orders_details); 
+
+    	}
+
+      public function orderHeatmap()
+      {
+        $heatMapArray = [];
+        $ordersList = $this->order->select(['id', 'order_code', 'user_id'])
+        ->with(['User'])->get();
+        $i=1;
+        foreach ($ordersList as $key => $value) {
+          if( $value->user->lat != '' && $value->user->lng != '' && is_numeric($value->user->lat)  && is_numeric($value->user->lng)  ){
+            $heatMapArray[$i]['lat'] = $value->user->lat;
+            $heatMapArray[$i]['lng'] = $value->user->lng;
+          }
+          $i++;
+        }
+        //reindexed array
+        $heatMapArray = array_combine(range(1, count($heatMapArray)), array_values($heatMapArray));
+        //return  $heatMapArray;
+        return view('admin/pages/tracking/heatmap')->with('heatMapArray',$heatMapArray);
+      }
+
+      public function trackOrder(request $request, $id)
+      {
+        
+        $driver_id = '';
+        $user_id  = '';
+        $customerLat = '';
+        $customerLng = '';
+        $shopperLat = '';
+        $shopperLng = '';
+        $curlat = '';
+        $curlng = '';
+        $driver_name = '';
+        $orderdata = $this->order->findOrFail($id);
+
+        if(isset($orderdata)){
+          $driver_id = $orderdata->driver_id;
+          $user_id = $orderdata->user_id;
+          $shopper_id = $orderdata->shopper_id;
+        }
+        $userData = User::select('lat','lng','current_lat','current_lng','id','name')->whereIn('id',[$driver_id,$user_id,$shopper_id ])->get();
+
+        if(isset($userData)){
+          //print_r($orderdata->shipping_location);
+
+          $shippingLocation = $orderdata->shipping_location;
+          $userData = $userData->keyBy('id');
+          $curlat = $userData[$driver_id]->current_lat;
+          $curlng = $userData[$driver_id]->current_lng;
+          $driver_name = $userData[$driver_id]->name;
+          $customerLat = $shippingLocation->lat;
+          $customerLng = $shippingLocation->lng;
+          $shopperLat = $userData[$shopper_id]->current_lat;
+          $shopperLng = $userData[$shopper_id]->current_lng;
+        }
+
+        return view('admin/pages/order/track', compact('curlat','curlng','customerLat','customerLng','shopperLat','shopperLng','driver_id','driver_name'));
+      }
+
+       public function trackDriverCurrentCoordinates(request $request)
+      {
+        $driver_id = '';
+        $curlat = '';
+        $curlng = '';
+        $array=array();
+        $driver_id = $request->id;
+  
+        $userData = User::select('current_lat','current_lng')->whereIn('id',[$driver_id])->get();
+
+        if(isset($userData)){
+          $curlat = $userData[0]->current_lat;
+          $curlng = $userData[0]->current_lng;
+        }
+     
+        $array[0]['latitude']=$curlat;
+        $array[0]['longitude']=$curlng;
+        //$array1=json_encode($array);
+        return response()->json($array);
+        //echo $array1;
+      }
+      
+    
+
+}

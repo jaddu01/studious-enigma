@@ -1,0 +1,226 @@
+<?php
+
+namespace App\Http\Controllers\Admin;
+
+
+use App\Category;
+use App\Helpers\Helper;
+use App\Offer;
+use App\Product;
+use App\ProductOrder;
+use App\VendorCommission;
+use App\Scopes\StatusScope;
+use App\User;
+use App\Zone;
+use App\Revenue;
+use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\Validator;
+use Proengsoft\JsValidation\Facades\JsValidatorFacade;
+use DataTables;
+
+
+
+class RevenueController extends Controller
+{
+    protected $product;
+    protected $user;
+    protected $offer;
+    protected $category;
+    protected $vendorController;
+    protected $method;
+    function __construct(Request $request,Product $product,Revenue $revenue,User $user,Offer $offer,Category $category,ProductOrder $order,VendorCommission $vendorcommission )
+    {
+        parent::__construct();
+        $this->product=$product;
+        $this->user=$user;
+        $this->offer=$offer;
+        $this->order=$order;
+        $this->category=$category;
+        $this->revenue=$revenue;
+        $this->vendorcommission=$vendorcommission;
+        $this->method=$request->method();
+    }
+
+    /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function index($user_id=null)
+    {
+		
+		$order=$this->order->with(['ProductOrderItem','zone',"OrderStatusNew"]);
+			//echo "<pre>" ;print_r($vendors);
+		$zone = Zone::get()->pluck('name','id');
+        $vendors=$this->user->where(['user_type'=>'vendor','role'=>'user'])->get()->pluck('full_name','id');
+			
+			
+			//die;
+		
+			
+		//echo date("2018-12-11", time() + 86400);
+		
+        if ($this->user->can('view', Revenue::class)) {
+            return abort(403,'not able to access');
+        }
+
+        return view('admin/pages/revenue/index',compact(['order','vendors','zone']));
+    }
+
+    /**
+     * Show the form for creating a new resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+
+  
+   
+    public function update(Request $request, $id)
+    {
+
+        $input = $request->all();
+print_r($input);
+//die;
+        $validator = Validator::make($request->all(),$this->vendorCommission->rules($this->method),$this->vendorCommission->messages($this->method));
+
+        if ($validator->fails()) {
+//print_r($validator->fails());
+//die;
+            Session::flash('danger',$validator->errors()->first());
+            return redirect('admin/vendor-commission/'.$id.'/edit')->withErrors($validator)->withInput();
+        }else{
+
+
+            DB::beginTransaction();
+            try {
+                $product = $this->vendorCommission->FindOrFail($id);
+                $product->update($input);
+
+                DB::commit();
+            } catch (\Exception $e) {
+                Session::flash('danger',$e->getMessage());
+                DB::rollBack();
+            }
+
+            return back();
+
+
+        }
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+ 
+
+    /**
+     * @return mixed
+     */
+    public function anyData(Request $request=null)
+    {
+   //return $request->user_id;
+    //$vendors = $this->vendorCommission->with(['User'])->select('*')->get();
+     $vendors = $this->order->with(['ProductOrderItem','zone',"OrderStatusNew",'vendor']);
+		$vendors=$vendors->get()->toArray();
+		//echo "<pre>";print_r($vendors);die;
+		foreach($vendors as $vendordata){
+			$admin_commission = $this->vendorcommission->where(['vendor_id'=>$vendordata['vendor_id']])->get()->toArray();
+			//echo "<pre>";print_r($admin_commission);
+			if(!empty($admin_commission)){
+			$new_array_order['vendor_commission']=$admin_commission[0]['percent'];
+			}else{
+			$new_array_order['vendor_commission']=0;
+			}
+
+			$new_array_order['order_code']=$vendordata['order_code'];
+			$new_array_order['order_id']=$vendordata['id'];
+			$new_array_order['id']=$vendordata['id'];
+		    $new_array_order['created_at']=$vendordata['created_at'];
+			$new_array_order['vendor']=$vendordata['vendor']['name'];
+			$new_array_order['vendor_id']=$vendordata['vendor']['id'];
+			$new_array_order['sub_total']=$vendordata['total_amount'];
+			$new_array_order['vendor_invoice']=$vendordata['total_amount'];
+			$new_array_order['total_amount']=($vendordata['total_amount']+$vendordata['delivery_charge'])-$vendordata['admin_discount'];
+			$new_array_order['delivery_charge']=$vendordata['delivery_charge'];
+			$new_array_order['admin_discount']=$vendordata['admin_discount'];
+			$new_array_order['varience_revenue']=0.00;
+			$new_array_order['varience']=$vendordata['total_amount']-$new_array_order['vendor_invoice'];
+			$new_array_order['promo_code']=$vendordata['total_amount']-$vendordata['offer_total'];
+			$new_array_order['vendor_revenue']=($new_array_order['vendor_invoice']*($new_array_order['vendor_commission']/100));
+			$new_array_order['total_revenue']=$new_array_order['delivery_charge']+$new_array_order['varience_revenue']+$new_array_order['vendor_revenue']+$new_array_order['admin_discount']+$new_array_order['promo_code'];
+			$new_array_order['revenue_percentage']=number_format($new_array_order['total_revenue']/$new_array_order['total_amount'],2);
+		
+			$newdata[]=$new_array_order;
+		}
+		
+		//echo "<pre>";print_r($newdata);
+		
+       return Datatables::of($newdata) 
+           ->addColumn('order_code',function ($newdata){
+                return $newdata['order_code'];
+
+            }) ->addColumn('vendor',function ($newdata){
+                return $newdata['vendor'];
+
+            }) ->addColumn('commission',function ($newdata){
+                return $newdata['vendor_commission'];
+
+            }) ->addColumn('total_amount',function ($newdata){
+                return $newdata['total_amount'];
+
+            }) ->addColumn('sub_total',function ($newdata){
+                return $newdata['sub_total'];
+
+            }) ->addColumn('vendor_invoice',function ($newdata){
+                return $newdata['vendor_invoice'];
+
+            }) ->addColumn('varience',function ($newdata){
+                return $newdata['varience'];
+
+            }) ->addColumn('varience_revenue',function ($newdata){
+                return $newdata['varience_revenue'];
+
+            }) ->addColumn('vendor_revenue',function ($newdata){
+                return $newdata['vendor_revenue'];
+
+            })->addColumn('delivery_charge',function ($newdata){
+                return $newdata['delivery_charge'];
+
+            })
+            ->addColumn('admin_discount',function ($newdata){
+                return $newdata['admin_discount'];
+
+            })
+            
+            // ->addColumn('vendor_commission',function ($newdata){
+            //     return $newdata['vendor_commission'];
+
+            // })
+            // ->addColumn('total_revenue',function ($newdata){
+            //     return $newdata['total_revenue'];
+
+            // })
+            ->addColumn('revenue_percentage',function ($newdata){
+                return $newdata['revenue_percentage'];
+
+            })
+            ->addColumn('action',function ($newdata){
+                return '<a href="'.route("order.show",$newdata['order_id'])
+                .'" class="btn btn-success">View</a></br><button type="button" onclick="editOrder
+                ('.$newdata['order_id'].')" class="btn btn-success">Edit</button><a href="'.route("order.show",$newdata['order_id'])
+                .'" class="btn btn-success">Go to Order</a><a  class="btn btn-success">Add/Read Comment</a>';
+            })
+            ->rawColumns(['action'])
+            ->make(true);
+
+    }
+
+    
+    
+}

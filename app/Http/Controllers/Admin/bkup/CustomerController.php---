@@ -1,0 +1,287 @@
+<?php
+
+namespace App\Http\Controllers\Admin;
+
+use App\CountryPhoneCode;
+use App\Zone;
+use App\AccessLevel;
+use App\Helpers\Helper;
+use App\User;
+use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\Validator;
+use Proengsoft\JsValidation\Facades\JsValidatorFacade;
+use DataTables;
+
+
+class CustomerController extends Controller
+{
+    protected $user;
+    protected $method;
+    protected $zone;
+    function __construct(Request $request, User $user, Zone $zone)
+    {
+        parent::__construct();
+        $this->user=$user;
+        $this->zone=$zone;
+        $this->method=$request->method();
+    }
+
+    /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function index()
+    {
+
+        if ($this->user->can('index', User::class)) {
+           return abort(403,'not able to access');
+        }
+        return view('admin/pages/customer/index');
+    }
+
+    public function create(){
+		//echo $this->user->can('create', User::class); die;
+		 //die('asfd');
+        if ($this->user->can('create', User::class)) {
+            return abort(403,'not able to access');
+        }
+        $countryPhoneCode = CountryPhoneCode::pluck('phonecode','phonecode');
+       
+        $validator = JsValidatorFacade::make($this->user->rules('POST'));
+
+        $zone=$this->zone->select('id')->get('name');
+               
+        $already_taken_vender_zones = array_collapse($this->user->select('zone_id')->where('user_type','=','vendor')->pluck('zone_id')->toArray());
+
+
+        $accessLevels = AccessLevel::listsTranslations('name','id')->pluck('name','id')->all();
+        return view('admin/pages/user/add')->with('zone',$zone)->with('validator',$validator)->with('accessLevels',$accessLevels)->with('already_taken_vender_zones',$already_taken_vender_zones)->with('countryPhoneCode',$countryPhoneCode);
+    }
+
+    public function store(Request $request)
+    {
+        if ($this->user->can('create', User::class)) {
+            return abort(403,'not able to access');
+        }
+        if(!$request->has('password')){
+            $request->request->add(['password'=>'123456']);
+            $request->request->add(['password_confirmation'=>'123456']);
+        }
+        $input = $request->all();
+
+
+        $validator = Validator::make($request->all(),$this->user->rules($this->method),$this->user->messages($this->method));
+
+        if ($validator->fails()) {
+
+            Session::flash('danger',$validator->errors()->first());
+            if($request->ajax()){
+                return response()->json([
+                    'status' => true,
+                    'message' => $validator->errors()->first(),
+                ],200);
+            }else{
+                return redirect('admin/user/create')->withErrors($validator)->withInput();
+            }
+
+        }else{
+
+            try {
+            $input['password'] = bcrypt($input['password']);
+
+                 $this->user->create($input);
+
+                Session::flash('success','User create successful');
+                $message = 'User create successful';
+                $type='success';
+            } catch (\Exception $e) {
+                Session::flash('danger',$e->getMessage());
+                $message = $e->getMessage();
+                $type='error';
+            }
+            if($request->ajax()){
+                return response()->json([
+                    'status' => true,
+                    'message' => $message,
+                    'type' => $type,
+                ],200);
+            }else{
+                return back();
+            }
+
+        }
+    }
+
+    /**
+     * Display the specified resource.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function show($id)
+    {
+
+        $user=$this->user->findOrFail($id);
+
+        return view('admin/pages/customer/show')->with('user',$user);
+    }
+
+    /**
+     * Show the form for editing the specified resource.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function edit($id)
+    {
+        if ($this->user->can('edit', User::class)) {
+            return abort(403,'not able to access');
+        }
+        
+        $user=$this->user->findOrFail($id);
+        $countryPhoneCode = CountryPhoneCode::pluck('phonecode','phonecode');
+
+        $zone=$this->zone->select('id')->get('name');
+
+        $already_taken_vender_zones = array_collapse($this->user->select('zone_id')->where('user_type','=','vendor')->where('id','!=',$id)->pluck('zone_id')->toArray());
+
+        $accessLevels = AccessLevel::listsTranslations('name','id')->pluck('name','id')->all();
+        return view('admin/pages/customer/edit')->with('zone',$zone)->with('user',$user)->with('already_taken_vender_zones',$already_taken_vender_zones)->with('countryPhoneCode',$countryPhoneCode)->with('accessLevels',$accessLevels);
+    }
+
+    /**
+     * @param Request $request
+     * @param $id
+     * @return $this|\Illuminate\Http\RedirectResponse
+     */
+    public function update(Request $request, $id)
+    {
+
+        if ($this->user->can('edit', User::class)) {
+            return abort(403,'not able to access');
+        }
+
+        $input = $request->all();
+        
+        $validator = Validator::make($request->all(), $this->user->rules($this->method,$id),$this->user->messages($this->method));
+
+        if ($validator->fails()) {
+
+            return redirect()->back()
+                ->withErrors($validator)
+                ->withInput();
+        }else{
+           $user= $this->user->FindOrFail($id)->fill($input)->save();
+            return redirect()->route('user.index')->with('success','User update successful');
+        }
+    }
+
+
+    /**
+     * Remove the specified resource from storage.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function destroy($id)
+    {
+        if ($this->user->can('delete', User::class)) {
+            return abort(403,'not able to access');
+        }
+       /*print_r((new Helper())->delete_cat($this->user->all(),$id,'',''));*/
+       $cat_id=Helper::delete_cat($this->user->all(),$id,'','');
+
+        $flight = $this->user->whereIn('id',$cat_id)->delete();
+        if($flight){
+            return response()->json([
+                'status' => true,
+                'message' => 'deleted'
+            ],200);
+        }else{
+            return response()->json([
+                'status' => false,
+                'message' => 'some thing is wrong'
+            ],400);
+        }
+    }
+
+
+    public function anyData()
+    {  //die;
+        $user =$this->user->get()->where('user_type', '=', 'user');
+        return Datatables::of($user)
+             ->addColumn('no_of_order',function ($user){
+                return $user->totalOrder();
+            })
+            ->editColumn('phone_number',function ($user){
+                return $user->phone_code.'-'.$user->phone_number;
+            })
+            ->addColumn('delivered_order',function ($user){
+                return $user->deliveredOrder();
+            })
+            ->addColumn('total_amount',function ($user){
+                return $user->totalAmount();
+            })
+            ->addColumn('action',function ($user){
+                return '<a href="'.route("customer.edit",$user->id).'" class="btn btn-success btn-xs">Edit</a><a href="'.route("customer.show",$user->id).'" class="btn btn-info btn-xs">Details</a><button type="button" onclick="deleteRow('.$user->id.')" class="btn btn-danger btn-xs">Delete</button><input class="data-toggle-coustom " data-size="mini"  data-toggle="toggle" type="checkbox" user-id="'.$user->id.'" '.(($user->status==1) ? "checked" : "") . ' value="'.$user->status.'" ><a href="'.url("admin/order").'?phone_number='.$user->phone.'" class="btn btn-info btn-xs">Order</a>';
+            })
+            ->rawColumns(['image','action'])
+            ->make(true);
+
+    }
+
+
+    public function changeStatus(Request $request){
+        if ($this->user->can('edit', User::class)) {
+            return abort(403,'not able to access');
+        }
+        if($request->status==1){
+            $status='0';
+        }else{
+            $status='1';
+        }
+
+        $user= $this->user->findOrFail($request->id)->update(['status'=>$status]);
+        if($request->ajax()){
+            if($user){
+                return response()->json([
+                    'status' => true,
+                    'message' => 'successfully updated'
+                ],200);
+            }else{
+                return response()->json([
+                    'status' => false,
+                    'message' => 'some thing is wrong'
+                ],400);
+            }
+        }
+    }
+
+    public function getUserByPhone(Request $request){
+        $request->request->remove('_token');
+        $user = $this->user->select('*')->with(['deliveryLocation']);
+        foreach ($request->all() as $key=>$item){
+            $user->where([$key=>$item]);
+        }
+        $user = $user->first();
+        if ($user){
+            $user->deliveryLocation = $user->deliveryLocation->keyBy('id');
+        }
+
+        if($user){
+            return response()->json([
+                'status' => true,
+                'message' => 'successfully',
+                'data'=>$user
+            ],200);
+        }else{
+            return response()->json([
+                'status' => false,
+                'message' => 'no record found'
+            ],400);
+        }
+    }
+}

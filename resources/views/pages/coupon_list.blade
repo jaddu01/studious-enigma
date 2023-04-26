@@ -1,0 +1,29 @@
+@extends('layouts.app')
+@section('content')
+
+<section class="topnave-bar">
+	<div class="container">
+	<ul>
+	<li><a href="">Home</a> </li>
+	<li> <i class="fa fa-angle-right" aria-hidden="true"></i> </li>
+	<li>Coupon list</li>	
+	</ul>
+	</div>	
+</section>
+
+<section class="product-listing-body">
+	<div class="container">
+		<div class="row">
+	<ul>
+                  @foreach($coupons as $coupon )
+                  <li>
+                <div class="sngl_wshlst sngl_crt_n">
+                  <div class="crt_gnrl_dtl"> 
+                  	{{coupon->code}}
+                  	</div>
+                  	</div>
+                  </li>
+     </ul>
+     </div>
+                  	</div>
+                  </section>

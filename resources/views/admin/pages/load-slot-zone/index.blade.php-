@@ -1,0 +1,120 @@
+@extends('admin.layouts.app')
+
+@section('title', 'Load Slot Zone')
+@push('css')
+    <link href="{{asset('public/css/timepicki.css')}}" rel="stylesheet">
+    <link href="{{asset('public/css/bootstrap-datepicker.css')}}" rel="stylesheet">
+<style type="text/css">
+    .form-inline .form-group {
+     padding-bottom: 0px; }
+     .form-inline .form-control {display: block;}
+     .btn {margin-top: 30px;}
+     .datepicker {border-radius:0px;}
+</style>
+@endpush
+@section('sidebar')
+    @parent
+@endsection
+@section('header')
+    @parent
+@endsection
+@section('footer')
+    @parent
+@endsection
+
+
+@section('content')
+
+    <!-- page content -->
+    <div class="right_col" role="main">
+
+        <div class="">
+            <div class="row">
+                <div class="col-md-12 col-sm-12 col-xs-12">
+                    <div class="x_panel">
+                          <div class="x_title">
+                            <h2>Load Slot Zone</h2>
+
+                            <div class="clearfix"></div>
+                            <div id="map" style="height: 300px;"></div>
+                        </div>
+                        <div class="x_content">
+
+                                <form role="form"  class="form-inline" id="slot-vs-zone" method="POST">
+
+                                    <div class="form-group">
+                                        <div class="form-group">
+                                            <label for="from_date">Select Zone </label>
+                                            {!!  Form::select('zone_id', $zones,null, array('class' => 'form-control select2-multiple','id'=>'zone')) !!}
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="from_date">Current Date </label>
+                                        <input type="text" id="from_date" name="current_date" class="form-control datepicker">
+                                    </div>
+                                     <div class="form-group">
+                                        <label for="from_date">Current Time </label>
+                                        <input type="text" id="to_date" name="current_time" class="form-control timepicker1">
+                                    </div>
+                                   <!--  <div class="form-group">
+                                        <label for="to_date">Current Time </label>
+                                        <input type="text" id="to_date" name="current_time" class="form-control timepicker1">
+                                    </div> -->
+
+
+                                    <div class="form-group">
+                                        <button class="btn btn-primary" id="slot-vs-zone-button" type="button">Apply filter</button>
+                                    </div>
+                                </form>
+
+
+
+                            <div id="ajax-data"></div>
+
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+    <!-- /page content -->
+
+@endsection
+@push('scripts')
+    <script src="{{asset('public/js/bootstrap-datepicker.js')}}"></script>
+    <script src="{{asset('public/js/timepicki.js')}}"></script>
+    <script>
+        $(function () {
+            $('.timepicker1').timepicki();
+            $('.datepicker' ).datepicker({
+                autoclose: true,
+                format: 'yyyy-mm-dd',
+            });
+
+            $("#slot-vs-zone-button").on('click',function () {
+
+                $.ajax({
+                    data: $('#slot-vs-zone').serialize(),
+                    type: "GET",
+                    url: "{{ url('admin/load-slot-zone') }}",
+                    headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
+                    success: function( data ) {
+                        $("#ajax-data").html(data.data);
+
+                    },
+                    error: function( data ) {
+                        new PNotify({
+                            title: 'Error',
+                            text: 'something is wrong',
+                            type: "error",
+                            styling: 'bootstrap3'
+                        });
+                    }
+                });
+            })
+
+        })
+    </script>
+@endpush

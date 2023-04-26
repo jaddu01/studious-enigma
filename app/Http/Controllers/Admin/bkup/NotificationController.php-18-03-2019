@@ -1,0 +1,134 @@
+<?php
+
+namespace App\Http\Controllers\Admin;
+
+
+use App\City;
+use App\Category;
+use App\DeliveryDay;
+use App\DeliveryTime;
+use App\Helpers\Helper;
+use App\Notification;
+use App\Notifications\OrderStatus;
+use App\ProductOrderItem;
+use App\Scopes\StatusScope;
+use App\ProductOrder;
+use App\User;
+use App\VendorProduct;
+use App\Zone;
+use Carbon\Carbon;
+use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\Validator;
+use Maatwebsite\Excel\Facades\Excel;
+use Proengsoft\JsValidation\Facades\JsValidatorFacade;
+use DataTables;
+
+
+class NotificationController extends Controller
+{
+    protected $user;
+    protected $notification;
+    protected $method;
+    function __construct(Request $request,User $user,Notification $notification)
+    {
+        parent::__construct();
+        $this->user=$user;
+        $this->notification=$notification;
+        $this->method=$request->method();
+    }
+
+    /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function index()
+    {
+
+        $user= $this->notification->where('notifiable_id','=',48)->update(['read_at'=> now()]);
+        return view('admin/pages/notification/index');
+    }
+
+
+    /**
+     * Remove the specified resource from storage.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function destroy($id)
+    {
+
+        $flight = $this->notification->findOrFail($id);
+        $flight->delete();
+        if($flight){
+            return response()->json([
+                'status' => true,
+                'message' => 'deleted'
+            ],200);
+        }else{
+            return response()->json([
+                'status' => false,
+                'message' => 'some thing is wrong'
+            ],400);
+        }
+
+
+    }
+
+    /**
+     * @param Request $request
+     * @return mixed
+     * @throws \Exception
+     */
+    public function anyData(Request $request)
+    {   //die('asd');
+        $notifications =  $this->notification->selectRaw('*,id as id1')->where('notifiable_id','=','48')->get();
+        $start = 1;
+        return Datatables::of($notifications)
+            ->addColumn('Slno',function ($notifications) use(&$start)  {
+                return  $start++;
+            })
+            ->addColumn('heading',function ($notifications){
+                $data = json_decode($notifications->data,true);
+                return $data['message'];
+
+            })
+            ->addColumn('seen',function ($notifications){
+                return $notifications->read_at==null ? 'Not Rad':'Read';
+
+            })
+            ->addColumn('action',function ($notifications){
+                $data = json_decode($notifications->data,true);
+                return '<a href="'.route('order.show',$data['order_id']).'"  class="btn btn-success">Direct to order</a><a href="'.route('order.show',$data['order_id']).'"  class="btn btn-success">Change Status</a><button type="button" onclick="deleteRow(\''.$notifications->id1.'\')" class="btn btn-danger">Delete</button>';
+            })
+            ->rawColumns(['action'])
+            ->make(true);
+
+    }
+
+    public function changeStatus(Request $request){
+
+        $user= $this->notification->where('notifiable_id','=',$request->id)->update(['read_at'=> new date()]);
+
+        if($request->ajax()){
+            if($user){
+                return response()->json([
+                    'status' => true,
+                    'message' => 'successfully updated'
+                ],200);
+            }else{
+                return response()->json([
+                    'status' => false,
+                    'message' => 'some thing is wrong'
+                ],400);
+            }
+        }
+    }
+
+
+}
