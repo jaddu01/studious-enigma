@@ -34,7 +34,7 @@ class DeliveryLocation extends BaseModel
             case 'POST':
                 {
                     return [
-                        'name'=>'required',
+                        'name'=>'nullable',
                         'lat'=>'required',
                         'lng'=>'required',
                     ];
@@ -43,7 +43,7 @@ class DeliveryLocation extends BaseModel
             case 'PUT':
 
                 return [
-                    'name'=>'required',
+                    'name'=>'nullable',
                     'lat'=>'required',
                     'lng'=>'required',
                 ];
@@ -51,7 +51,7 @@ class DeliveryLocation extends BaseModel
                 {
 
                     return [
-                        'name'=>'required',
+                        'name'=>'nullable',
                         'lat'=>'required',
                         'lng'=>'required',
                     ];

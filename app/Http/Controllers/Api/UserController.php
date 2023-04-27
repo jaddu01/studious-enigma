@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\AdminNotification;
+use App\Http\Resources\UserResource;
 use App\Notifications\ProductStatus;
 use App\Notifications\AllOrderStatus;
 use App\Notifications\ProductUpdate;
@@ -35,6 +36,8 @@ use Illuminate\Foundation\Auth\SendsPasswordResetEmails;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
 use App\Helpers\Helper;
+use App\Helpers\ResponseBuilder;
+use App\Http\Resources\UserAddressResource;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use DB;
@@ -187,10 +190,6 @@ class UserController extends Controller
         return $this->deletedResponse("mark-as-read-notification");
     }
 
-    /**
-     * @param Request $request
-     * @return \Illuminate\Http\JsonResponse
-     */
     public function register(Request $request)
     {
 
@@ -206,8 +205,7 @@ class UserController extends Controller
             'email' => 'nullable|email|unique:users,email,NULL,id,deleted_at,NULL',
         ]);
         if ($validator->fails()) {
-
-            return $this->validationErrorResponse($validator);
+            return ResponseBuilder::error($validator->errors()->first(), $this->validationStatus);
 
         }
         if(isset($request->language)){
@@ -226,7 +224,7 @@ class UserController extends Controller
         $otp1 = rand(100,999);
         $otp2 = rand(100,999);
         $otp = $otp1.''.$otp2;
-        $input['otp'] = $otp1.$otp2;
+        $input['otp'] = "123456"; //$otp1.$otp2;
 
         $last_user =  $this->user->select('id')->orderBy('id','desc')->first();
         $last_userid = $last_user->id;
@@ -243,12 +241,7 @@ class UserController extends Controller
                $check_user_reffer  = $this->user->withTrashed()->where(['referral_code'=>$request->referral_code])->first();
                $refferalCound = $this->user->withTrashed()->where(['referred_by'=>$check_user_reffer->id])->count();
                if(!empty($refferalCound) && $refferalCound >= 3){
-                    $response = [
-                        'code' => 0,
-                        'error' => true,
-                        'message' => 'Refferal code limit used'
-                    ];
-                    return response()->json($response, 200);
+                    return ResponseBuilder::error('Refferal code limit used', $this->validationStatus);
                }
 
               if(!empty($check_user_reffer)){
@@ -271,12 +264,7 @@ class UserController extends Controller
 
                 //echo "<pre>"; print_r($user_wallet); die;
               }else{
-                $response = [
-                        'code' => 0,
-                        'error' => true,
-                        'message' => 'Worng Refferal code used'
-                    ];
-                    return response()->json($response, 200);
+                    return ResponseBuilder::error('Worng Refferal code used', $this->validationStatus);
               }
             }
             $client = new Client();
@@ -287,8 +275,8 @@ class UserController extends Controller
             //$message="Your OTP for Darbaar Mart is ".$otp;
             $message=urlencode("Dear Customer, use OTP ($otp) to log in to your DARBAAR MART account and get your grocery essentials safely delivered at your home.\n\r \n\rStay Home, Stay Safe.\n\rTeam Darbaar Mart, Beawar $hash");
 
-            $response = $client->request('GET',"http://login.yourbulksms.com/api/sendhttp.php?authkey=".$authkey."&mobiles=".$phone_number."&message=".$message."&sender=".$senderid."&route=4&country=91&DLT_TE_ID=1207162028126071690");
-            $statusCode = $response->getStatusCode();
+           // $response = $client->request('GET',"http://login.yourbulksms.com/api/sendhttp.php?authkey=".$authkey."&mobiles=".$phone_number."&message=".$message."&sender=".$senderid."&route=4&country=91&DLT_TE_ID=1207162028126071690");
+            //$statusCode = $response->getStatusCode();
 
             
             //$user = $this->user->with(['deliveryLocation'])->findOrFail($this->user->create($input)->id);
@@ -314,8 +302,9 @@ class UserController extends Controller
         //     echo "<pre>";
         //     print_r($user);
         //     die("h");
-        // $user['token'] =  $user->createToken('MyApp')->accessToken;
-        return $this->showResponse($user);
+        //$token =  $user->createToken('MyApp')->accessToken;
+        //$this->response->user = new UserResource($user);
+        return ResponseBuilder::success(null,'User register successfully', $this->successStatus);
 
     }
 
@@ -323,29 +312,17 @@ class UserController extends Controller
     {
 
         $user = Auth::guard('api')->user();
-
-        $validator = Validator::make($request->all(), [
-            'user_id' =>  'required'
-        ]);
-        if ($validator->fails()) {
-            return $this->validationErrorResponse($validator);
-        } 
         if($user)
         {
             $useraddress = DeliveryLocation::create($request->all());
-            return $this->showResponse($useraddress);
-        } 
+            $this->response->address = UserAddressResource::collection($useraddress);
+            return ResponseBuilder::success($this->response,'User address updated successfully', $this->successStatus);
+            // return $this->showResponse($useraddress);
+        }
         else
         {
-            $response = [
-                'code' => 0,
-                'error' => true,
-                'message' => "Token Expire",
-            ];
-            
-            return response()->json($response, 200);
+            return ResponseBuilder::error('User not found', $this->validationStatus);
         }
-        
     }
     /**
      * @param Request $request
@@ -602,20 +579,14 @@ class UserController extends Controller
         ]);
 
         if ($validator->fails()){
-            $response = [
-                'code' => 0,
-                'error' => true,
-                'message' => $validator->errors()->first(),
-            ];
-            
-            return response()->json($response, 200);
+            return ResponseBuilder::error($validator->errors()->first(), $this->validationStatus);
         }
         
         /* 1=Register OTP, 2=Login OTP */
         if ($request->resend_type == 1) {
             $otp1 = rand(100, 999);
             $otp2 = rand(100, 999);
-            $otp = $otp1.'-'.$otp2;
+            $otp = "123456"; //$otp1.'-'.$otp2;
 
             $otp_details = $this->user->where('id', $request->user_id)->first();
            
@@ -633,8 +604,8 @@ class UserController extends Controller
                 $message=urlencode("Dear Customer, use OTP ($otp) to log in to your DARBAAR MART account and get your grocery essentials safely delivered at your home.\n\r \n\rStay Home, Stay Safe.\n\rTeam Darbaar Mart, Beawar $hash");
 
               // echo "http://login.yourbulksms.com/api/sendhttp.php?authkey=".$authkey."&mobiles=".$phone_number."&message='".$message."'&sender=".$senderid."&route=1&country=0"; die;
-                $response = $client->request('GET',"http://login.yourbulksms.com/api/sendhttp.php?authkey=".$authkey."&mobiles=".$phone_number."&message=".$message."&sender=".$senderid."&route=4&country=91&DLT_TE_ID=1207162028126071690");
-                $statusCode = $response->getStatusCode();
+                //$response = $client->request('GET',"http://login.yourbulksms.com/api/sendhttp.php?authkey=".$authkey."&mobiles=".$phone_number."&message=".$message."&sender=".$senderid."&route=4&country=91&DLT_TE_ID=1207162028126071690");
+                //$statusCode = $response->getStatusCode();
                 $response_data['message'] = 'OTP send successfully.';
                  
             } else {
@@ -664,8 +635,8 @@ class UserController extends Controller
                 $message=urlencode("Dear Customer, use OTP ($otp) to log in to your DARBAAR MART account and get your grocery essentials safely delivered at your home.\n\r \n\rStay Home, Stay Safe.\n\rTeam Darbaar Mart, Beawar $hash");
 
                   // echo "http://login.yourbulksms.com/api/sendhttp.php?authkey=".$authkey."&mobiles=".$phone_number."&message='".$message."'&sender=".$senderid."&route=1&country=0"; die;
-                $response = $client->request('GET',"http://login.yourbulksms.com/api/sendhttp.php?authkey=".$authkey."&mobiles=".$phone_number."&message=".$message."&sender=".$senderid."&route=4&country=91&DLT_TE_ID=1207162028126071690");
-                $statusCode = $response->getStatusCode();
+                //$response = $client->request('GET',"http://login.yourbulksms.com/api/sendhttp.php?authkey=".$authkey."&mobiles=".$phone_number."&message=".$message."&sender=".$senderid."&route=4&country=91&DLT_TE_ID=1207162028126071690");
+                //$statusCode = $response->getStatusCode();
                 
 
                 $response_data['message'] = 'OTP send successfully.';

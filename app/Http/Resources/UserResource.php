@@ -27,7 +27,7 @@ class UserResource extends JsonResource
             "role" => $this->role,
             "wallet_amount" => $this->wallet_amount,
             "coin_amount" => $this->coin_amount,
-            "address" => UserAddressResource::collection($this->deliveryLocation),
+            "addresses" => UserAddressResource::collection($this->deliveryLocation),
         ];
     }
 }
