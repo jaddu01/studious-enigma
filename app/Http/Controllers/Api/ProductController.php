@@ -24,6 +24,7 @@ use App\Ads;
 use App\Brand;
 use App\ZoneTranslation;
 use App;
+use App\Helpers\ResponseBuilder;
 use DB;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -810,26 +811,42 @@ class ProductController extends Controller
         foreach($all_offer as $key=>$value){
             $product_id_array[]=$value->product_id;
         } 
-        $brands = Brand::with('barndTraslation')->get();
+        $brands = Brand::with('barndTraslation')->limit(6)->get();
          
         $offerProduct  =  $this->offerdataHOme($zone_id);
         $topsellingproducts  =  $this->topsellingproducts($zone_id);
         $super_deal = Helper::superDeal($zone_id);
         $appdata =  AppSetting::select(['mim_amount_for_order','mim_amount_for_free_delivery','mim_amount_for_free_delivery_prime','mim_amount_for_order_prime'])->first();
-            
-        $categorys = array("data"=>$category, "type"=>"category", "step"=>3);
-        $sliders = array("data"=>$slider, "type"=>"slider", "step"=>1);
-        $adss = array("data"=>$ads, "type"=>"ads", "step"=>4);
-        $offerProducts = array("data"=>$offerProduct, "type"=>"offerProduct", "step"=>2);
-        $zone_ids = array("data"=>$zone_id, "type"=>"zone_id", "step"=>5);
-        $appdatas = array("data"=>$appdata, "type"=>"appdata", "step"=>6);
-        $offer_sliderss = array("data"=>$offer_sliders, "type"=>"offer_sliders", "step"=>7);
-        $topsellingproductss = array("data"=>$topsellingproducts, "type"=>"product","heading"=>'Top selling products', "step"=>8);
-        $super_dealss = array("data"=>$super_deal, "type"=>"product","heading"=>'Super Deals', "step"=>9);
-        $zonss = array('zone'=>$zone_ids, "type"=>"zone", "step"=>10);
-        $brands = array('brands'=>$brands, "type"=>"brands", "step"=>11);
+        $homeStrip = "Min ₹".$appdata->mim_amount_for_order." for order & Min. ₹".$appdata->mim_amount_for_free_delivery." for free delivery";
+        
+        $sliders = array("data"=>$slider, "type"=>"slider");
+        $homeStrip = array("data"=>$homeStrip, "type"=>"homeStrip");
+        $offerProducts = array("data"=>$offerProduct, "type"=>"offerProduct");
+        $categorys = array("data"=>$category, "type"=>"category");
+        $adss = array("data"=>$ads, "type"=>"ads");
+        $zone_ids = array("data"=>$zone_id, "type"=>"zone_id");
+        $appdatas = array("data"=>$appdata, "type"=>"appdata");
+        $offer_sliderss = array("data"=>$offer_sliders, "type"=>"offer_sliders");
+        $topsellingproductss = array("data"=>$topsellingproducts, "type"=>"product","heading"=>'Top selling products');
+        $super_dealss = array("data"=>$super_deal, "type"=>"product","heading"=>'Super Deals');
+        $zonss = array('zone'=>$zone_ids, "type"=>"zone");
+        $brands = array('brands'=>$brands, "type"=>"brands");
 
-        $ldata = array($categorys,$sliders,$adss,$offerProducts,$zonss,$appdatas,$offer_sliderss,$topsellingproductss,$super_dealss,$brands);
+        // $this->response->sliders = $slider;
+        // $this->response->homeStrip = $homeStrip;
+        // $this->response->offerProducts = $offerProduct;
+        // $this->response->categories = $category;
+        // $this->response->adss = $ads;
+        // $this->response->zone_ids = $zone_id;
+        // $this->response->appdatas = $appdata;
+        // $this->response->offer_sliders = $offer_sliders;
+        // $this->response->topsellingproducts = $topsellingproducts;
+        // $this->response->super_deals = $super_deal;
+        // $this->response->brands = $brands;
+
+        //return ResponseBuilder::success($this->response);
+        //$ldata = array($categorys,$sliders,$adss,$offerProducts,$zonss,$appdatas,$offer_sliderss,$topsellingproductss,$super_dealss,$brands);
+        $ldata = [$sliders,$homeStrip,$offerProducts,$categorys,$adss,$zonss,$appdatas,$offer_sliderss,$topsellingproductss,$super_dealss,$brands];
         return json_encode($ldata);
      } 
 
