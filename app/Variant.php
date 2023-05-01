@@ -11,7 +11,7 @@ class Variant extends BaseModel
 { 
     // use SoftDeletes;
     protected $fillable = [
-        'product_id','color','size','measurement','qty',
+        'product_id','color','size','measurement','qty','price'
     ]; 
     public function __construct(array $attributes = [])
     {
@@ -88,15 +88,8 @@ class Variant extends BaseModel
         }
     }
 
-     
-
-    // protected static function boot()
-    // {
-    //     parent::boot();
-
-    //     static::addGlobalScope(new StatusScope());
-    // }
-
-
-
+    public function product()
+    {
+        return $this->belongsTo(VendorProduct::class);
+    }
 }
