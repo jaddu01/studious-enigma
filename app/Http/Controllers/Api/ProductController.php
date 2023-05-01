@@ -29,6 +29,7 @@ use DB;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\OrderProductResource;
+use App\Http\Resources\VendorProductDetailedResource;
 use App\Http\Resources\VendorProductResource;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
@@ -342,23 +343,29 @@ class ProductController extends Controller
      */
     public function show($id)
     {
-
         try {
-            
-            $vendorProduct = $this->vendorProduct->whereHas('product')->with(['product.MeasurementClass','product.images','cart'=>function($q){
-                $q->where(['user_id'=>Auth::guard('api')->user()->id,'zone_id'=>Auth::guard('api')->user()->zone_id]);
-            },'wishList'=>function($q){
-                $q->where(['user_id'=>Auth::guard('api')->user()->id]);
-            }])->findOrFail($id);
-            $vendorProduct->related_products= Helper::relatedProducts($vendorProduct->product->related_products,$vendorProduct->user_id);
-
-           // $image =  $vendorProduct->product->image->name;
-            unset(/*$vendorProduct['offer'],*/$vendorProduct['product']['related_products']/*,$vendorProduct['product']['image']*/);
-            //$vendorProduct['product']['image'] =$image;
-            return $this->showResponse($vendorProduct);
-
+            DB::enableQueryLog();
+            $user = Auth::guard('api')->user();
+            if($user){
+                $vendorProduct = $this->vendorProduct->whereHas('product')->with(['product.MeasurementClass','product.images','cart'=>function($q){
+                    $q->where(['user_id'=>Auth::guard('api')->user()->id,'zone_id'=>Auth::guard('api')->user()->zone_id]);
+                },'wishList'=>function($q){
+                    $q->where(['user_id'=>Auth::guard('api')->user()->id]);
+                }])->find($id);
+            }else{
+                $vendorProduct = $this->vendorProduct->whereHas('product')->with(['product.MeasurementClass','product.images'])
+                ->find($id);
+            }
+            //dd(DB::getQueryLog());
+            if(!$vendorProduct){
+                return ResponseBuilder::error("Vendor Product not found", 404);
+            }
+            // $vendorProduct->related_products= Helper::relatedProducts($vendorProduct->product->related_products,$vendorProduct->user_id);
+            $this->response->vendorProduct = new VendorProductDetailedResource($vendorProduct);
+            //$this->response->related_products = Helper::relatedProducts($vendorProduct->product->related_products,$vendorProduct->user_id);
+            return ResponseBuilder::success($this->response);
         } catch (\Exception $e) {
-            return $this->clientErrorResponse($e);
+            return ResponseBuilder::error($e->getMessage(), 500);
         }
     }
 

@@ -223,5 +223,9 @@ class Product extends BaseModel
         return $this->hasMany('App\ProductTranslation');
     }
 
+    public function brand(){
+        return $this->belongsTo('App\Brand','brand_id','id');
+    }
+
 
 }
