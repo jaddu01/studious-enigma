@@ -827,7 +827,7 @@ class ProductController extends Controller
 
         //return ResponseBuilder::success($this->response);
         //$ldata = array($categorys,$sliders,$adss,$offerProducts,$zonss,$appdatas,$offer_sliderss,$topsellingproductss,$super_dealss,$brands);
-        $ldata = [$sliders,$homeStrip,$offerProducts,$categorys,$adss,$offer_sliderss,$topsellingproductss,$super_dealss,$brands];
+        $ldata = [$sliders,$homeStrip,$offerProducts,$categorys,$adss,$topsellingproductss,$offer_sliderss,$super_dealss,$brands];
         return response()->json($ldata);
      } 
 
