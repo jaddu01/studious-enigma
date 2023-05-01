@@ -96,48 +96,37 @@ class CartController extends Controller
                 }
             }
         }
-       $user = $user->get()->toArray();
-       $currusers = Product::where(['show_in_cart_page'=>'1'])->get()->toArray();
-            // $curruser = Auth::user();
-            // $curruser->id = $id;
-            // $curruser->update();
-            // $user  = User::select('*');
-            // $offer = $offer_arr =  [];
-            // $user->whereRaw('FIND_IN_SET('.$zone_id.', zone_id) ')->where(['user_type'=>'vendor']);
-            // // echo '<pre>';print_r($curruser);exit;
-            // $user = $user->get()->toArray();
-            foreach($currusers as $kk=>$vv){
-              $product[]= $vv['id'];
-            }
-            $user_id_array = $product_id_array=[];
-            $all_offer = $this->vendorProduct->with([
+        $user = $user->get()->toArray();
+        $currusers = Product::where(['show_in_cart_page'=>'1'])->get()->toArray();
+        foreach($currusers as $kk=>$vv){
+          $product[]= $vv['id'];
+        }
+        $user_id_array = $product_id_array=[];
+        $all_offer = $this->vendorProduct->with([
                     'product.MeasurementClass',
                     'product.image','cart'=>function($q) use($zone_id){
                         $q->where(['user_id'=>Auth::user()->id,'zone_id'=>$zone_id]);
                     },'wishList'=>function($q){
                         $q->where(['user_id'=>Auth::user()->id]);
                     }])->whereHas('product',function($q){ $q->where('status','1'); }  )->whereIn('user_id',$user_id_array)->whereNOTNULL('offer_id')->get();
-            foreach($all_offer as $key=>$value){
-                $product_id_array[]=$value->product_id;
-            }
-            $offerProduct = [];
-  $offerProduct  =  $this->offerdata($zone_id);
-        $data= $this->cart->where(['user_id'=>Auth::user()->id])->where(['zone_id'=>$zone_id])           
-        ->with(['vendorProduct','vendorProduct.User'])
-        ->whereHas('vendorProduct.Product',function($q){ $q->where('status','1');  })
-        ->with(['vendorProduct.Product.image'])
-        ->with(['vendorProduct.Product.MeasurementClass'])
-        ->with(['vendorProduct.wishList'=>function($q) use($zone_id){ $q->where(['user_id'=>Auth::user()->id,'zone_id'=>$zone_id]); }]);
+        foreach($all_offer as $key=>$value){
+            $product_id_array[]=$value->product_id;
+        }
+        $showInCartPage = [];
+        $showInCartPage = $this->getCartshowdata($zone_id);
+        $data= $this->cart->where(['user_id'=>Auth::user()->id])->where(['zone_id'=>$zone_id])->with(['vendorProduct','vendorProduct.User'])->whereHas('vendorProduct.Product',function($q){ $q->where('status','1');  })
+            ->with(['vendorProduct.Product.image'])
+            ->with(['vendorProduct.Product.MeasurementClass'])
+            ->with(['vendorProduct.wishList'=>function($q) use($zone_id){ $q->where(['user_id'=>Auth::user()->id,'zone_id'=>$zone_id]); }]);
         $dataAll = $data;
         $data = $data->get()->toArray();
         $result= [];
         $result2= [];
         foreach ($data as $k=>$rec){
-             //echo $rec['vendor_product']['qty']; echo "<br/>";
-             if($rec['vendor_product']['qty'] == 0)
-             {
+            if($rec['vendor_product']['qty'] == 0)
+            {
                 $result2[] = $rec['vendor_product']['id'];
-             }
+            }
             $rec['user_name'] = $rec['vendor_product']['user']['name'];
             $rec['is_offer'] = false;
             $rec['price'] = number_format($rec['vendor_product']['price'],2, '.', '');
@@ -183,14 +172,7 @@ class CartController extends Controller
            $coupon_per = 0;
         }
         $darbaar_coin_price = $this->darbaarCoin($cartTotalArray['offer_price_total']+$cartTotalArray['delivery_charge'] - $coupon_discount);
-        // $coin_amount = $user->coin_amount;
-        // if($coin_amount > $darbaar_coin_price) {
-        //     $darbaar_coin_price = $darbaar_coin_price;
-        // } else {
-        //     $darbaar_coin_price = 0.00;    
-        // }
         $request->session()->put('darbaar_coin_price',$darbaar_coin_price);
-
         $response = [
             'error'=>false,
             'code' => 0,
@@ -213,86 +195,103 @@ class CartController extends Controller
         ];
 
         // echo "<pre>"; print_r($response); die;
-        return view('pages.mycart', ['response' => $response,'offer'=>$product]);
+        return view('pages.mycart', ['response' => $response,'showInCartPage'=>$showInCartPage]);
     }
+
+    public function getCartshowdata($zone_id){
+        $user = User::select('*');
+        $user->whereRaw('FIND_IN_SET(' . $zone_id . ', zone_id) ')->where(['user_type' => 'vendor']);
+        $user = $user->get()->toArray();
+        $product_data=[];
+        $user_id_array=[];
+        foreach($user as $kk=>$vv){
+            $user_id_array[] = $vv['id'];
+        }
+        $products = $this->vendorProduct->with(['Product',
+        'product.MeasurementClass',
+        'product.image'])->whereHas('product',function($q){ $q->where('show_in_cart_page','1'); }  )
+        ->whereIn('user_id',$user_id_array)->get(); 
+        return $products;
+    }
+    
     public function offerdata($zone_id){
-$user = User::select('*');
-$user->whereRaw('FIND_IN_SET(' . $zone_id . ', zone_id) ')->where(['user_type' => 'vendor']);
-$user = $user->get()->toArray();
-$product_data=[];
-$user_id_array=[];
-foreach($user as $kk=>$vv){
-$user_id_array[] = $vv['id'];
-$product_data[$vv['id']] = $this->vendorProduct->where('user_id',$vv['id'])->where('status','1')->get()->toArray();
-}
-$offer_product_id_array = [];
-$offer_products = $this->vendorProduct->with(['Product',
-'product.MeasurementClass',
-'product.image','cart'=>function($q) use($zone_id){
-$q->where(['user_id'=>Auth::user()->id,'zone_id'=>$zone_id]);
-},'wishList'=>function($q){
-$q->where(['user_id'=>Auth::user()->id]);
-}])->whereHas('product',function($q){ $q->where('status','1'); }  )
-->whereIn('user_id',$user_id_array)->whereNOTNULL('offer_id')->get();              
-foreach($offer_products as $offer_product){
-$pffer_data = $this->offer->where('id',$offer_product->offer_id)->where('from_time','<=',date('Y-m-d'))->where('to_time','>=',date('Y-m-d'))->first();
-if(!empty($pffer_data)){
-$offer_product_id_array[] = $offer_product->product_id;
-}
-}
-$vendorProduct =  $this->vendorProduct->with(['product.MeasurementClass','product.image',
-  'cart'=>function($q) use($zone_id){
-$q->where(['user_id'=>Auth::user()->id,'zone_id'=>$zone_id]);
-},'wishList'=>function($q){
-$q->where(['user_id'=>Auth::user()->id]);
-}])->whereHas('product',function($q){ $q->where('status','1'); }  )
-->whereIn('user_id',$user_id_array)->whereNOTNULL('offer_id');
+        $user = User::select('*');
+        $user->whereRaw('FIND_IN_SET(' . $zone_id . ', zone_id) ')->where(['user_type' => 'vendor']);
+        $user = $user->get()->toArray();
+        $product_data=[];
+        $user_id_array=[];
+        foreach($user as $kk=>$vv){
+        $user_id_array[] = $vv['id'];
+        $product_data[$vv['id']] = $this->vendorProduct->where('user_id',$vv['id'])->where('status','1')->get()->toArray();
+        }
+        $offer_product_id_array = [];
+        $offer_products = $this->vendorProduct->with(['Product',
+        'product.MeasurementClass',
+        'product.image','cart'=>function($q) use($zone_id){
+        $q->where(['user_id'=>Auth::user()->id,'zone_id'=>$zone_id]);
+        },'wishList'=>function($q){
+        $q->where(['user_id'=>Auth::user()->id]);
+        }])->whereHas('product',function($q){ $q->where('status','1'); }  )
+        ->whereIn('user_id',$user_id_array)->whereNOTNULL('offer_id')->get();              
+        foreach($offer_products as $offer_product){
+        $pffer_data = $this->offer->where('id',$offer_product->offer_id)->where('from_time','<=',date('Y-m-d'))->where('to_time','>=',date('Y-m-d'))->first();
+        if(!empty($pffer_data)){
+        $offer_product_id_array[] = $offer_product->product_id;
+        }
+        }
+        $vendorProduct =  $this->vendorProduct->with(['product.MeasurementClass','product.image',
+          'cart'=>function($q) use($zone_id){
+        $q->where(['user_id'=>Auth::user()->id,'zone_id'=>$zone_id]);
+        },'wishList'=>function($q){
+        $q->where(['user_id'=>Auth::user()->id]);
+        }])->whereHas('product',function($q){ $q->where('status','1'); }  )
+        ->whereIn('user_id',$user_id_array)->whereNOTNULL('offer_id');
 
-    if(!empty($vendorProduct)){
-      $vProduct = $vendorProduct= $vendorProduct->groupBy('product_id')->take(10000)->get();
-      $vendorProduct= $vendorProduct->toArray();
-    }
-   $data=[];
-  if(!empty($vendorProduct)){
-   foreach ($vendorProduct as $rec){
-    $rec= $rec;
-    $rec['price'] = number_format($rec['price'],2,'.','');  
-    $rec['wish_list'] = isset($rec['wish_list'])?$rec['wish_list']:'';  
-    $rec['mrp'] = number_format(!empty($rec['best_price']) ? $rec['best_price']:$rec['price'],2,'.','');   
-    $rec['offer_price'] = number_format($rec['price'],2,'.','');   
-   
-    $rec['offer_data'] =   $ffer_data = $this->offer->where('id',$rec['offer_id'])->where('from_time','<=',date('Y-m-d'))->where('to_time','>=',date('Y-m-d'))->first();
-    if(!empty($ffer_data)){
-      $rec['is_offer'] = true;
-      $rec['offer_id'] = $rec['offer_id'];
-      if($ffer_data->offer_type=='amount'){
-       $rec['offer_price'] = $rec['price']- $ffer_data->offer_value;
-      }else if($ffer_data->offer_type=='percentages'){
-       $rec['offer_price'] = $rec['price'] -( $rec['price'] * ( $ffer_data->offer_value / 100 )) ;                 
-      }
-       $rec['offer_price'] = number_format( $rec['offer_price'],2,'.','');
-       $rec['mrp'] = number_format(!empty($rec['offer_price']) ? $rec['price']:$rec['best_price'],2,'.','');   
-      $data[]=$rec;                       
-    }     
-  }
-  unset($vendorProduct);
-  $vendorProduct = $data; 
-  }
+            if(!empty($vendorProduct)){
+              $vProduct = $vendorProduct= $vendorProduct->groupBy('product_id')->take(10000)->get();
+              $vendorProduct= $vendorProduct->toArray();
+            }
+           $data=[];
+          if(!empty($vendorProduct)){
+           foreach ($vendorProduct as $rec){
+            $rec= $rec;
+            $rec['price'] = number_format($rec['price'],2,'.','');  
+            $rec['wish_list'] = isset($rec['wish_list'])?$rec['wish_list']:'';  
+            $rec['mrp'] = number_format(!empty($rec['best_price']) ? $rec['best_price']:$rec['price'],2,'.','');   
+            $rec['offer_price'] = number_format($rec['price'],2,'.','');   
+           
+            $rec['offer_data'] =   $ffer_data = $this->offer->where('id',$rec['offer_id'])->where('from_time','<=',date('Y-m-d'))->where('to_time','>=',date('Y-m-d'))->first();
+            if(!empty($ffer_data)){
+              $rec['is_offer'] = true;
+              $rec['offer_id'] = $rec['offer_id'];
+              if($ffer_data->offer_type=='amount'){
+               $rec['offer_price'] = $rec['price']- $ffer_data->offer_value;
+              }else if($ffer_data->offer_type=='percentages'){
+               $rec['offer_price'] = $rec['price'] -( $rec['price'] * ( $ffer_data->offer_value / 100 )) ;                 
+              }
+               $rec['offer_price'] = number_format( $rec['offer_price'],2,'.','');
+               $rec['mrp'] = number_format(!empty($rec['offer_price']) ? $rec['price']:$rec['best_price'],2,'.','');   
+              $data[]=$rec;                       
+            }     
+          }
+          unset($vendorProduct);
+          $vendorProduct = $data; 
+          }
 
-  $data=[];
-  if(!empty($vendorProduct)){
-  foreach ($vendorProduct as $rec){
-  $rec['match_in_zone']=true;
-  $rec['product']['image'] = isset($rec['product']['image']['name']) ? $rec['product']['image']['name'] : '';
-  unset($rec['product']['related_products']/*,$rec['product']['category_id']*/);
-  $data[]=$rec;
-  }
-  unset($vendorProduct);
-  $vendorProduct = $data; 
-  }
-//echo "<pre>"; print_r($vendorProduct); die;
-  return $vendorProduct;
- }
+          $data=[];
+          if(!empty($vendorProduct)){
+          foreach ($vendorProduct as $rec){
+          $rec['match_in_zone']=true;
+          $rec['product']['image'] = isset($rec['product']['image']['name']) ? $rec['product']['image']['name'] : '';
+          unset($rec['product']['related_products']/*,$rec['product']['category_id']*/);
+          $data[]=$rec;
+          }
+          unset($vendorProduct);
+          $vendorProduct = $data; 
+          }
+        //echo "<pre>"; print_r($vendorProduct); die;
+          return $vendorProduct;
+     }
     /**
      * Store a newly created resource in storage.
      *

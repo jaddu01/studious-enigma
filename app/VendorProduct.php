@@ -11,6 +11,7 @@ class VendorProduct extends BaseModel
 
     use SoftDeletes;
     protected $fillable = [
+        'id',
         'user_id',
         'product_id',
         'qty',
@@ -18,8 +19,10 @@ class VendorProduct extends BaseModel
         'offer_id',
         'status',
         'per_order',
+        'memebership_p_price',
         
     ];
+    protected $table = 'vendor_products';
     protected $appends=['is_offer','offer_price'];
 
 

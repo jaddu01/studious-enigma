@@ -156,33 +156,21 @@ span.con_spn_prc_dtl.con_spn_prc_dtl_clr1{ color: #f93c3a;  font-weight: 500;}
             </div>
               <?php } ?>
          </div>
-         <div class="row clearfix" style="display:none;">
-
+          <div class="row clearfix">
+            <div class="col-sm-12 clearfix">
+              <p><h3>Before You Checkout</h3></p>
+            </div>
             <div class="col-sm-12">                
-              <?php //echo "<pre>"; print_r($offer); echo "</pre>"; die; ?>
+              <?php //echo "<pre>"; print_r($showInCartPage); echo "</pre>"; die; ?>
                 <div class="must-have-product today-savar-product">
-                <ul class="today-savar-product-slider">
-                @foreach($offer as $koff=>$valoff)
+                <ul class="today-savar-product-sliderss">
+                @foreach($showInCartPage as $koff=>$valoff)
                 <li>
-                <div class="must-have-product-box" style="{{($valoff['qty']==0)?'background-color: #fff;':''}}">
+                <div class="must-have-product-box" >
                   <!-- @if($valoff['qty']==0) <b style="COLOR: #000;"> OUT OF STOCK </b> @endif -->
-                  <?php if(isset($valoff['is_offer']) && !empty($valoff['is_offer'])) {?>
-                    <img src="{{url('/public/images/offer.png')}}" class="offer_image" alt="offer">
-                  <?php } ?>
+                   
                   <a href="{{url('/product/'.$valoff['id'])}}">
-                  <img src="{{$valoff['product']['image']}}" alt="img"></a>
-                  <?php if(Auth::user()){   ?>
-                    <a class="" >
-                     <span onclick="addtowhishlist({{isset($valoff['id'])?$valoff['id']:url('/')}})" class="heart-icon @if(!empty($valoff['wish_list'])) wishlist @endif">
-                            <i class="fa fa-heart" aria-hidden="true"></i>
-                        </span>
-                    </a> <?php }else{  ?>
-                   <a data-target="#login_with_mobile" data-toggle="modal" >
-                     <span   class="heart-icon">
-                            <i class="fa fa-heart" aria-hidden="true"></i>
-                        </span>
-                    </a>
-                <?php } ?>
+                  <img src="{{$valoff['product']['image']['name']}}" alt="img"></a>
                 </div>
                 <div class="savar-product-content">
                  
@@ -192,18 +180,11 @@ span.con_spn_prc_dtl.con_spn_prc_dtl_clr1{ color: #f93c3a;  font-weight: 500;}
                  <span>{{$valoff['product']['measurement_value']}}{{$valoff['product']['measurement_class']['name']}}</span> 
                 </h4></a>
                 <!-- <button class="add-to-card-btn">Add To Cart</button> -->
-                <?php if(!empty($valoff['cart'])){ ?>
-                <div id="" class="cstm_qty_inpt">
-                <button type="button" id="sub" onclick="addtocart({{$valoff['id']}},'sub')" class="sub lft_btn_qty"><img src="{{url('public/images/arrow_left.png')}}" alt="arrow"></button>
-                <input type="number" id="cartval{{$valoff['id']}}" value="{{$valoff['cart']['qty']}}" />
-                <button type="button" id="add" onclick="addtocart({{$valoff['id']}},'add')"   class="add rt_btn_qty"><img src="{{url('public/images/arrow_right.png')}}" alt="arrow"></button>
-                </div>
-                <?php }else{ ?>
+                
                   @if($valoff['qty'] != 0)
                     <button onclick="addtocart({{$valoff['id']}},1)" class="add-to-card-btn">Add To Cart</button>
                   @endif
-
-                <?php } ?>
+ 
                 </div>
                 </li>
                  @endforeach

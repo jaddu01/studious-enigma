@@ -13,6 +13,7 @@ use App\CountryPhoneCode;
 use App\Product;
 use App\ProductTranslation;
 use App\WishLish;
+use App\ProductOrder;
 use App\Offer;
 use App\Zone;
 use App\AppSetting;
@@ -42,7 +43,7 @@ class HomeController extends Controller
      * UserController constructor.
      * @param User $user
      */
-    public function __construct(Request $request,CategoryTranslation $category,Tempcustomers $user,Product $product,Offer $offer,VendorProduct $vendorProduct,WishLish $wishLish) 
+    public function __construct(Request $request,CategoryTranslation $category,Tempcustomers $user,Product $product,Offer $offer,VendorProduct $vendorProduct,WishLish $wishLish,ProductOrder $productOrder,ProductTranslation $ProductTranslation) 
     {
         parent::__construct();
         $this->category=$category;
@@ -51,6 +52,8 @@ class HomeController extends Controller
         $this->product=$product;
         $this->wishLish = $wishLish;
         $this->vendorProduct=$vendorProduct;
+        $this->productOrder = $productOrder;
+        $this->ProductTranslation = $ProductTranslation;
         $this->middleware('auth');
     }
 
@@ -59,222 +62,243 @@ class HomeController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-        public function index(Request $request){
-            $category =  $this->category->join('categories','categories.id','=','category_translations.category_id')->select('categories.id','image','name','category_translations.slug')->where(['locale' => 'en'])->where(['categories.parent_id' => '0'])->where(['categories.status' => '1'])->whereNull('categories.deleted_at')->orderBy('sort_no', 'ASC')->get();
-            
-            $slider = Slider::with('category','sub_category','product');
-            $offer_sliders = OfferSlider::with('category','sub_category','product');
-            $ads = Ads::with('category','sub_category','product');
-            $user = Auth::user();
-
-
-           
-            $zone_id = $request->session()->get('zone_id');
-            if(empty($zone_id)){ 
-                $zone_id = Auth::user()->zone_id;
-             if(empty($zone_id)){ 
-             $user->address = DeliveryLocation::where('user_id',Auth::user()->id)->first();
-             if(empty($user->address->lat) || empty($user->address->lng)){
-                 return redirect()->route('addnewaddress')->with('success','Add Your first address address');
-            }
-            $zonedata = $this->getZoneData($user->address->lat, $user->address->lng);
-            $zone_id =  $zonedata['zone_id'];
-            $zone_name =  $zonedata['zone_name'];
-            $match_in_zone = $zonedata['match_in_zone'];
-            $user->zone_id = $zone_id;
-            $user->save();
-            $request->session()->put('zone_id',$zone_id);
-            }
-             }
-           if(empty($zone_id)){
-             $first_zone =  $Zone= Helper::Zone_list();//Zone::where('status',1)->first(); 
-             $zone_id = $first_zone[0]->id;
-             $request->session()->put('zone_id',$zone_id);
-            }
-            $vendor  = User::select('*');
-            $vendor->whereRaw('FIND_IN_SET('.$zone_id.', zone_id) ')->where(['user_type'=>'vendor']);
-            $slider = $slider->whereRaw('FIND_IN_SET('.$zone_id.', zone_id) ')->get();
-               foreach( $slider as $sliders){
-                if($sliders->link_type=='internal'){
-                    if($sliders->link_url_type=='product'){
-                        $vproduct = $this->vendorProduct->where('id',$sliders->vendor_product_id)->first();
-                        if(!empty($vproduct)){
-                            
-                        $product = ProductTranslation::where('product_id',$vproduct->product_id)->first();
-                         if(!empty($product)){
-                        $sliders->rawslug = $product->slug;
-                          } 
-                       }else{ $sliders->rawslug = "";
-
-                       }
-                    }else if($sliders->link_url_type=='category'){
-                        $subcat = CategoryTranslation::where('category_id',$sliders->cat_id)->first();
-                        if(!empty($subcat)){ $sliders->rawslug = $subcat->slug; }
-                         else{ $sliders->rawslug = "";}
-                    }else if($sliders->link_url_type=='subcategory'){
-                         $subcat = CategoryTranslation::where('category_id',$sliders->sub_cat_id)->first();
-                        if(!empty($subcat)){$sliders->rawslug = $subcat->slug; }
-                        else{  $sliders->rawslug = "";}
-                    }
-                }
-            }
-
-            $ads = $ads->whereRaw('FIND_IN_SET('.$zone_id.', zone_id) ')->get();
-             foreach( $ads as $ad){
-              if($ad->link_type=='internal'){
-                  if($ad->link_url_type=='product'){
-                      $vproduct = $this->vendorProduct->where('id',$ad->vendor_product_id)->first();
-                      if(!empty($vproduct)){
-                          
-                      $product = ProductTranslation::where('product_id',$vproduct->product_id)->first();
-                       if(!empty($product)){
-                      $ad->rawslug = $product->slug;
-                        } 
-                     }else{ $ad->rawslug = "";
-
-                     }
-                  }else if($ad->link_url_type=='category'){
-                      $subcat = CategoryTranslation::where('category_id',$ad->cat_id)->first();
-                      if(!empty($subcat)){ $ad->rawslug = $subcat->slug; }
-                       else{ $ad->rawslug = "";}
-                  }else if($ad->link_url_type=='subcategory'){
-                       $subcat = CategoryTranslation::where('category_id',$ad->sub_cat_id)->first();
-                      if(!empty($subcat)){$ad->rawslug = $subcat->slug; }
-                      else{  $ad->rawslug = "";}
-                  }
-              }
-            }
-
-
-            $offer_sliders =  $offer_sliders->whereRaw('FIND_IN_SET('.$zone_id.', zone_id) ')->get();
-            foreach( $offer_sliders as $offer_slider){
-              if($offer_slider->link_type=='internal'){
-                  if($offer_slider->link_url_type=='product'){
-                      $vproduct = $this->vendorProduct->where('id',$offer_slider->vendor_product_id)->first();
-                      if(!empty($vproduct)){
-                          
-                      $product = ProductTranslation::where('product_id',$vproduct->product_id)->first();
-                       if(!empty($product)){
-                      $offer_slider->rawslug = $product->slug;
-                        } 
-                     }else{ $offer_slider->rawslug = "";
-
-                     }
-                  }else if($offer_slider->link_url_type=='category'){
-                      $subcat = CategoryTranslation::where('category_id',$offer_slider->cat_id)->first();
-                      if(!empty($subcat)){ $offer_slider->rawslug = $subcat->slug; }
-                       else{ $offer_slider->rawslug = "";}
-                  }else if($offer_slider->link_url_type=='subcategory'){
-                       $subcat = CategoryTranslation::where('category_id',$offer_slider->sub_cat_id)->first();
-                      if(!empty($subcat)){$offer_slider->rawslug = $subcat->slug; }
-                      else{  $offer_slider->rawslug = "";}
-                  }
-              }
-            }
-
-            $user = $user->get()->toArray();
-            $curruser = Auth::user();
-            $curruser->zone_id = $zone_id;
-            $curruser->update();
-            $user  = User::select('*');
-            $offer = $offer_arr =  [];
-            $user->whereRaw('FIND_IN_SET('.$zone_id.', zone_id) ')->where(['user_type'=>'vendor']);
-            $user = $user->get()->toArray();
-            foreach($user as $kk=>$vv){
-              $user_id_array[] = $vv['id'];
-            }
-            $user_id_array = $product_id_array=[];
-            $all_offer = $this->vendorProduct->with([
-                    'product.MeasurementClass',
-                    'product.image','cart'=>function($q) use($zone_id){
-                        $q->where(['user_id'=>Auth::user()->id,'zone_id'=>$zone_id]);
-                    },'wishList'=>function($q){
-                        $q->where(['user_id'=>Auth::user()->id]);
-                    }])->whereHas('product',function($q){ $q->where('status','1'); }  )->whereIn('user_id',$user_id_array)->whereNOTNULL('offer_id')->get();
-            foreach($all_offer as $key=>$value){
-                $product_id_array[]=$value->product_id;
-            }
-
-  $wishProduct = [];
-
-   $wishProduct =  $this->wishLish->where(['user_id'=>Auth::user()->id])
-                          //->where(['zone_id'=>$zone_id])
-                          ->has('VendorProduct')
-                          ->with(['VendorProduct.Product.image'])
-                          ->with(['VendorProduct.cart' => function($q) use($zone_id){$q->where(['user_id'=>Auth::user()->id,'zone_id'=>$zone_id]);}])
-                          ->with(['VendorProduct.Product.MeasurementClass'])
-                          ->whereHas('VendorProduct.Product',function($q){ $q->where('status','1')->whereNULL('deleted_at');  });
-  $wishProduct = $wishProduct->groupBy('vendor_product_id')->orderBy('created_at','DESC')->take(10)->get();
-
-  $data=[];
-  if(!empty($wishProduct)){
-   foreach ($wishProduct as $rec){
-    $rec= $rec;
-    $rec['VendorProduct']['price'] = number_format($rec['VendorProduct']['price'],2,'.','');
-    $rec['VendorProduct']['mrp'] = number_format(!empty($rec['VendorProduct']['best_price']) ? $rec['VendorProduct']['best_price']:$rec['VendorProduct']['price'],2,'.','');   
-    $rec['VendorProduct']['offer_price'] = number_format($rec['VendorProduct']['price'],2,'.','');   
-   
-    $rec['VendorProduct']['offer_data'] =   $ffer_data = $this->offer->where('id',$rec['VendorProduct']['offer_id'])->where('from_time','<=',date('Y-m-d'))->where('to_time','>=',date('Y-m-d'))->first();
-    if(!empty($ffer_data)){
-      $rec['VendorProduct']['is_offer'] = true;
-      $rec['VendorProduct']['offer_id'] = $rec['VendorProduct']['offer_id'];
-      if($ffer_data->offer_type=='amount'){
-       $rec['VendorProduct']['offer_price'] = $rec['VendorProduct']['price']- $ffer_data->offer_value;
-      }else if($ffer_data->offer_type=='percentages'){
-       $rec['VendorProduct']['offer_price'] = $rec['VendorProduct']['price'] -( $rec['VendorProduct']['price'] * ( $ffer_data->offer_value / 100 )) ;                 
+public function index(Request $request){
+    $category =  $this->category->join('categories','categories.id','=','category_translations.category_id')->select('categories.id','image','name','category_translations.slug')->where(['locale' => 'en'])->where(['categories.parent_id' => '0'])->where(['categories.status' => '1'])->whereNull('categories.deleted_at')->orderBy('sort_no', 'ASC')->get();
+            // echo '<pre>';print_r($category);exit;
+      // $ids = array('0'=>19,'1'=>227);
+      $combo_offer = $this->product->with('ProductTranslation')->whereRaw('FIND_IN_SET(227, category_id) ')->get();
+      //echo '<pre>';print_r($combo_offer);exit;
+      $slider = Slider::with('category','sub_category','product');
+      $offer_sliders = OfferSlider::with('category','sub_category','product');
+      $ads = Ads::with('category','sub_category','product');
+      $user = Auth::user();
+     
+      $zone_id = $request->session()->get('zone_id');
+      if(empty($zone_id)){ 
+          $zone_id = Auth::user()->zone_id;
+       if(empty($zone_id)){ 
+       $user->address = DeliveryLocation::where('user_id',Auth::user()->id)->first();
+       if(empty($user->address->lat) || empty($user->address->lng)){
+           return redirect()->route('addnewaddress')->with('success','Add Your first address address');
       }
-       $rec['VendorProduct']['offer_price'] = number_format( $rec['VendorProduct']['offer_price'],2,'.','');
-       $rec['VendorProduct']['mrp'] = number_format(!empty($rec['VendorProduct']['offer_price']) ? $rec['VendorProduct']['price']:$rec['VendorProduct']['best_price'],2,'.','');      
+      $zonedata = $this->getZoneData($user->address->lat, $user->address->lng);
+      $zone_id =  $zonedata['zone_id'];
+      $zone_name =  $zonedata['zone_name'];
+      $match_in_zone = $zonedata['match_in_zone'];
+      $user->zone_id = $zone_id;
+      $user->save();
+      $request->session()->put('zone_id',$zone_id);
+      }
+       }
+     if(empty($zone_id)){
+       $first_zone =  $Zone= Helper::Zone_list();//Zone::where('status',1)->first(); 
+       $zone_id = $first_zone[0]->id;
+       $request->session()->put('zone_id',$zone_id);
+      }
+      $vendor  = User::select('*');
+      $vendor->whereRaw('FIND_IN_SET('.$zone_id.', zone_id) ')->where(['user_type'=>'vendor']);
+      $slider = $slider->whereRaw('FIND_IN_SET('.$zone_id.', zone_id) ')->get();
+         foreach( $slider as $sliders){
+          if($sliders->link_type=='internal'){
+              if($sliders->link_url_type=='product'){
+                  $vproduct = $this->vendorProduct->where('id',$sliders->vendor_product_id)->first();
+                  if(!empty($vproduct)){
+                      
+                  $product = ProductTranslation::where('product_id',$vproduct->product_id)->first();
+                   if(!empty($product)){
+                  $sliders->rawslug = $product->slug;
+                    } 
+                 }else{ $sliders->rawslug = "";
+
+                 }
+              }else if($sliders->link_url_type=='category'){
+                  $subcat = CategoryTranslation::where('category_id',$sliders->cat_id)->first();
+                  if(!empty($subcat)){ $sliders->rawslug = $subcat->slug; }
+                   else{ $sliders->rawslug = "";}
+              }else if($sliders->link_url_type=='subcategory'){
+                   $subcat = CategoryTranslation::where('category_id',$sliders->sub_cat_id)->first();
+                  if(!empty($subcat)){$sliders->rawslug = $subcat->slug; }
+                  else{  $sliders->rawslug = "";}
+              }
+          }
+      }
+
+      $ads = $ads->whereRaw('FIND_IN_SET('.$zone_id.', zone_id) ')->get();
+       foreach( $ads as $ad){
+        if($ad->link_type=='internal'){
+            if($ad->link_url_type=='product'){
+                $vproduct = $this->vendorProduct->where('id',$ad->vendor_product_id)->first();
+                if(!empty($vproduct)){
+                    
+                $product = ProductTranslation::where('product_id',$vproduct->product_id)->first();
+                 if(!empty($product)){
+                $ad->rawslug = $product->slug;
+                  } 
+               }else{ $ad->rawslug = "";
+
+               }
+            }else if($ad->link_url_type=='category'){
+                $subcat = CategoryTranslation::where('category_id',$ad->cat_id)->first();
+                if(!empty($subcat)){ $ad->rawslug = $subcat->slug; }
+                 else{ $ad->rawslug = "";}
+            }else if($ad->link_url_type=='subcategory'){
+                 $subcat = CategoryTranslation::where('category_id',$ad->sub_cat_id)->first();
+                if(!empty($subcat)){$ad->rawslug = $subcat->slug; }
+                else{  $ad->rawslug = "";}
+            }
+        }
+      }
+
+
+      $offer_sliders =  $offer_sliders->whereRaw('FIND_IN_SET('.$zone_id.', zone_id) ')->get();
+      foreach( $offer_sliders as $offer_slider){
+        if($offer_slider->link_type=='internal'){
+            if($offer_slider->link_url_type=='product'){
+                $vproduct = $this->vendorProduct->where('id',$offer_slider->vendor_product_id)->first();
+                if(!empty($vproduct)){
+                    
+                $product = ProductTranslation::where('product_id',$vproduct->product_id)->first();
+                 if(!empty($product)){
+                $offer_slider->rawslug = $product->slug;
+                  } 
+               }else{ $offer_slider->rawslug = "";
+
+               }
+            }else if($offer_slider->link_url_type=='category'){
+                $subcat = CategoryTranslation::where('category_id',$offer_slider->cat_id)->first();
+                if(!empty($subcat)){ $offer_slider->rawslug = $subcat->slug; }
+                 else{ $offer_slider->rawslug = "";}
+            }else if($offer_slider->link_url_type=='subcategory'){
+                 $subcat = CategoryTranslation::where('category_id',$offer_slider->sub_cat_id)->first();
+                if(!empty($subcat)){$offer_slider->rawslug = $subcat->slug; }
+                else{  $offer_slider->rawslug = "";}
+            }
+        }
+      }
+
+      $user = $user->get()->toArray();
+      $curruser = Auth::user();
+      $curruser->zone_id = $zone_id;
+      $curruser->update();
+      $user  = User::select('*');
+      $offer = $offer_arr =  [];
+      $user->whereRaw('FIND_IN_SET('.$zone_id.', zone_id) ')->where(['user_type'=>'vendor']);
+      $user = $user->get()->toArray();
+      foreach($user as $kk=>$vv){
+        $user_id_array[] = $vv['id'];
+      }
+      $user_id_array = $product_id_array=[];
+      $all_offer = $this->vendorProduct->with([
+              'product.MeasurementClass',
+              'product.image','cart'=>function($q) use($zone_id){
+                  $q->where(['user_id'=>Auth::user()->id,'zone_id'=>$zone_id]);
+              },'wishList'=>function($q){
+                  $q->where(['user_id'=>Auth::user()->id]);
+              }])->whereHas('product',function($q){ $q->where('status','1'); }  )->whereIn('user_id',$user_id_array)->whereNOTNULL('offer_id')->get();
+      foreach($all_offer as $key=>$value){
+          $product_id_array[]=$value->product_id;
+      }
+
+      $wishProduct = [];
+
+      $wishProduct =  $this->wishLish->where(['user_id'=>Auth::user()->id])
+                    //->where(['zone_id'=>$zone_id])
+                    ->has('VendorProduct')
+                    ->with(['VendorProduct.Product.image'])
+                    ->with(['VendorProduct.cart' => function($q) use($zone_id){$q->where(['user_id'=>Auth::user()->id,'zone_id'=>$zone_id]);}])
+                    ->with(['VendorProduct.Product.MeasurementClass'])
+                    ->whereHas('VendorProduct.Product',function($q){ $q->where('status','1')->whereNULL('deleted_at');  });
+      $wishProduct = $wishProduct->groupBy('vendor_product_id')->orderBy('created_at','DESC')->take(10)->get();
+
+      $data=[];
+      if(!empty($wishProduct)){
+        foreach ($wishProduct as $rec){
+          $rec= $rec;
+          $rec['VendorProduct']['price'] = number_format($rec['VendorProduct']['price'],2,'.','');
+          $rec['VendorProduct']['mrp'] = number_format(!empty($rec['VendorProduct']['best_price']) ? $rec['VendorProduct']['best_price']:$rec['VendorProduct']['price'],2,'.','');   
+          $rec['VendorProduct']['offer_price'] = number_format($rec['VendorProduct']['price'],2,'.','');   
+         
+          $rec['VendorProduct']['offer_data'] =   $ffer_data = $this->offer->where('id',$rec['VendorProduct']['offer_id'])->where('from_time','<=',date('Y-m-d'))->where('to_time','>=',date('Y-m-d'))->first();
+          if(!empty($ffer_data)){
+            $rec['VendorProduct']['is_offer'] = true;
+            $rec['VendorProduct']['offer_id'] = $rec['VendorProduct']['offer_id'];
+            if($ffer_data->offer_type=='amount'){
+             $rec['VendorProduct']['offer_price'] = $rec['VendorProduct']['price']- $ffer_data->offer_value;
+            }else if($ffer_data->offer_type=='percentages'){
+             $rec['VendorProduct']['offer_price'] = $rec['VendorProduct']['price'] -( $rec['VendorProduct']['price'] * ( $ffer_data->offer_value / 100 )) ;                 
+            }
+             $rec['VendorProduct']['offer_price'] = number_format( $rec['VendorProduct']['offer_price'],2,'.','');
+             $rec['VendorProduct']['mrp'] = number_format(!empty($rec['VendorProduct']['offer_price']) ? $rec['VendorProduct']['price']:$rec['VendorProduct']['best_price'],2,'.','');      
+          }
+          $data[]=$rec;       
+        }
+        unset($wishProduct);
+        $wishProduct = $data; 
+      }
+
+      //echo "<pre>";print_r($wishProduct); die();
+      $offerProduct = [];
+      $offerProduct  =  $this->offerdata($zone_id);
+      $topsellingproducts  =  $this->topsellingproducts($zone_id);
+      $super_deal = Helper::superDeal($zone_id);
+      $appdata =  AppSetting::first();
+      $recentpurchage = [];
+      if(Auth::user()){
+        $recentpurchage = $this->GetRecentPurchaseItem($zone_id);
+      }
+
+      return view('home',['Category' => $category,'Slider'=>$slider,'Ads'=>$ads,'offer'=>$offerProduct,'wish_list'=>$wishProduct,'zone'=>$zone_id,'appdata'=>$appdata,'offer_sliders'=>$offer_sliders,'topsellings'=>$topsellingproducts,'super_deal'=>$super_deal, 'recentpurchage'=>$recentpurchage,'combo_offer'=>$combo_offer]);
+}
+
+
+public function GetRecentPurchaseItem($zone_id){
+        $vp_id_array=[]; 
+        $current_orders = $this->productOrder->where([['user_id',Auth::user()->id],['zone_id',$zone_id]])
+         ->where(function($q){
+            $q->where('order_status','D')->orwhere('order_status','C')->orwhere('order_status','R');
+        })->OrderBy('id','DESC')->get();
+        foreach($current_orders as $kk=>$vv){
+          $vp_id_array[] = $vv['id'];
+        }
+        $products = $this->vendorProduct->with(['Product',
+        'product.MeasurementClass',
+        'product.image'])->whereHas('product',function($q){ $q->where('status','1'); })
+        ->where('id',$vp_id_array)->get(); 
+        return $products;
     }
-     $data[]=$rec;       
-  }
-  unset($wishProduct);
-  $wishProduct = $data; 
-  }
 
-//echo "<pre>";print_r($wishProduct); die();
-  $offerProduct = [];
-  $offerProduct  =  $this->offerdata($zone_id);
-  $topsellingproducts  =  $this->topsellingproducts($zone_id);
-  $super_deal = Helper::superDeal($zone_id);
-$appdata =  AppSetting::first();
-
-
- return view('home',['Category' => $category,'Slider'=>$slider,'Ads'=>$ads,'offer'=>$offerProduct,'wish_list'=>$wishProduct,'zone'=>$zone_id,'appdata'=>$appdata,'offer_sliders'=>$offer_sliders,'topsellings'=>$topsellingproducts,'super_deal'=>$super_deal]);
-}
-
- public function offerdata($zone_id){
-$user = User::select('*');
-$user->whereRaw('FIND_IN_SET(' . $zone_id . ', zone_id) ')->where(['user_type' => 'vendor']);
-$user = $user->get()->toArray();
-$product_data=[];
-$user_id_array=[];
-foreach($user as $kk=>$vv){
-$user_id_array[] = $vv['id'];
-$product_data[$vv['id']] = $this->vendorProduct->where('user_id',$vv['id'])->where('status','1')->get()->toArray();
-}
-$offer_product_id_array = [];
-$offer_products = $this->vendorProduct->with(['Product',
-'product.MeasurementClass',
-'product.image','cart'=>function($q) use($zone_id){
-$q->where(['user_id'=>Auth::user()->id,'zone_id'=>$zone_id]);
-},'wishList'=>function($q){
-$q->where(['user_id'=>Auth::user()->id]);
-}])->whereHas('product',function($q){ $q->where('status','1'); }  )
-->whereIn('user_id',$user_id_array)->whereNOTNULL('offer_id')->get();              
-foreach($offer_products as $offer_product){
-$pffer_data = $this->offer->where('id',$offer_product->offer_id)->where('from_time','<=',date('Y-m-d'))->where('to_time','>=',date('Y-m-d'))->first();
-if(!empty($pffer_data)){
-$offer_product_id_array[] = $offer_product->product_id;
-}
-}
-$vendorProduct =  $this->vendorProduct->with(['product.MeasurementClass','product.image',
-  'cart'=>function($q) use($zone_id){
-$q->where(['user_id'=>Auth::user()->id,'zone_id'=>$zone_id]);
-},'wishList'=>function($q){
-$q->where(['user_id'=>Auth::user()->id]);
-}])->whereHas('product',function($q){ $q->where('status','1'); }  )
-->whereIn('user_id',$user_id_array)->whereNOTNULL('offer_id');
+public function offerdata($zone_id){
+    $user = User::select('*');
+    $user->whereRaw('FIND_IN_SET(' . $zone_id . ', zone_id) ')->where(['user_type' => 'vendor']);
+    $user = $user->get()->toArray();
+    $product_data=[];
+    $user_id_array=[];
+    foreach($user as $kk=>$vv){
+    $user_id_array[] = $vv['id'];
+    $product_data[$vv['id']] = $this->vendorProduct->where('user_id',$vv['id'])->where('status','1')->get()->toArray();
+    }
+    $offer_product_id_array = [];
+    $offer_products = $this->vendorProduct->with(['Product',
+    'product.MeasurementClass',
+    'product.image','cart'=>function($q) use($zone_id){
+    $q->where(['user_id'=>Auth::user()->id,'zone_id'=>$zone_id]);
+    },'wishList'=>function($q){
+    $q->where(['user_id'=>Auth::user()->id]);
+    }])->whereHas('product',function($q){ $q->where('status','1'); }  )
+    ->whereIn('user_id',$user_id_array)->whereNOTNULL('offer_id')->get();              
+    foreach($offer_products as $offer_product){
+    $pffer_data = $this->offer->where('id',$offer_product->offer_id)->where('from_time','<=',date('Y-m-d'))->where('to_time','>=',date('Y-m-d'))->first();
+    if(!empty($pffer_data)){
+    $offer_product_id_array[] = $offer_product->product_id;
+    }
+    }
+    $vendorProduct =  $this->vendorProduct->with(['product.MeasurementClass','product.image',
+      'cart'=>function($q) use($zone_id){
+    $q->where(['user_id'=>Auth::user()->id,'zone_id'=>$zone_id]);
+    },'wishList'=>function($q){
+    $q->where(['user_id'=>Auth::user()->id]);
+    }])->whereHas('product',function($q){ $q->where('status','1'); }  )
+    ->whereIn('user_id',$user_id_array)->whereNOTNULL('offer_id');
 
     if(!empty($vendorProduct)){
       $vProduct = $vendorProduct= $vendorProduct->groupBy('product_id')->take(10000)->get();

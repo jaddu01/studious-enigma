@@ -74,199 +74,184 @@ class FrontController extends Controller
         $this->middleware('guest')->except('logout');
     }
 
-    public function index(Request $request){
+public function index(Request $request){
+  $category =  $this->category->join('categories','categories.id','=','category_translations.category_id')->select('categories.id','image','name','category_translations.slug')->where(['locale' => 'en'])->where(['categories.parent_id' => '0'])->where(['categories.status' => '1'])->whereNull('categories.deleted_at')->orderBy('sort_no', 'ASC')->get();
+        
+  $slider = Slider::with('category','category.translations','sub_category','product');
+  $offer_sliders = OfferSlider::with('category','sub_category','product');
+  $ads = Ads::with('category','sub_category','product');
 
-
-      //echo "This Website is under maintains......"; die;
-            $category =  $this->category->join('categories','categories.id','=','category_translations.category_id')->select('categories.id','image','name','category_translations.slug')->where(['locale' => 'en'])->where(['categories.parent_id' => '0'])->where(['categories.status' => '1'])->whereNull('categories.deleted_at')->orderBy('sort_no', 'ASC')->get();
-            
-            $slider = Slider::with('category','category.translations','sub_category','product');
-            $offer_sliders = OfferSlider::with('category','sub_category','product');
-            $ads = Ads::with('category','sub_category','product');
-
-            $Zone= Zone::all();
-            $zone_id =0;
-            foreach($Zone as $k=>$v ){
-              if($v['is_default']){ $zone_id =$v['id'];  }
-            }
-$user = User::where('user_type','vendor')->get();
-$user_id_array = [];
-foreach ($user as $key => $value) {
-  $user_id_array[] = $value->id;
-}
-if($zone_id==0){
-  $slider = $slider->get();
-  $offer_sliders = $offer_sliders->get();
-  $ads = $ads->get();
-  $product_id_array=[];$data=[]; $offer_arr=[];
-  $all_offer = $this->vendorProduct->where('user_id',$user_id_array)->whereNOTNULL('offer_id')->groupBy('product_id')->get();
-  foreach($all_offer as $key=>$value){  $product_id_array[]=$value->product_id; }
-  $vendorProduct =  $this->product->with([ 'MeasurementClass','image'])->whereIn('id',$product_id_array)->get()->toArray();
+  $Zone= Zone::all();
+  $zone_id =0;
+  foreach($Zone as $k=>$v ){
+    if($v['is_default']){ $zone_id =$v['id'];  }
+  }
+  $user = User::where('user_type','vendor')->get();
+  $user_id_array = [];
+  foreach ($user as $key => $value) {
+    $user_id_array[] = $value->id;
+  }
+  if($zone_id==0){
+    $slider = $slider->get();
+    $offer_sliders = $offer_sliders->get();
+    $ads = $ads->get();
+    $product_id_array=[];$data=[]; $offer_arr=[];
+    $all_offer = $this->vendorProduct->where('user_id',$user_id_array)->whereNOTNULL('offer_id')->groupBy('product_id')->get();
+    foreach($all_offer as $key=>$value){  $product_id_array[]=$value->product_id; }
+    $vendorProduct =  $this->product->with([ 'MeasurementClass','image'])->whereIn('id',$product_id_array)->get()->toArray();
     if(!empty($vendorProduct)){
-    foreach ($vendorProduct as $rec){
-    $rec['is_offer'] = 0;
-    $rec['offer_id'] = 0;
-    $rec['offer_data'] = [];
-    $rec['price'] = $rec['price'];
-    $rec['mrp'] = number_format(!empty($rec['best_price']) ? $rec['best_price']:$rec['price'],2,'.','');
-    $rec['offer_price'] = $rec['price'];
+      foreach ($vendorProduct as $rec){
+        $rec['is_offer'] = 0;
+        $rec['offer_id'] = 0;
+        $rec['offer_data'] = [];
+        $rec['price'] = $rec['price'];
+        $rec['mrp'] = number_format(!empty($rec['best_price']) ? $rec['best_price']:$rec['price'],2,'.','');
+        $rec['offer_price'] = $rec['price'];
 
-    $productData =  $this->vendorProduct->where('user_id',$user_id_array)->where('product_id',$rec['id'])->first();
-    if(!empty($productData) && !empty($productData->offer_id)){
-     $rec['offer_id'] = $productData->offer_id;
-    $rec['offer_data'] = $ffer_data = $this->offer->where('id',$productData->offer_id)->where('from_time','<=',date('Y-m-d'))->where('to_time','>=',date('Y-m-d'))->first();
-    if(!empty($ffer_data) && (strtotime($ffer_data->to_time)>=time()) ){ 
-      $rec['is_offer'] = 1;
-      $rec['offer_id'] = $productData->offer_id;
-      if($ffer_data->offer_type=='amount'){
-       $rec['offer_price'] = $productData->price - $ffer_data->offer_value;
-      }else if($ffer_data->offer_type=='percentages'){
-       $rec['offer_price'] = $productData->price -( $productData->price * ( $ffer_data->offer_value / 100 )) ;                 
+        $productData =  $this->vendorProduct->where('user_id',$user_id_array)->where('product_id',$rec['id'])->first();
+        if(!empty($productData) && !empty($productData->offer_id)){
+          $rec['offer_id'] = $productData->offer_id;
+          $rec['offer_data'] = $ffer_data = $this->offer->where('id',$productData->offer_id)->where('from_time','<=',date('Y-m-d'))->where('to_time','>=',date('Y-m-d'))->first();
+          if(!empty($ffer_data) && (strtotime($ffer_data->to_time)>=time()) ){ 
+            $rec['is_offer'] = 1;
+            $rec['offer_id'] = $productData->offer_id;
+            if($ffer_data->offer_type=='amount'){
+              $rec['offer_price'] = $productData->price - $ffer_data->offer_value;
+            }else if($ffer_data->offer_type=='percentages'){
+              $rec['offer_price'] = $productData->price -( $productData->price * ( $ffer_data->offer_value / 100 )) ;                 
+            }
+            $rec['offer_price'] = number_format( $rec['offer_price'],2,'.','');
+            $rec['mrp'] = number_format(!empty($rec['offer_price']) ? $productData->price:$productData->best_price,2,'.','');                              
+          }else{
+            $rec['price'] = $productData->price;
+            $rec['mrp'] = number_format(!empty($rec['offer_price']) ? $productData->price:$productData->best_price,2,'.','');
+            $rec['offer_price'] = $productData->price;
+          }
+        }
+        if($rec['is_offer']){
+          unset($rec['category_id'],$rec['related_products']);
+          $data[]=$rec; 
+        }
       }
-       $rec['offer_price'] = number_format( $rec['offer_price'],2,'.','');
-       $rec['mrp'] = number_format(!empty($rec['offer_price']) ? $productData->price:$productData->best_price,2,'.','');                              
-    }else{
-    $rec['price'] = $productData->price;
-    $rec['mrp'] = number_format(!empty($rec['offer_price']) ? $productData->price:$productData->best_price,2,'.','');
-    $rec['offer_price'] = $productData->price;
+      unset($vendorProduct);
+      $vendorProduct = $data; 
     }
-   }
-   if($rec['is_offer']){
-   unset($rec['category_id'],$rec['related_products']);
-   $data[]=$rec; 
- }
-}
-  unset($vendorProduct);
-  $vendorProduct = $data; 
-}
-}else{
-$vendorProduct = [];
-$slider = $slider->whereRaw('FIND_IN_SET('.$zone_id.', zone_id) ')->get();
-foreach( $slider as $sliders){
-if($sliders->link_type=='internal'){
-if($sliders->link_url_type=='product'){
-$vproduct = $this->vendorProduct->where('id',$sliders->vendor_product_id)->first();
-if(!empty($vproduct)){
-$product = $this->product->where('id',$vproduct->product_id)->first();
-$sliders->rawslug = $product->slug;
-}else{ $sliders->rawslug = "";
-
-}
-}else if($sliders->link_url_type=='category'){
-$subcat = $this->category->where('id',$sliders->cat_id)->first();
-if(!empty($subcat)){ $sliders->rawslug = $subcat->slug; }
-else{ $sliders->rawslug = "";}
-}else if($sliders->link_url_type=='subcategory'){
-$subcat = $this->category->where('id',$sliders->sub_cat_id)->first();
-if(!empty($subcat)){$sliders->rawslug = $subcat->slug; }
-else{  $sliders->rawslug = "";}
-}
-}
-}
-$ads =  $ads->whereRaw('FIND_IN_SET('.$zone_id.', zone_id) ')->get();
-foreach( $ads as $ad){
-  if($ad->link_type=='internal'){
-      if($ad->link_url_type=='product'){
+  }else{
+    $vendorProduct = [];
+    $slider = $slider->whereRaw('FIND_IN_SET('.$zone_id.', zone_id) ')->get();
+    foreach( $slider as $sliders){
+      if($sliders->link_type=='internal'){
+        if($sliders->link_url_type=='product'){
+          $vproduct = $this->vendorProduct->where('id',$sliders->vendor_product_id)->first();
+          if(!empty($vproduct)){
+            $product = $this->product->where('id',$vproduct->product_id)->first();
+            $sliders->rawslug = $product->slug;
+          }else{ 
+            $sliders->rawslug = "";
+          }
+        }else if($sliders->link_url_type=='category'){
+          $subcat = $this->category->where('id',$sliders->cat_id)->first();
+          if(!empty($subcat)){ $sliders->rawslug = $subcat->slug; }
+          else{ $sliders->rawslug = "";}
+        }else if($sliders->link_url_type=='subcategory'){
+          $subcat = $this->category->where('id',$sliders->sub_cat_id)->first();
+          if(!empty($subcat)){$sliders->rawslug = $subcat->slug; }
+          else{  $sliders->rawslug = "";}
+        }
+      }
+    }
+    $ads =  $ads->whereRaw('FIND_IN_SET('.$zone_id.', zone_id) ')->get();
+    foreach( $ads as $ad){
+      if($ad->link_type=='internal'){
+        if($ad->link_url_type=='product'){
           $vproduct = $this->vendorProduct->where('id',$ad->vendor_product_id)->first();
           if(!empty($vproduct)){
-              
-          $product = ProductTranslation::where('product_id',$vproduct->product_id)->first();
-           if(!empty($product)){
-          $ad->rawslug = $product->slug;
-            } 
-         }else{ $ad->rawslug = "";
-
-         }
-      }else if($ad->link_url_type=='category'){
+            $product = ProductTranslation::where('product_id',$vproduct->product_id)->first();
+            if(!empty($product)){
+              $ad->rawslug = $product->slug;
+            }
+          }else{ $ad->rawslug = "";}
+        }else if($ad->link_url_type=='category'){
           $subcat = CategoryTranslation::where('category_id',$ad->cat_id)->first();
           if(!empty($subcat)){ $ad->rawslug = $subcat->slug; }
-           else{ $ad->rawslug = "";}
-      }else if($ad->link_url_type=='subcategory'){
-           $subcat = CategoryTranslation::where('category_id',$ad->sub_cat_id)->first();
+          else{ $ad->rawslug = "";}
+        }else if($ad->link_url_type=='subcategory'){
+          $subcat = CategoryTranslation::where('category_id',$ad->sub_cat_id)->first();
           if(!empty($subcat)){$ad->rawslug = $subcat->slug; }
           else{  $ad->rawslug = "";}
-      }
-  }
-}
-$offer_sliders =  $offer_sliders->whereRaw('FIND_IN_SET('.$zone_id.', zone_id) ')->get();
-  foreach( $offer_sliders as $offer_slider){
-    if($offer_slider->link_type=='internal'){
-        if($offer_slider->link_url_type=='product'){
-            $vproduct = $this->vendorProduct->where('id',$offer_slider->vendor_product_id)->first();
-            if(!empty($vproduct)){
-                
-            $product = ProductTranslation::where('product_id',$vproduct->product_id)->first();
-             if(!empty($product)){
-            $offer_slider->rawslug = $product->slug;
-              } 
-           }else{ $offer_slider->rawslug = "";
-
-           }
-        }else if($offer_slider->link_url_type=='category'){
-            $subcat = CategoryTranslation::where('category_id',$offer_slider->cat_id)->first();
-            if(!empty($subcat)){ $offer_slider->rawslug = $subcat->slug; }
-             else{ $offer_slider->rawslug = "";}
-        }else if($offer_slider->link_url_type=='subcategory'){
-             $subcat = CategoryTranslation::where('category_id',$offer_slider->sub_cat_id)->first();
-            if(!empty($subcat)){$offer_slider->rawslug = $subcat->slug; }
-            else{  $offer_slider->rawslug = "";}
         }
+      }
+    }
+    $offer_sliders =  $offer_sliders->whereRaw('FIND_IN_SET('.$zone_id.', zone_id) ')->get();
+    foreach( $offer_sliders as $offer_slider){
+      if($offer_slider->link_type=='internal'){
+        if($offer_slider->link_url_type=='product'){
+          $vproduct = $this->vendorProduct->where('id',$offer_slider->vendor_product_id)->first();
+          if(!empty($vproduct)){
+            $product = ProductTranslation::where('product_id',$vproduct->product_id)->first();
+            if(!empty($product)){
+              $offer_slider->rawslug = $product->slug;
+            }
+          }else{ $offer_slider->rawslug = "";}
+        }else if($offer_slider->link_url_type=='category'){
+          $subcat = CategoryTranslation::where('category_id',$offer_slider->cat_id)->first();
+          if(!empty($subcat)){ $offer_slider->rawslug = $subcat->slug; }
+          else{ $offer_slider->rawslug = "";}
+        }else if($offer_slider->link_url_type=='subcategory'){
+          $subcat = CategoryTranslation::where('category_id',$offer_slider->sub_cat_id)->first();
+          if(!empty($subcat)){$offer_slider->rawslug = $subcat->slug; }
+          else{  $offer_slider->rawslug = "";}
+        }
+      }
+    }
+    $offer = $offer_arr =  [];
+    $user  = User::select('*');
+    $user->whereRaw('FIND_IN_SET('.$zone_id.', zone_id) ')->where(['user_type'=>'vendor']);
+    $user = $user->get()->toArray();
+    foreach($user as $kk=>$vv){
+      $user_id_array[] = $vv['id'];
+    }
+    $offerProduct =  $this->vendorProduct->with(['product.MeasurementClass',
+      'product.image'])->whereHas('product',function($q){ $q->where('status','1'); }  )->whereIn('user_id',$user_id_array)->whereNOTNULL('offer_id')->groupBy('product_id');
+    $offerProduct=  $offerProduct->get();
+    $data=[];
+    if(!empty($offerProduct)){
+      $offerProduct = $offerProduct->toArray();
+      // echo "<pre>"; print_r($offerProduct); die;
+      foreach ($offerProduct as $rec){
+        $rec['price'] = number_format($rec['price'],2,'.','');    
+        $rec['offer_price'] = number_format($rec['price'],2,'.','');
+        $rec['mrp'] = number_format(!empty($rec['offer_price']) ? $rec['price']:$rec['best_price'],2,'.','');  
+        $rec['offer_data'] = $ffer_data = $this->offer->where('id',$rec['offer_id'])->where('from_time','<=',date('Y-m-d'))->where('to_time','>=',date('Y-m-d'))->first();
+        if(!empty($ffer_data)  ){ 
+          $rec['is_offer'] = true;
+          $rec['offer_id'] = $rec['offer_id'];
+          if($ffer_data->offer_type=='amount'){
+            $rec['offer_price'] = $rec['price'] - $ffer_data->offer_value;
+          }else if($ffer_data->offer_type=='percentages'){
+            $rec['offer_price'] = $rec['price']-( $rec['price'] * ( $ffer_data->offer_value / 100 )) ;       
+          }
+          $rec['offer_price'] = number_format( $rec['offer_price'],2,'.',''); 
+          $rec['mrp'] = number_format(!empty($rec['offer_price']) ? $rec['price']:$rec['best_price'],2,'.','');
+          if($rec['offer_price']>0) {
+            $discount = ($rec['price'] - $rec['offer_price']) / $rec['price'];
+          } else {
+            $discount = ($rec['best_price'] - $rec['price']) / $rec['best_price'];
+          }
+          $discount = $discount * 100;
+          $rec['discount'] = number_format($discount,2,'.','');
+          $data[] = $rec;
+        }
+        unset($offerProduct);
+        $vendorProduct = $offerProduct = $data; 
+      }
     }
   }
-$offer = $offer_arr =  [];
-$user  = User::select('*');
-$user->whereRaw('FIND_IN_SET('.$zone_id.', zone_id) ')->where(['user_type'=>'vendor']);
-$user = $user->get()->toArray();
-foreach($user as $kk=>$vv){
-$user_id_array[] = $vv['id'];
-}
-
-$offerProduct =  $this->vendorProduct->with([
-'product.MeasurementClass',
-'product.image'])->whereHas('product',function($q){ $q->where('status','1'); }  )->whereIn('user_id',$user_id_array)->whereNOTNULL('offer_id')->groupBy('product_id');
-$offerProduct=  $offerProduct->get();
-$data=[];
-if(!empty($offerProduct)){
-  $offerProduct = $offerProduct->toArray();
- // echo "<pre>"; print_r($offerProduct); die;
-foreach ($offerProduct as $rec){
-$rec['price'] = number_format($rec['price'],2,'.','');    
-$rec['offer_price'] = number_format($rec['price'],2,'.','');
-$rec['mrp'] = number_format(!empty($rec['offer_price']) ? $rec['price']:$rec['best_price'],2,'.','');  
-$rec['offer_data'] = $ffer_data = $this->offer->where('id',$rec['offer_id'])->where('from_time','<=',date('Y-m-d'))->where('to_time','>=',date('Y-m-d'))->first();
-if(!empty($ffer_data)  ){ 
-$rec['is_offer'] = true;
-$rec['offer_id'] = $rec['offer_id'];
-if($ffer_data->offer_type=='amount'){
-$rec['offer_price'] = $rec['price'] - $ffer_data->offer_value;
-}else if($ffer_data->offer_type=='percentages'){
-$rec['offer_price'] = $rec['price']-( $rec['price'] * ( $ffer_data->offer_value / 100 )) ;       }
-$rec['offer_price'] = number_format( $rec['offer_price'],2,'.',''); 
-$rec['mrp'] = number_format(!empty($rec['offer_price']) ? $rec['price']:$rec['best_price'],2,'.','');
-if($rec['offer_price']>0) {
-      $discount = ($rec['price'] - $rec['offer_price']) / $rec['price'];
-    } else {
-      $discount = ($rec['best_price'] - $rec['price']) / $rec['best_price'];
-    }
-    
-    $discount = $discount * 100;
-    $rec['discount'] = number_format($discount,2,'.','');
-$data[] = $rec;    
- }
-unset($offerProduct);
-$vendorProduct = $offerProduct = $data; 
-}
-}
-  
-
-}
   $super_deal = Helper::superDeal($zone_id);
   $appdata =  AppSetting::first();
   $topsellingproducts  =  $this->topsellingproducts($zone_id);
   return view('pages.index',['category' => $category,'Slider'=>$slider,'Ads'=>$ads,'offer'=>$vendorProduct,'appdata'=>$appdata,'offer_sliders'=>$offer_sliders,'topsellings'=>$topsellingproducts,'super_deal'=>$super_deal]);
 }
-
-
 
 public function topsellingproducts($zone_id){
   $user = User::select('*');

@@ -16,7 +16,7 @@
 	</ul>
 	</div>	
 </section>
-<?php //echo "<pre>"; print_r($current_orders); die; ?>
+<?php //echo "<pre>"; print_r($current_orders['ProductOrderItem']); echo "</pre>";?>
 <?php //echo "<pre>"; print_r($past_orders); die; ?>
 <section class="product-listing-body">
 	<div class="container">
@@ -66,9 +66,9 @@
 					    					@endif </span><br/>
 					    					<span>Payment Type - @if($current_order->payment_mode_id==1){{ 'Cash on Delivery' }}@elseif($current_order->payment_mode_id==2){{ 'Online Payment' }}@elseif($current_order->payment_mode_id==3){{ 'Wallet Payment' }}@else{{ 'Online & Wallet Payment' }}@endif</span><br/>
 					    			</div>
-					    				<div class="crnt_ordr_btn">
+					    				<div class="crnt_ordr_btn">	
 					    					<a href="{{ url('/track-order/'.$current_order->id) }}"> <button type="button" class="btn btn-default trck_btn">TRACK ORDER</button></a>
-					    					<a href="{{ url('/re-order/'.$current_order->id) }}"> <button type="button" class="btn btn-default trck_btn">Re-ORDER</button></a>
+					    					<a href="{{ url('/re-order/'.$current_order->id) }}"> <button type="button" class="btn btn-default trck_btn"><?= $current_order->returnable ?>Re-ORDER</button></a>
 					    				</div>
 					    			</div>
 					    		</li>

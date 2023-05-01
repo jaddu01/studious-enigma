@@ -92,14 +92,17 @@ class OrderController  extends Controller
         ->where(function($q){
           $q->where('order_status','D')->orwhere('order_status','C')->orwhere('order_status','R');
         })->paginate(10);
-         $current_orders = $this->productOrder->where('user_id',Auth::user()->id)
+         $current_orders = $this->productOrder->with('ProductOrderItem','vendorProduct','product')->where('user_id',Auth::user()->id)
          ->where(function($q){
             $q->where('order_status','!=','D')->where('order_status','!=','C')->where('order_status','!=','R');
-          // $q->where('order_status','PO')->orwhere('order_status','N')->orwhere('order_status','O')->orwhere('order_status','A')->orwhere('order_status','S');
         })->OrderBy('id','DESC')->paginate(10);
+          //echo '<pre>';print_r($current_orders);die();
         return view('pages.orderhistory')->with('orders',$orders)->with('past_orders',$past_orders)->with('current_orders',$current_orders);
     }
-
+    public function returnProduct($id='')
+    {
+        echo $id.'hello';
+    }
      public function trackorder(Request $request){
         $order_detail =$this->productOrder->find($request->id);
         if(empty($order_detail)){     

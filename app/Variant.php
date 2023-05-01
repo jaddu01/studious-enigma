@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Variant extends BaseModel
 { 
-    use SoftDeletes;
+    // use SoftDeletes;
     protected $fillable = [
         'product_id','color','size','measurement','qty',
     ]; 
@@ -90,12 +90,12 @@ class Variant extends BaseModel
 
      
 
-    protected static function boot()
-    {
-        parent::boot();
+    // protected static function boot()
+    // {
+    //     parent::boot();
 
-        static::addGlobalScope(new StatusScope());
-    }
+    //     static::addGlobalScope(new StatusScope());
+    // }
 
 
 

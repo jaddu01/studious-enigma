@@ -190,20 +190,23 @@ class UserController extends Controller
          $address = $user->address;
          $deliverylocations = DeliveryLocation::where('user_id',$user->id)->get();
          if(count($deliverylocations)==0){ 
-            $first_address = DeliveryLocation::where('id',$address)->first(); 
-            $first_address->user_id = $user->id;
-            $first_address->save();
-            $zonedata = $this->getZoneData($first_address->lat, $first_address->lng);
-            $vendor_zone_id = $zone_id = $zonedata['zone_id'];
-            $user->zone_id = $vendor_zone_id;
-            $user->save();
+            $first_address = DeliveryLocation::where('id',$address)->first();
+            if(! is_null($first_address)) {
+                $first_address->user_id = $user->id;
+                $first_address->save();
+                $zonedata = $this->getZoneData($first_address->lat, $first_address->lng);
+                $vendor_zone_id = $zone_id = $zonedata['zone_id'];
+                $user->zone_id = $vendor_zone_id;
+                $user->save();
+                Session::put('zone_id',$vendor_zone_id);
+            }
+            
            }else{
               $first_address =  DeliveryLocation::where('user_id',$user->id)->first(); 
               $zonedata = $this->getZoneData($first_address->lat, $first_address->lng);
               $vendor_zone_id = $zone_id = $zonedata['zone_id'];
            }
            $deliverylocations = DeliveryLocation::where('user_id',$user->id)->get();
-           Session::put('zone_id',$vendor_zone_id);
         //   print_r($deliverylocations); die;
          $total_order = $this->order->where('user_id',$user->id)->count();
          return view('pages.user.addaddress', ['user' => $user,'deliverylocations'=>$deliverylocations,'total_order'=>$total_order]);

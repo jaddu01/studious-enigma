@@ -49,14 +49,15 @@ class CouponController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function create()
-    {
+    { 
         if ($this->user->can('create', Coupon::class)) {
             return abort(403,'not able to access');
         }
         $validator = JsValidatorFacade::make($this->coupon->rules('POST'));
         $vandors=$this->user->where(['user_type'=>'vendor','role'=>'user'])->get()->pluck('full_name','id');
-
-        return view('admin/pages/coupon/add')->with('vandors',$vandors)->with('validator',$validator);
+        $users=$this->user->where(['status'=>'1','role'=>'user'])->where('name', '!=', '')->get()->pluck('name','id');
+        
+        return view('admin/pages/coupon/add')->with('vandors',$vandors)->with('validator',$validator)->with('users',$users);
     }
 
     /**
@@ -68,6 +69,7 @@ class CouponController extends Controller
     public function store(Request $request)
     {
         $input = $request->all();
+       // unset($input['user_id']);
        //echo '<pre>'; print_r($input);die;
         $validator = Validator::make($request->all(),$this->coupon->rules($this->method),$this->coupon->messages($this->method));
 
@@ -115,7 +117,9 @@ class CouponController extends Controller
         $validator = JsValidatorFacade::make($this->coupon->rules('PUT'));
         $coupon=$this->coupon->withoutGlobalScope(StatusScope::class)->findOrFail($id);
         $vandors=$this->user->where(['user_type'=>'vendor','role'=>'user'])->get()->pluck('full_name','id');
-        return view('admin/pages/coupon/edit')->with('coupon',$coupon)->with('vandors',$vandors)->with('validator',$validator);
+        $users=$this->user->where(['status'=>'1','role'=>'user'])->where('name', '!=', '')->get()->pluck('name','id');
+        
+        return view('admin/pages/coupon/edit')->with('coupon',$coupon)->with('vandors',$vandors)->with('validator',$validator)->with('users',$users);
     }
 
     /**

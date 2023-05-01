@@ -10,7 +10,7 @@ class ProductOrderItem extends BaseModel
 
     use SoftDeletes;
     protected $fillable = [
-        'vendor_product_id','order_id', 'is_offer','offer_value','offer_type','offer_data','price', 'qty','status','data'
+        'vendor_product_id','order_id', 'is_offer','offer_value','offer_type','offer_data','price', 'qty','status','data','return_status','return_resion'
     ];
 
     public function __construct(array $attributes = [])

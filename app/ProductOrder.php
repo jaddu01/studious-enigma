@@ -208,8 +208,15 @@ class ProductOrder extends BaseModel
     {
         return $this->belongsTo('App\VendorProduct', 'payment_mode_id', 'id');
     }
-    
-     public function VendorProductNew()
+    public function Product()
+    {
+        return $this->belongsTo('App\Product');
+    }
+    public function ProductTranslation($value='')
+    {
+        return $this->belongsTo('App\ProductTranslation');
+    }
+    public function VendorProductNew()
     {
         return $this->belongsTo('App\VendorProduct', 'vendor_product_id', 'id');
     }

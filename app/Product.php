@@ -26,7 +26,8 @@ class Product extends BaseModel
         'related_products',
         'status',
         'expire_date',
-        'show_in_cart_page'
+        'show_in_cart_page',
+        'returnable'
     ];
     public $translatedAttributes = ['name', 'description','disclaimer','keywords','self_life','manufacture_details','marketed_by','print_name'];
 
@@ -208,12 +209,19 @@ class Product extends BaseModel
     {
          return $this->hasMany('App\VendorProduct');
     }
+    public function Variant()
+    {
+        return $this->belongsTo('App\Variant','id','product_id');
+    }
     protected static function boot()
     {
         parent::boot();
         static::addGlobalScope(new StatusScope());
     }
-
+    public function ProductTranslation()
+    {
+        return $this->hasMany('App\ProductTranslation');
+    }
 
 
 }

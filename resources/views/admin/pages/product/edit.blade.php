@@ -356,12 +356,12 @@
                                     @endif
                                 </div>
                             </div>
-                            <div class="item form-group {{ $errors->has('is_returnable') ? ' has-error' : '' }}">
-                                <label class="control-label col-md-3 col-sm-3 col-xs-12" for="is_returnable">Returnable
+                            <div class="item form-group {{ $errors->has('returnable') ? ' has-error' : '' }}">
+                                <label class="control-label col-md-3 col-sm-3 col-xs-12" for="returnable">Returnable
                                 </label>
                                 <div class="col-md-6 col-sm-6 col-xs-12">
-                                    {!!  Form::select('is_returnable', ['1'=>'Yes','0'=>'No'],$product->is_returnable, array('class' => 'form-control col-md-7 col-xs-12')) !!}
-                                    {{ Form::filedError('is_returnable') }}
+                                    {!!  Form::select('returnable', ['1'=>'Yes','0'=>'No'],$product->returnable, array('class' => 'form-control col-md-7 col-xs-12')) !!}
+                                    {{ Form::filedError('returnable') }}
                                 </div>
                             </div>
                             <div class="item form-group {{ $errors->has('status') ? ' has-error' : '' }}">

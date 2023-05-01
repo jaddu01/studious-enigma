@@ -10,6 +10,7 @@ use App\Product;
 use App\VendorProduct;
 use App\Brand;
 use App\BrandTranslation;
+use App\ProductTranslation;
 use App\Scopes\StatusScope;
 use App\User;
 use App\Variant;
@@ -32,13 +33,14 @@ class ProductController extends Controller
     protected $user;
     protected $measurementClass;
     protected $method;
-    function __construct(Request $request,Product $model,MeasurementClass $measurementClass,User $user,VendorProduct $VendorProduct, Variant $Variant)
+    function __construct(Request $request,Product $model,MeasurementClass $measurementClass,User $user,VendorProduct $VendorProduct, Variant $Variant, ProductTranslation $ProductTranslation)
     {
         parent::__construct();
         $this->model=$model;
         $this->user=$user;
         $this->Variant=$Variant;
         $this->VendorProduct=$VendorProduct;
+        $this->producttranslation=$ProductTranslation;
         $this->measurementClass=$measurementClass;
         $this->method=$request->method();
         $this->gst = ['0'=>'0%','5'=>'5%','12'=>'12%','18'=>'18%'];
@@ -387,13 +389,6 @@ class ProductController extends Controller
      * @return \Illuminate\Http\JsonResponse
      */
     public function deleteImage(Request $request){
-
-        // if($request->status==1){
-        //     $status='0';
-        // }else{
-        //     $status='1';
-        // }  
-          
         $productImageCount=Image::where('image_id', $request->product_id)->whereNull('deleted_at')->count();
         if($productImageCount < 2){
               return response()->json([
@@ -401,8 +396,6 @@ class ProductController extends Controller
                     'message' => 'One image is required. You can not delete this image'
                 ],400);
         }
-       
-         
         $image=Image::where('id', $request->id)->first();
         $user= $image->withoutGlobalScope(StatusScope::class)->findOrFail($request->id)->delete();;
 
@@ -634,10 +627,52 @@ class ProductController extends Controller
             DB::rollBack();
 
         }
-        return redirect()->route('admin.product.savevariant')->with('success');
+        return redirect()->route('admin.product.variantview')->with('success');
     }
     public function variantview(){
-        die("hihihi");
+        // die("hihihi");
+        if ($this->user->can('view', Product::class)) {
+            return abort(403,'not able to access');
+        }
+        $products = Variant::get();
+        if(isset($products) && !empty($products)) {
+            foreach ($products as $key => $value) {
+                $p_name = $this->producttranslation->where('product_id', $value['product_id'])->get();
+                $pname = '';
+                if($p_name && count($p_name) > 0){
+                    $pname = $p_name[0]['name'];
+                }
+                $product[$key] = [
+                    'id' => $value['id'],
+                    'name' => $pname,
+                    'color' => $value['color'],
+                    'size' => $value['size'],
+                    'measurement' => $value['measurement'],
+                    'qty' => $value['qty'],
+                    'created_at' => date('d/m/Y',strtotime($value['created_at']))
+                ];
+                // $product[$key] = ['name'=>$p_name[0]['name']];
+                 //echo '<pre>';print_r($product);exit;
+            }
+        }
+
+        return view('admin/pages/product/variantview')->with('products',$product);
+    }
+    public function editvariant($id)
+    {
+        $variant = Variant::find($id);
+        $p_name = $this->producttranslation->where('product_id', $variant->product_id)->get()->toArray();
+        $variant['name'] = $p_name[0]['name'];
+        return view('admin/pages/product/editvariant')->with('variant',$variant);
+    }
+    public function updateVariant(Request $request, $id)
+    {
+        $variant = Variant::find($id);
+        $variant->color = $request->get('color');
+        $variant->size = $request->get('size');
+        $variant->measurement = $request->get('measurement');
+        $variant->qty = $request->get('qty');
+        $variant->update();
+        return redirect()->route('admin.product.variantview');
     }
 }
-

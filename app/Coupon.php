@@ -14,7 +14,7 @@ class Coupon extends BaseModel
     public $translationModel = 'App\CouponTranslation';
     use SoftDeletes;
     protected $fillable = [
-        'code','coupon_type','coupon_value','to_time','from_time','status','number_of_use'
+        'code','coupon_type','coupon_value','to_time','from_time','status','number_of_use','user_id'
     ];
 
     public $translatedAttributes = ['name'];

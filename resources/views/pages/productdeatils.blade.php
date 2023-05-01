@@ -56,7 +56,7 @@
         
         <div class="detail-slider-content">
         <div class="detail-slider-topcontent">
-                <?php //print_r($products); die;
+                <?php //echo "<pre>"; print_r($products['variantdata']); die;
                  if($products['is_offer']){  ?>
                    <button type="button">{{$products['offer_data']['name']}}</button>
                    <?php } 
@@ -68,16 +68,35 @@
             <i class="fa fa-heart" aria-hidden="true"></i> 
         </span>
         </a>
-        <?php } ?>
+        <?php } 
+            $memFlag = false;
+            if(!empty(Auth::user()->membership_to)){
+                $cu = date("Y-m-d h:i:s");
+                $date2=date_create(Auth::user()->membership_to);
+                $date1=date_create($cu);
+                $diff=date_diff($date1,$date2);
+                $lastd = $diff->format("%R%a");
+                if($lastd > 0)
+                {
+                    $memFlag = true;
+                } 
+            }?>
         <h2>{{$products['product']['name']}}</h2>
         <!-- <p>{{$products['product']['description']}}</p> -->
         </div>  
             <ul class="product-detail-content">
-            <?php if($products['is_offer'] && ($products['mrp']>$products['offer_price'])){  ?>
+            <?php  
+            if($products['membership'] !=''){ 
+               // echo $products['membership']." string";
+            } if($products['is_offer'] && ($products['mrp']>$products['offer_price'])){  ?>
             <li class="line-through-text"> ₹ {{$products['price']}}</li>
+            
             <li><h4>Discounted Price: <span class="orange-text"> ₹ {{$products['offer_price']}}</span> </h4> </li>
            <?php }else{ ?>
              <li><h4>Price: <span class="orange-text"> ₹ {{$products['price']}}</span> </h4> </li>
+             <li>
+                 
+            </li>
              <li class="line-through-text"> ₹ {{$products['mrp']}}</li>
            <?php } ?>
            @if($products['discount']>0)
@@ -85,6 +104,35 @@
                     <span class="green-text">{{$products['discount']}}% off</span>
                 </li>
             @endif
+            @if($products['variantdata'])
+                    <li>
+                        <span>Color</span>
+                @foreach($products['variantdata'] as $variantdata)
+                         <div class="container">
+                            <div class="selector">
+                                <div class="selecotr-item">
+                                    <input type="radio" id="color_{{$variantdata->id}}" name="color" class="selector-item_radio" checked>
+                                    <label for="color_{{$variantdata->id}}" class="selector-item_label">{{$variantdata->color}}</label>
+                                </div>
+                            </div>
+                        </div>
+                @endforeach
+                    </li>
+                    <li>
+                        <span>Size</span>
+                @foreach($products['variantdata'] as $variantdata)
+                        
+                        <div class="container">
+                            <div class="selector">
+                                <div class="selecotr-item">
+                                    <input type="radio" id="size_{{$variantdata->id}}" name="size" class="selector-item_radio" checked>
+                                    <label for="size_{{$variantdata->id}}" class="selector-item_label">{{$variantdata->size}}</label>
+                                </div>
+                            </div>
+                        </div> 
+                @endforeach
+                    </li>
+            @endif    
            <!-- <li>Seller: <span class="green-text">{{$products['user']['name']}} </label><li>  --><label class="green-text">Available  in:</label> <span class="waight-box">{{$products['product']['measurement_value']}} {{$products['product']['MeasurementClass']['name']}}</span> </li>
             
 <li class="quantity-box">
@@ -118,6 +166,12 @@ if(Auth::user()){ ?>
                     <p>{{$products['product']['marketed_by']}}</p>
                     <h4>Disclaimer</h4>
                     <p>{{$products['product']['disclaimer']}}</p>
+                    <?php if($products['product']['expire_date']){?>
+                        <h4>Expired on </h4>
+                        <p>
+                            {{date_format(date_create($products['product']['expire_date']),'Y-m-d')}}
+                        </p>
+                    <?php }?>
                 </div>
            
                 
