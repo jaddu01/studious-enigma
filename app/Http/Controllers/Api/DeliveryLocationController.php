@@ -4,11 +4,13 @@ namespace App\Http\Controllers\Api;
 
 
 use App\DeliveryLocation;
+use App\Helpers\ResponseBuilder;
 use App\Region;
 use App\Traits\ResponceTrait;
 use App\Traits\RestControllerTrait;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Http\Resources\DeliveryLocationResource;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 
@@ -46,16 +48,19 @@ class DeliveryLocationController extends Controller
      */
     public function index()
     {
-
         try {
-
-            $deliveryLocation = $this->deliveryLocation->with(['user','region'])->where('user_id','=',Auth::guard('api')->user()->id)->orderBy('updated_at','desc')->get();
+            $user = Auth::guard('api')->user();
+            if(!$user){
+                return ResponseBuilder::error("User not found", $this->validationStatus);
+            }
+            $deliveryLocations = $user->deliveryLocation()->with('region')->latest()->paginate(20);
+            $this->response->delivery_locations = DeliveryLocationResource::collection($deliveryLocations);
+            return ResponseBuilder::successWithPagination($deliveryLocations,$this->response, $this->successStatus);
+            //$deliveryLocation = $this->deliveryLocation->with(['user','region'])->where('user_id','=',Auth::guard('api')->user()->id)->orderBy('updated_at','desc')->get();
 
         } catch (\Exception $e) {
-            return $this->clientErrorResponse($e);
+            return ResponseBuilder::error($e->getMessage(), $this->errorStatus);
         }
-
-        return $this->showResponse($deliveryLocation);
     }
 
 

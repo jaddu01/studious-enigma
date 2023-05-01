@@ -24,6 +24,8 @@ Route::group(['prefix' => '/v1/'], function () {
 	|--------------------------------------------------------------------------
 	*/
 	Route::post('homedata', 'Api\ProductController@getHomedata');
+	Route::post('get-all-weekly-Offer-products', 'Api\ProductController@getWeeklyOfferProducts');
+	Route::post('get-all-top-selling-products', 'Api\ProductController@getAllTopSellingProducts');
 	Route::get('notification/{user}', 'Api\UserController@getUserNotificationByUserId');
 
 	Route::get('test', 'Api\UtilityController@testSMS');
@@ -40,6 +42,7 @@ Route::group(['prefix' => '/v1/'], function () {
 	Route::post('user/update-location', 'Api\UserController@updateCurrentLocation');
 	// TODO cms page
 	Route::get('cms/{page}', 'Api\CmsController@index');
+	Route::get('brands', 'Api\UtilityController@brands');
 
 	// TODO global setting
     Route::get('home', 'Api\UtilityController@home');
@@ -61,7 +64,6 @@ Route::group(['prefix' => '/v1/'], function () {
 	//TODO Utility section routes
 	Route::get('subcategory/{category_id}', 'Api\UtilityController@getSubCategoryByCategoryId');
 	Route::get('slider', 'Api\UtilityController@getSlider');
-	Route::resource('delivery_location', 'Api\DeliveryLocationController');
 	Route::post('user/notification', 'Api\UserController@notification');
 
 	//TODO cart section
@@ -137,12 +139,15 @@ Route::group(['prefix' => '/v1/'], function () {
 	Route::post('getregionnamebycity', 'Api\UtilityController@getRegionsByCityId');
 	Route::get('sample-notification', 'Api\OrderController@testNotification');
 	Route::get('product-demo', 'Api\ProductController@listDemo');
-	Route::group(['middleware' => 'auth:api'], function () {
+	// Route::group(['middleware' => ['auth.verify','auth:api']], function () {
+	Route::middleware(['auth.verify'])->group(function () {
 		//Route::get('city', 'Api\UtilityController@getCity');
 		//TODO user section routes
 		//Route::post('user/profile', 'Api\UserController@details');
 		Route::post('user/update', 'Api\UserController@update');
 		Route::post('user/addmembership', 'Api\MembershipController@addmembership');
+		
+		Route::resource('delivery_location', 'Api\DeliveryLocationController');
 
 
 		Route::get('user/wallet_history', 'Api\UserController@getwalletHistories');

@@ -28,6 +28,8 @@ use App\Helpers\ResponseBuilder;
 use DB;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Http\Resources\OrderProductResource;
+use App\Http\Resources\VendorProductResource;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 
@@ -792,25 +794,7 @@ class ProductController extends Controller
                 }
             }
         }
-
-        $user  = User::select('*');
-        $offer = $offer_arr =  [];
-        $user->whereRaw('FIND_IN_SET('.$zone_id.', zone_id) ')->where(['user_type'=>'vendor']);
-        $user = $user->get()->toArray();
-        foreach($user as $kk=>$vv){
-          $user_id_array[] = $vv['id'];
-        }
-        $user_id_array = $product_id_array=[];
-        $all_offer = $this->vendorProduct->with([
-            'product.MeasurementClass',
-            'product.image','cart'=>function($q) use($zone_id){
-                $q->where(['user_id'=>Auth::user()->id,'zone_id'=>$zone_id]);
-            },'wishList'=>function($q){
-                $q->where(['user_id'=>Auth::user()->id]);
-            }])->whereHas('product',function($q){ $q->where('status','1'); }  )->whereIn('user_id',$user_id_array)->whereNOTNULL('offer_id')->get();
-        foreach($all_offer as $key=>$value){
-            $product_id_array[]=$value->product_id;
-        } 
+        
         $brands = Brand::with('barndTraslation')->limit(6)->get();
          
         $offerProduct  =  $this->offerdataHOme($zone_id);
@@ -821,16 +805,13 @@ class ProductController extends Controller
         
         $sliders = array("data"=>$slider, "type"=>"slider");
         $homeStrip = array("data"=>$homeStrip, "type"=>"homeStrip");
-        $offerProducts = array("data"=>$offerProduct, "type"=>"offerProduct");
-        $categorys = array("data"=>$category, "type"=>"category");
+        $offerProducts = array("data"=>$offerProduct, "type"=>"offerProduct","heading"=>'Weekly Offer Products','api_url'=>'/api/v1/get-all-weekly-Offer-products');
+        $categorys = array("data"=>$category, "type"=>"category",'api_url'=>'/api/v1/category');
         $adss = array("data"=>$ads, "type"=>"ads");
-        $zone_ids = array("data"=>$zone_id, "type"=>"zone_id");
-        $appdatas = array("data"=>$appdata, "type"=>"appdata");
         $offer_sliderss = array("data"=>$offer_sliders, "type"=>"offer_sliders");
-        $topsellingproductss = array("data"=>$topsellingproducts, "type"=>"product","heading"=>'Top selling products');
+        $topsellingproductss = array("data"=>$topsellingproducts, "type"=>"product","heading"=>'Top selling products','api_url'=>'/api/v1/get-all-top-selling-products');
         $super_dealss = array("data"=>$super_deal, "type"=>"product","heading"=>'Super Deals');
-        $zonss = array('zone'=>$zone_ids, "type"=>"zone");
-        $brands = array('brands'=>$brands, "type"=>"brands");
+        $brands = array('brands'=>$brands, "type"=>"brands",'api_url'=>'/api/v1/brands');
 
         // $this->response->sliders = $slider;
         // $this->response->homeStrip = $homeStrip;
@@ -846,7 +827,7 @@ class ProductController extends Controller
 
         //return ResponseBuilder::success($this->response);
         //$ldata = array($categorys,$sliders,$adss,$offerProducts,$zonss,$appdatas,$offer_sliderss,$topsellingproductss,$super_dealss,$brands);
-        $ldata = [$sliders,$homeStrip,$offerProducts,$categorys,$adss,$zonss,$appdatas,$offer_sliderss,$topsellingproductss,$super_dealss,$brands];
+        $ldata = [$sliders,$homeStrip,$offerProducts,$categorys,$adss,$offer_sliderss,$topsellingproductss,$super_dealss,$brands];
         return response()->json($ldata);
      } 
 
@@ -854,168 +835,182 @@ class ProductController extends Controller
 
 
     public function offerdataHOme($zone_id){
-        $user = User::select('*');
-        $user->whereRaw('FIND_IN_SET(' . $zone_id . ', zone_id) ')->where(['user_type' => 'vendor']);
-        $user = $user->get()->toArray();
-        $product_data=[];
-        $user_id_array=[];
-        
-        foreach($user as $kk=>$vv){
-            $user_id_array[] = $vv['id'];
-            $product_data[$vv['id']] = $this->vendorProduct->where('user_id',$vv['id'])->where('status','1')->get()->toArray();
-        }
-        //dd('pppppp');
-        $offer_product_id_array = [];
-        $offer_products = $this->vendorProduct->with(['Product','product.MeasurementClass','product.image',
-            'cart'=>function($q) use($zone_id){
-                $q->where(['zone_id'=>$zone_id]);
-            }
-        ])
-        ->whereHas('product',function($q){ $q->where('status','1'); })->whereIn('user_id',$user_id_array)->whereNOTNULL('offer_id')->get();
-
-        foreach($offer_products as $offer_product){
-            $pffer_data = $this->offer->where('id',$offer_product->offer_id)->where('from_time','<=',date('Y-m-d'))->where('to_time','>=',date('Y-m-d'))->first();
-            
-            if(!empty($pffer_data)){
-                $offer_product_id_array[] = $offer_product->product_id;
-            }
-        }
-
+        $user_id_array = User::whereRaw('FIND_IN_SET(' . $zone_id . ', zone_id) ')->where(['user_type' => 'vendor'])->get()->pluck('id')->toArray();
         $vendorProduct =  $this->vendorProduct->with(['product.MeasurementClass','product.image',
             'cart'=>function($q) use($zone_id){
                 $q->where(['zone_id'=>$zone_id]);
             }
         ])
-        ->whereHas('product',function($q){ $q->where('status','1'); })->whereIn('user_id',$user_id_array)->whereNOTNULL('offer_id');
+        ->whereHas('product',function($q){ $q->where('status','1'); })->whereIn('user_id',$user_id_array)->whereHas('Offer')->limit(20)->get();
 
-        if(!empty($vendorProduct)){
-            $vProduct = $vendorProduct= $vendorProduct->groupBy('product_id')->take(10000)->get();
-            $vendorProduct= $vendorProduct->toArray();
-        }
-
-        $data=[];
-        if(!empty($vendorProduct)){
-            foreach ($vendorProduct as $rec){
-                $rec = $rec;
-                $rec['price'] = number_format($rec['price'],2,'.','');   
-                $rec['offer_price'] = number_format($rec['price'],2,'.','');   
-       
-                $rec['offer_data'] =   $ffer_data = $this->offer->where('id',$rec['offer_id'])->where('from_time','<=',date('Y-m-d'))->where('to_time','>=',date('Y-m-d'))->first();
-                
-                if(!empty($ffer_data)){
-                    $rec['is_offer'] = true;
-                    $rec['offer_id'] = $rec['offer_id'];
-                    
-                    if($ffer_data->offer_type=='amount'){
-                        $rec['offer_price'] = $rec['price']- $ffer_data->offer_value;
-                    }else if($ffer_data->offer_type=='percentages'){
-                        $rec['offer_price'] = $rec['price'] -( $rec['price'] * ( $ffer_data->offer_value / 100 )) ;                 
-                    }
-                    
-                    $rec['offer_price'] = number_format( $rec['offer_price'],2,'.','');   
-                    $data[] = $rec;                       
-                }     
-            }
-            unset($vendorProduct);
-            $vendorProduct = $data; 
-        }
-
-        $data=[];
-        if(!empty($vendorProduct)){
-            foreach ($vendorProduct as $rec){
-                $rec['match_in_zone']=true;
-                $rec['product']['image'] = isset($rec['product']['image']['name']) ? $rec['product']['image']['name'] : '';
-                unset($rec['product']['related_products']/*,$rec['product']['category_id']*/);
-                $data[]=$rec;
-            }
-            unset($vendorProduct);
-            $vendorProduct = $data; 
-        }
-        //echo "<pre>"; print_r($vendorProduct); die;
-        return $vendorProduct;
+        return VendorProductResource::collection($vendorProduct);
     }
     public function topsellingproducts($zone_id){
-          $user = User::select('*');
-          $user->whereRaw('FIND_IN_SET(' . $zone_id . ', zone_id) ')->where(['user_type' => 'vendor']);
-          $user = $user->get()->toArray();
-          $product_data=[];
-          $user_id_array=[];
-          foreach($user as $kk=>$vv){
-            $user_id_array[] = $vv['id'];
-          }
-          //print_r($user_id_array); die();
+        $user_id_array = User::whereRaw('FIND_IN_SET(' . $zone_id . ', zone_id) ')->where(['user_type' => 'vendor'])->get()->pluck('id')->toArray();
+        //print_r($user_id_array); die();
 
-          $results = ProductOrderItem::select(DB::raw( "vendor_product_id,COUNT(id) as cnt"))->groupBy('vendor_product_id')->orderBy('cnt', 'DESC')->paginate(20)->toArray();
-          $response_array = [];
-          if(!empty($results['data'])){
-            foreach ($results['data'] as $result) {
-              $pid = $result['vendor_product_id'];
-              if(Auth::guard()->user()){
-                $vendorProduct =  $this->vendorProduct->with(['product.MeasurementClass','product.image',
-                  'cart'=>function($q) use($zone_id){
+        $vendoreProductIds = ProductOrderItem::select(DB::raw( "vendor_product_id,COUNT(id) as cnt"))->groupBy('vendor_product_id')->orderBy('cnt', 'DESC')->get()->pluck('vendor_product_id')->toArray();
+        //dd($results);
+        if(Auth::guard()->user()){
+            $vendorProduct =  $this->vendorProduct->with(['product.MeasurementClass','product.image',
+                'cart'=>function($q) use($zone_id){
                     $q->where(['zone_id'=>$zone_id]);
-                  }
-                ])
-                ->whereHas('product',function($q){ $q->where('status','1'); }  )
-                ->whereIn('user_id',$user_id_array)->where('id',$pid);
-                
-                if(!empty($vendorProduct)){
-                  $vendorProduct= $vendorProduct->first();
                 }
-              }else{
-                $vendorProduct = $this->vendorProduct->with(['product.MeasurementClass','product.image'])->where('id',$pid)->first();
-              }
-              /*if(!empty($vendorProduct)){
-                echo $vendorProduct->price;
-              }*/
-              $response_array[] = $vendorProduct;
-
-            }
-            //print_r($response_array); die();
-           // die();
-            $data=[];
-            if(!empty($response_array)){
-              foreach ($response_array as $rec){
-                $rec['price'] = number_format($rec['price'],2,'.','');
-                $rec['wish_list'] = isset($rec['wishList'])?$rec['wishList']:''; 
-                $rec['mrp'] = number_format(!empty($rec['best_price']) ? $rec['best_price']:$rec['price'],2,'.','');   
-                $rec['offer_price'] = number_format($rec['price'],2,'.','');   
-                if(!empty($rec['offer_id'])){
-                  $rec['offer_data'] =   $ffer_data = $this->offer->where('id',$rec['offer_id'])->where('from_time','<=',date('Y-m-d'))->where('to_time','>=',date('Y-m-d'))->first();
-                  if(!empty($ffer_data)){
-                    $rec['is_offer'] = true;
-                    $rec['offer_id'] = $rec['offer_id'];
-                    if($ffer_data->offer_type=='amount'){
-                      $rec['offer_price'] = $rec['price']- $ffer_data->offer_value;
-                    }else if($ffer_data->offer_type=='percentages'){
-                      $rec['offer_price'] = $rec['price'] -( $rec['price'] * ( $ffer_data->offer_value / 100 ));
-                    }
-                    $rec['offer_price'] = number_format( $rec['offer_price'],2,'.',''); 
-                    $rec['mrp'] = number_format(!empty($rec['offer_price']) ? $rec['price']:$rec['best_price'],2,'.','');  
-                    $data[]=$rec;                       
-                  }  
-                }    
-              }
-              
-              unset($response_array);
-              $response_array = $data; 
-            }
-
-            $data=[];
-            if(!empty($response_array)){
-              foreach ($response_array as $rec){
-                $rec['match_in_zone']=true;
-                $rec['product']['image'] = isset($rec['product']['image']['name']) ? $rec['product']['image']['name'] : '';
-                unset($rec['product']['related_products']/*,$rec['product']['category_id']*/);
-                $data[]=$rec;
-              }
-              unset($response_array);
-              $response_array = $data; 
-            }
-          }
-
-          return $response_array;
+            ])
+            ->whereHas('product',function($q){ $q->where('status','1'); }  )
+            ->whereIn('user_id',$user_id_array)->whereIn('id',$vendoreProductIds)->limit(20)->get();
+        }else{
+                $vendorProduct = $this->vendorProduct->with(['product.MeasurementClass','product.image'])
+                ->whereHas('product',function($q){ $q->where('status','1'); })
+                ->whereIn('id',$vendoreProductIds)
+                ->whereIn('user_id',$user_id_array)
+                ->limit(20)->get();
         }
+
+        return VendorProductResource::collection($vendorProduct);
+    }
  
+    public function getWeeklyOfferProducts(){
+        try{
+            $lat = request('lat');
+            $lng = request('lng');
+            $zone = $this->getZoneData($lat, $lng);
+            $zone_id = $zone['zone_id'];
+            $user_id_array = User::whereRaw('FIND_IN_SET(' . $zone_id . ', zone_id) ')->where(['user_type' => 'vendor'])->get()->pluck('id')->toArray();
+            $vendorProduct =  $this->vendorProduct->with(['product.MeasurementClass','product.image',
+                'cart'=>function($q) use($zone_id){
+                    $q->where(['zone_id'=>$zone_id]);
+                }
+            ])
+            ->whereHas('product',function($q){ $q->where('status','1'); })->whereIn('user_id',$user_id_array)->whereHas('Offer')->paginate(20);
+    
+            $this->response->vendorProduct = VendorProductResource::collection($vendorProduct);
+            return ResponseBuilder::successWithPagination($vendorProduct, $this->response);
+        }catch(\Exception $e){
+            return ResponseBuilder::error($e->getMessage(), $e->getCode());
+        }
+    }
+
+    public function getAllTopSellingProducts(){
+        $lat = request('lat');
+        $lng = request('lng');
+        $zone = $this->getZoneData($lat, $lng);
+        $zone_id = $zone['zone_id'];
+        $user_id_array = User::whereRaw('FIND_IN_SET(' . $zone_id . ', zone_id) ')->where(['user_type' => 'vendor'])->get()->pluck('id')->toArray();
+        //print_r($user_id_array); die();
+
+        $vendoreProductIds = ProductOrderItem::select(DB::raw( "vendor_product_id,COUNT(id) as cnt"))->groupBy('vendor_product_id')->orderBy('cnt', 'DESC')->get()->pluck('vendor_product_id')->toArray();
+        //dd($results);
+        if(Auth::guard()->user()){
+            $vendorProduct =  $this->vendorProduct->with(['product.MeasurementClass','product.image',
+                'cart'=>function($q) use($zone_id){
+                    $q->where(['zone_id'=>$zone_id]);
+                }
+            ])
+            ->whereHas('product',function($q){ $q->where('status','1'); }  )
+            ->whereIn('user_id',$user_id_array)->whereIn('id',$vendoreProductIds)->paginate(20);
+        }else{
+                $vendorProduct = $this->vendorProduct->with(['product.MeasurementClass','product.image'])
+                ->whereHas('product',function($q){ $q->where('status','1'); })
+                ->whereIn('id',$vendoreProductIds)
+                ->whereIn('user_id',$user_id_array)
+                ->paginate(20);
+        }
+        $this->response->vendorProduct = VendorProductResource::collection($vendorProduct);
+        return ResponseBuilder::successWithPagination($vendorProduct, $this->response);
+        //$response_array = [];
+        // if(!empty($results['data'])){
+        //   foreach ($results['data'] as $result) {
+        //     $pid = $result['vendor_product_id'];
+        //     if(Auth::guard()->user()){
+        //       $vendorProduct =  $this->vendorProduct->with(['product.MeasurementClass','product.image',
+        //         'cart'=>function($q) use($zone_id){
+        //           $q->where(['zone_id'=>$zone_id]);
+        //         }
+        //       ])
+        //       ->whereHas('product',function($q){ $q->where('status','1'); }  )
+        //       ->whereIn('user_id',$user_id_array)->where('id',$pid);
+              
+        //       if(!empty($vendorProduct)){
+        //         $vendorProduct= $vendorProduct->first();
+        //       }
+        //     }else{
+        //       $vendorProduct = $this->vendorProduct->with(['product.MeasurementClass','product.image'])->where('id',$pid)->first();
+        //     }
+        //     /*if(!empty($vendorProduct)){
+        //       echo $vendorProduct->price;
+        //     }*/
+        //     $response_array[] = $vendorProduct;
+
+        //   }
+        //   //print_r($response_array); die();
+        //  // die();
+        //   $data=[];
+        //   if(!empty($response_array)){
+        //     foreach ($response_array as $rec){
+        //       $rec['price'] = number_format($rec['price'],2,'.','');
+        //       $rec['wish_list'] = isset($rec['wishList'])?$rec['wishList']:''; 
+        //       $rec['mrp'] = number_format(!empty($rec['best_price']) ? $rec['best_price']:$rec['price'],2,'.','');   
+        //       $rec['offer_price'] = number_format($rec['price'],2,'.','');   
+        //       if(!empty($rec['offer_id'])){
+        //         $rec['offer_data'] =   $ffer_data = $this->offer->where('id',$rec['offer_id'])->where('from_time','<=',date('Y-m-d'))->where('to_time','>=',date('Y-m-d'))->first();
+        //         if(!empty($ffer_data)){
+        //           $rec['is_offer'] = true;
+        //           if($ffer_data->offer_type=='amount'){
+        //             $rec['offer_price'] = $rec['price']- $ffer_data->offer_value;
+        //           }else if($ffer_data->offer_type=='percentages'){
+        //             $rec['offer_price'] = $rec['price'] -( $rec['price'] * ( $ffer_data->offer_value / 100 ));
+        //           }
+        //           $rec['offer_price'] = number_format( $rec['offer_price'],2,'.',''); 
+        //           $rec['mrp'] = number_format(!empty($rec['offer_price']) ? $rec['price']:$rec['best_price'],2,'.','');  
+        //           $data[]=$rec;                       
+        //         }  
+        //       }    
+        //     }
+            
+        //     unset($response_array);
+        //     $response_array = $data; 
+        //   }
+
+        //   $data=[];
+        //   if(!empty($response_array)){
+        //     foreach ($response_array as $rec){
+        //       $rec['match_in_zone']=true;
+        //       $rec['product']['image'] = isset($rec['product']['image']['name']) ? $rec['product']['image']['name'] : '';
+        //       unset($rec['product']['related_products']/*,$rec['product']['category_id']*/);
+        //       $data[]=$rec;
+        //     }
+        //     unset($response_array);
+        //     $response_array = $data; 
+        //   }
+        // }
+
+        //return $response_array;
+      }
+
+    public function seeAll(){
+        try{
+           $lat = request('lat');
+           $lng = request('lng');
+           $zone = $this->getZoneData($lat, $lng);
+           $zone_id = $zone['zone_id'];
+           $type = request('type');
+           switch($type){
+                case 'top_selling':
+                      $vendorProduct = $this->getAllTopSellingProducts($zone_id);
+                      break;
+                case 'new_arrival':
+                      $vendorProduct = $this->newArrivalProducts($zone_id);
+                      break;
+                case 'weekly_offer':
+                      $vendorProduct = $this->weeklyOfferProducts($zone_id);
+                      break;
+           }
+            $this->response->vendorProduct = VendorProductResource::collection($vendorProduct);
+            return ResponseBuilder::successWithPagination($vendorProduct, $this->response);
+        }catch(\Exception $e){
+            return ResponseBuilder::error($e->getMessage(), $e->getCode());
+        }
+    }
 }
 

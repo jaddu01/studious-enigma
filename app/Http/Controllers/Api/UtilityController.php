@@ -40,6 +40,9 @@ use GuzzleHttp\Client;
 use App\ProductOrderItem;
 
 use App;
+use App\Brand;
+use App\Helpers\ResponseBuilder;
+use App\Http\Resources\BrandsResource;
 use DB;
 
 class UtilityController extends Controller
@@ -886,6 +889,17 @@ $next_tomorrow_day_name = $next_tomorrow_date->format('D');
     $response = $client->request('GET',"http://login.yourbulksms.com/api/sendhttp.php?authkey=".$authkey."&mobiles=".$phone_number."&message=".$message."&sender=".$senderid."&route=4&country=91&DLT_TE_ID=".$tmp_id);
     //$statusCode = $response->getStatusCode();
     print_r($response);
+ }
+
+ public function brands(){
+    try{
+        $brands = Brand::with('barndTraslation')->paginate(20);
+        $this->response->brands = BrandsResource::collection($brands);
+        return ResponseBuilder::successWithPagination($brands,$this->response);
+
+    }catch(\Exception $e){
+        return ResponseBuilder::error($e->getMessage(),$this->errorStatus);
+    }
  }
 
 }
