@@ -9,6 +9,7 @@ use App\ProductOrderItem;
 use App\Helpers\Helper;
 use App\AppSetting;
 use App\FirstOrder;
+use App\Helpers\ResponseBuilder;
 use App\VendorProduct;
 use App\Traits\ResponceTrait;
 use App\Traits\RestControllerTrait;
@@ -17,6 +18,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
+use Response;
 
 class CartController extends Controller
 {
@@ -54,69 +56,74 @@ class CartController extends Controller
      */
     public function index(Request $request)
     {
-        //return Auth::guard('api')->user()->zone_id;
-          $AppSetting =AppSetting::select('mim_amount_for_order','mim_amount_for_order_prime','mim_amount_for_free_delivery','mim_amount_for_free_delivery_prime')->firstOrfail();
-      
-if(Auth::guard('api')->user()){
-        $data= $this->cart->where(['user_id'=>Auth::guard('api')->user()->id])->where(['zone_id'=>Auth::guard('api')->user()->zone_id])->has('vendorProduct')->has('vendorProduct.Product')->with(['vendorProduct.Product.image'])->with(['vendorProduct.Product.MeasurementClass']);
-        $dataAll = $data;
-        $data = $data->get()->toArray();
-        //return $data;
-$cartTotalArray= Helper::cartTotal(Auth::guard('api')->user()->id,Auth::guard('api')->user()->zone_id);
-if($cartTotalArray['offer_price_total']>=1000){
- $flag=0;   
-} else{ $flag=1 ; }
+        $user = Auth::guard('api')->user();
+        $AppSetting =AppSetting::select('mim_amount_for_order','mim_amount_for_order_prime','mim_amount_for_free_delivery','mim_amount_for_free_delivery_prime')->first();      
+        if(!$user){
+            return ResponseBuilder::error("User not found",$this->unauthStatus);
+        }
+        $data = $user->cart()->with(['vendorProduct.Product.image','vendorProduct.Product.MeasurementClass'])->get();
+        $cartTotalArray= Helper::cartTotal($user->id,$user->zone_id);
 
-$order_count = $this->productOrder->where('user_id',Auth::guard('api')->user()->id)->count();
-            $first_order = $this->first_order->first();
-            $result= [];
-            foreach ($data as $rec){
-            if(($order_count==0) && ($flag==0)){
+//         $data= $this->cart->where(['user_id'=>Auth::guard('api')->user()->id])->where(['zone_id'=>Auth::guard('api')->user()->zone_id])->has('vendorProduct')->has('vendorProduct.Product')->with(['vendorProduct.Product.image'])->with(['vendorProduct.Product.MeasurementClass']);
+//         $dataAll = $data;
+//         $data = $data->get()->toArray();
+//         //return $data;
+// $cartTotalArray= Helper::cartTotal(Auth::guard('api')->user()->id,Auth::guard('api')->user()->zone_id);
+        if($cartTotalArray['offer_price_total'] >= 1000){
+            $flag = 0;   
+        } else{ 
+            $flag = 1; 
+        }
+
+        // $order_count = $this->productOrder->where('user_id',Auth::guard('api')->user()->id)->count();
+        $order_count = $user->productOrder->count();
+        $first_order = $this->first_order->first();
+        $result= [];
+        foreach ($data as $rec){
+            if(($order_count == 0) && ($flag==0)){
                 if(!empty($first_order)){
-                  foreach($first_order->free_product as $fk=>$fv){
-            if($fv==$rec['vendor_product']['product_id']){
-            $rec['vendor_product']['price'] = $rec['vendor_product']['offer_price'] = 0;
-            $rec['is_free_product']=true;
-            $flag=1;
-            }
-            }  
+                    foreach($first_order->free_product as $fk=>$fv){
+                        if($fv==$rec['vendor_product']['product_id']){
+                            $rec['vendor_product']['price'] = $rec['vendor_product']['offer_price'] = 0;
+                            $rec['is_free_product']=true;
+                            $flag=1;
+                        }
+                    }  
                 }
              }else{
                 $rec['is_free_product']=false;
             }
-            $result[]= $rec;
+        }
+//  $cartTotalArray= Helper::cartTotal(Auth::guard('api')->user()->id,Auth::guard('api')->user()->zone_id);
+        $total = $cartTotalArray['offer_price_total']+$cartTotalArray['delivery_charge'];
+  
+        if(!empty($user->membership) && $user->membership_to >= now()){
+            if($cartTotalArray['offer_price_total'] >= $AppSetting->mim_amount_for_free_delivery_prime){
+                $cartTotalArray['delivery_charge'] = 0;
+            }else{
+                $cartTotalArray['delivery_charge'] = $cartTotalArray['delivery_charge'];
             }
- $cartTotalArray= Helper::cartTotal(Auth::guard('api')->user()->id,Auth::guard('api')->user()->zone_id);
- $total = $cartTotalArray['offer_price_total']+$cartTotalArray['delivery_charge'];
+            $left_amount = $AppSetting->mim_amount_for_free_delivery_prime - $cartTotalArray['offer_price_total'];
   
-        if(!empty(Auth::guard('api')->user()->membership) && (Auth::guard('api')->user()->membership_to>=date('Y-m-d H:i:s')) ){
-        if($cartTotalArray['offer_price_total']>=$AppSetting->mim_amount_for_free_delivery_prime){
+        }else{
+            if($cartTotalArray['offer_price_total'] >= $AppSetting->mim_amount_for_free_delivery){
                 $cartTotalArray['delivery_charge'] = 0;
             }else{
                 $cartTotalArray['delivery_charge'] = $cartTotalArray['delivery_charge'];
+            }
+            $left_amount = $AppSetting->mim_amount_for_free_delivery - $cartTotalArray['offer_price_total'];
         }
-           $left_amount = $AppSetting->mim_amount_for_free_delivery_prime - $cartTotalArray['offer_price_total'];
-  
-      }else{
-        if($cartTotalArray['offer_price_total']>=$AppSetting->mim_amount_for_free_delivery){
-                $cartTotalArray['delivery_charge'] = 0;
-            }else{
-                $cartTotalArray['delivery_charge'] = $cartTotalArray['delivery_charge'];
+        if($left_amount>0){
+            $delivery_charges_msg = "Shop INR".$left_amount." more to get Free Delivery";
+        }else{
+            $delivery_charges_msg="Yay! Free Delivery";
         }
-           $left_amount = $AppSetting->mim_amount_for_free_delivery - $cartTotalArray['offer_price_total'];
-  
-      }
-    if($left_amount>0){
-            $delivery_charges_msg="shop ".$left_amount." Rs more to get Free Delivery  ";
-             }else{
-              $delivery_charges_msg="Yay! Free Delivery";
-             }
              
         $response = [
             'error'=>false,
             'code' => 0,
-            'cart_list' => $result,
-            'cart_count' => count($result),
+            'cart_list' => $data,
+            'cart_count' => count($data),
             'total_saving' => $cartTotalArray['total_saving'],
             'total_saving_percentage' => $cartTotalArray['total_saving_percentage'],
             'product_price' => $cartTotalArray['offer_price_total'],
@@ -133,24 +140,10 @@ $order_count = $this->productOrder->where('user_id',Auth::guard('api')->user()->
             'mim_amount_for_free_delivery_prime' => $AppSetting->mim_amount_for_free_delivery_prime
             
         ];
-
-
-
-$response['can_order'] = true ;
-$response['wallet_balence'] = number_format(Auth::guard('api')->user()->wallet_amount,2,'.','');
-}else{
-  //  echo "<pre>"; print_r($AppSetting); die;
-  $response = [
-            'error'=>true,
-            'code' => 1,
-            'min_amount_for_order' => $AppSetting['mim_amount_for_order'],
-            'min_amount_for_free_delivery' => $AppSetting['mim_amount_for_free_delivery'],
-            'message'=>"You Must login For see this page",
-        ];  
-
-}
- return response()->json($response, 200);
-}
+        $response['can_order'] = true ;
+        $response['wallet_balence'] = number_format(Auth::guard('api')->user()->wallet_amount,2,'.','');
+        return response()->json($response, 200);
+    }
 
 
 

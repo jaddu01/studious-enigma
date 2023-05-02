@@ -190,7 +190,7 @@ class User extends Authenticatable
     }
 
     public function cart(){
-        return $this->hasMany('App\Cart')->paginate(config('setting.pagination_limit'));
+        return $this->hasMany('App\Cart');
     }
     protected static function boot()
     {
