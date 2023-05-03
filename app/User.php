@@ -192,6 +192,9 @@ class User extends Authenticatable
     public function cart(){
         return $this->hasMany('App\Cart');
     }
+    public function wishlist(){
+        return $this->hasMany(WishLish::class,'user_id','id');
+    }
     protected static function boot()
     {
         parent::boot();

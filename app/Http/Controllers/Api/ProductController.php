@@ -812,13 +812,13 @@ class ProductController extends Controller
         
         $sliders = array("data"=>$slider, "type"=>"slider");
         $homeStrip = array("data"=>$homeStrip, "type"=>"homeStrip");
-        $offerProducts = array("data"=>$offerProduct, "type"=>"offerProduct","heading"=>'Weekly Offer Products','api_url'=>'/api/v1/get-all-weekly-Offer-products');
-        $categorys = array("data"=>$category, "type"=>"category",'api_url'=>'/api/v1/category');
+        $offerProducts = array("data"=>$offerProduct, "type"=>"offerProduct","heading"=>'Weekly Offer Products','api_url'=>'get-all-weekly-Offer-products');
+        $categorys = array("data"=>$category, "type"=>"category",'api_url'=>'category');
         $adss = array("data"=>$ads, "type"=>"ads");
         $offer_sliderss = array("data"=>$offer_sliders, "type"=>"offer_sliders");
-        $topsellingproductss = array("data"=>$topsellingproducts, "type"=>"product","heading"=>'Top selling products','api_url'=>'/api/v1/get-all-top-selling-products');
+        $topsellingproductss = array("data"=>$topsellingproducts, "type"=>"product","heading"=>'Top selling products','api_url'=>'get-all-top-selling-products');
         $super_dealss = array("data"=>$super_deal, "type"=>"product","heading"=>'Super Deals');
-        $brands = array('brands'=>$brands, "type"=>"brands",'api_url'=>'/api/v1/brands');
+        $brands = array('brands'=>$brands, "type"=>"brands",'api_url'=>'brands');
 
         // $this->response->sliders = $slider;
         // $this->response->homeStrip = $homeStrip;

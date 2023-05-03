@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Helpers\Helper;
+use App\Helpers\ResponseBuilder;
 use App\Traits\ResponceTrait;
 use App\Traits\RestControllerTrait;
 use App\WishLish;
@@ -39,10 +40,10 @@ class WishLishController extends Controller
     }
     public function index(Request $request)
     {
+        $user = Auth::guard('api')->user();
+        $wishlists = $user->wishlist()->with('vendorProduct','vendorProduct.Product.image')->get();
         $data= $this->wishLish->where(['user_id'=>Auth::guard('api')->user()->id])->where(['zone_id'=>Auth::guard('api')->user()->zone_id])->has('vendorProduct')->has('vendorProduct.Product')->with(['vendorProduct.Product.image']);
-        $dataAll = $data;
-        $data = $data->get()->toArray();
-
+       
         $result= [];
         foreach ($data as $rec){
             $rec['vendor_product']['product']['image']=$rec['vendor_product']['product']['image']['name'];
@@ -70,48 +71,27 @@ class WishLishController extends Controller
      */
     public function store(Request $request)
     {
-
         $validator = Validator::make($request->all(),$this->wishLish->rules($this->method),$this->wishLish->messages($this->method));
-
         if ($validator->fails()) {
-            return $this->validationErrorResponce($validator);
+            // return $this->validationErrorResponce($validator);
+            return ResponseBuilder::error($validator->errors()->first(), $this->validationStatus);
         }else{
-
             try {
-
-                $user_id =  Auth::guard('api')->user()->id;
-                $zone_id =  Auth::guard('api')->user()->zone_id;
-                //return  $zone_id;
-                if($wish_list = $this->wishLish->select(['id'])->where(['user_id'=>$user_id,'zone_id'=>$zone_id,'vendor_product_id'=>$request->vendor_product_id])->first()){
-                    $message =trans('site.delete');
-                    $data= [];
-                   if($wish_list->delete()){
-
-                        $response = [
-                            'error'=>false,
-                            'code' => 0,
-                            'message'=>trans('site.wishlist_delete'),
-                        ];
-                        return response()->json($response, 200);
-                   }
-                    
-                    
+                $user = Auth::guard('api')->user();
+                //get user wishlist
+                $wishlist = $user->wishlist()->where(['vendor_product_id'=>$request->vendor_product_id])->first();
+                if($wishlist){
+                    //remove from wishlist
+                    $wishlist->delete();
+                    return ResponseBuilder::success(null, trans('site.wishlist_delete'), $this->successStatus);
                 }else{
-                    $input_request = $request->all();
-                    $input_request['user_id']=$user_id;
-                    $input_request['zone_id']=$zone_id;
-                    $data =  $this->wishLish->create($input_request);
-                    
-                    $message =trans('site.wishlist_create');
+                    //add to wishlist
+                    $user->wishlist()->create(['vendor_product_id'=>$request->vendor_product_id]);
+                    return ResponseBuilder::success(null,trans('site.wishlist_create'), $this->successStatus);
                 }
-
-
-
             } catch (\Exception $e) {
-
-                return $this->clientErrorResponse($e);
+                return ResponseBuilder::error($e->getMessage(), $this->errorStatus);
             }
-            return $this->showResponse($data,$message);
         }
     }
 
