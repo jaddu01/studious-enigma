@@ -13,6 +13,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\DeliveryLocationResource;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
+use Response;
 
 class DeliveryLocationController extends Controller
 {
@@ -146,25 +147,22 @@ class DeliveryLocationController extends Controller
      */
     public function destroy(Request $request ,$id)
     {
-        $location_count=$this->deliveryLocation->where('user_id',Auth::guard('api')->user()->id)->count();
+        $location = collect($this->deliveryLocation->where('user_id',Auth::guard('api')->user()->id)->get());
         try {
-            if($location_count>1){
-            $cart = $this->deliveryLocation->where('id',$id)->where('user_id',Auth::guard('api')->user()->id)->firstOrFail();
-            $cart->delete();
-            return $this->deletedResponse();
+            if($location->count() > 1){
+                $cart = $location->where('id',$id)->first();
+                if(!$cart){
+                    return ResponseBuilder::error("Delivery Location not found", $this->notFoundStatus);
+                }
+                $cart->delete();
+                $this->response->id = $id;
+                return ResponseBuilder::success($this->response, "Delivery Location deleted successfully", $this->successStatus);
 
-        }else{
-
-            $data['error']=true;
-            $data['code']=1;
-            $data['message'] = "You cannot delete last address";
-
-
-            return response()->json($data);
-
-        }
+            }else{
+                return ResponseBuilder::error("You can't delete last address", $this->validationStatus);
+            }
         } catch (\Exception $e) {
-            return $this->clientErrorResponse($e);
+            return ResponseBuilder::error($e->getMessage(), $this->errorStatus);
         }
 
 

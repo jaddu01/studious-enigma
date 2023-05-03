@@ -209,10 +209,10 @@ class Product extends BaseModel
     {
          return $this->hasMany('App\VendorProduct');
     }
-    public function Variant()
-    {
-        return $this->belongsTo('App\Variant','id','product_id');
+    public function varients(){
+        return $this->hasMany(Variant::class,'product_id');
     }
+    
     protected static function boot()
     {
         parent::boot();

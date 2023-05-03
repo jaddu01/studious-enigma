@@ -161,11 +161,6 @@ class VendorProduct extends BaseModel
         return $this->hasOne('App\WishLish');
     }
 
-    //relationship to varients
-    public function varients(){
-        return $this->hasMany(Variant::class,'product_id');
-    }
-
 
     protected static function boot()
     {
