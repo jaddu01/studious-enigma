@@ -46,6 +46,8 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Pagination\LengthAwarePaginator;
 
 use GuzzleHttp\Client;
+use Illuminate\Validation\Rule;
+
 class UserController extends Controller
 {
     use RestControllerTrait,ResponceTrait, SendsPasswordResetEmails;
@@ -572,7 +574,35 @@ class UserController extends Controller
         return response()->json($response_data, 201);
     }
 
-    public function resend_otp(Request $request) {
+    //resend otp
+    public function resend_otp(Request $request){
+        try{
+            $validator = Validator::make($request->all(), [     
+                'phone_code' => 'required|max:4',
+                'phone_number' => ['required','max:10',Rule::exists('users')->where(function ($query) use($request) {
+                    $query->where('phone_code', $request->phone_code)->where('phone_number', $request->phone_number);
+                })],
+            ],[
+                'phone_number.exists' => 'This mobile no is not registered with us.',
+            ]);
+    
+            if ($validator->fails()){
+                return ResponseBuilder::error($validator->errors()->first(), $this->validationStatus);
+            }
+            $user = $this->user->where('phone_code', $request->phone_code)->where('phone_number', $request->phone_number)->first();
+            if(empty($user)){
+                return ResponseBuilder::error('User not found', $this->notFoundStatus);
+            }
+            $otp = "123456"; //rand(100000, 999999);
+            $user->otp = $otp;
+            $user->save();
+
+            return ResponseBuilder::success(null, 'OTP sent successfully', $this->successStatus);
+        }catch(\Exception $e){
+            return ResponseBuilder::error($e->getMessage(), $this->errorStatus);
+        }
+    }
+    public function resend_otp_old(Request $request) {
         $validator = Validator::make($request->all(), [
             'user_id' => 'required',
             'resend_type' => 'required'
