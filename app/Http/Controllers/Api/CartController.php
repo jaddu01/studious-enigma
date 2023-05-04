@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Cart;
 use App\Coupon;
+use App\Http\Resources\CartResource;
 use App\ProductOrder;
 use App\ProductOrderItem;
 use App\Helpers\Helper;
@@ -155,104 +156,60 @@ class CartController extends Controller
      */
     public function store(Request $request)
     {
-        $zone_id = Auth::guard('api')->user()->zone_id;
+        $user = Auth::guard('api')->user();
+        $zone_id = $user->zone_id;
         $validator = Validator::make($request->all(),$this->cart->rules($this->method),$this->cart->messages($this->method));
-         $AppSetting =AppSetting::select('mim_amount_for_order','mim_amount_for_free_delivery')->firstOrfail();
+        $AppSetting =AppSetting::select('mim_amount_for_order','mim_amount_for_free_delivery')->firstOrfail();
       
         if ($validator->fails()) {
-            return $this->validationErrorResponce($validator);
+            return ResponseBuilder::error($validator->errors()->first(), $this->validationStatus);
         }else{
-           
             try {
+                $cart= $this->cart->where(['user_id'=>Auth::guard('api')->user()->id,'vendor_product_id'=>$request->vendor_product_id])->first();
+                $qty = Helper::outOfStock($request->vendor_product_id,$zone_id);
+                if($qty < $request->qty && $request->action == 'add'){
+                    return ResponseBuilder::error(trans('order.product_out_of_stock'), $this->validationStatus);
+                }
 
-                    $cart= $this->cart->where(['user_id'=>Auth::guard('api')->user()->id,'vendor_product_id'=>$request->vendor_product_id])->first();
+                
+                
 
-                    $qty = Helper::outOfStock($request->vendor_product_id,$zone_id);
-
-                    if($qty < $request->qty){
-                        $out_of_stock_responce['message'] = trans('order.product_out_of_stock');
-
-                        if($request->action == 'add'){
-                            return $this->outOfStockResponse($out_of_stock_responce);
-                        }
-
-
+                if($cart){
+                    if($request->qty == 0){
+                        $cart->delete();
+                        $cartTotalArray= Helper::cartTotal($user->id,$user->zone_id);
+                        $this->response->cart = new CartResource($cartTotalArray); 
+                        return ResponseBuilder::success($this->response, trans('order.removed_from_cart'), $this->successStatus);
+                        // return response()->json($response, 200);
                     }
 
-                    if($cart==null){
-                        $validator = Validator::make($request->all(),[
-                           'qty'=>'required|integer|min:1',
-                        ]);
+                    $cart->fill($request->only('qty'))->save();
 
-                        if ($validator->fails()) {
-                            return $this->validationErrorResponce($validator);
+                    $cartTotalArray= Helper::cartTotal($user->id,$user->zone_id);
+                    
+
+                    if(!empty($user->membership) && ($user->membership_to >= date('Y-m-d H:i:s'))){
+                        if($cartTotalArray['offer_price_total'] >= $AppSetting->mim_amount_for_free_delivery){
+                            $cartTotalArray['delivery_charge'] = 0;
                         }
-                        $input_request = $request->all();
-                        $input_request['user_id']=Auth::guard('api')->user()->id;
-                        $input_request['zone_id']=Auth::guard('api')->user()->zone_id;
-
-                        $cart =   $this->cart->create($input_request);
-                        $message = trans('order.added_in_cart');
+                        $cartTotalArray= Helper::cartTotal($user->id,$user->zone_id);
+                        $cartTotalArray['cart'] = $cart;
+                        $this->response->cart = new CartResource($cartTotalArray); 
+                        return ResponseBuilder::success($this->response, trans('order.updated_in_cart'), $this->successStatus);
                     }
-                    else{
-                         if($request->qty==0){
-                            $cart->delete();
-                            $cartTotalArray= Helper::cartTotal(Auth::guard('api')->user()->id,Auth::guard('api')->user()->zone_id);
-                            $response = [
-                                'error'=>false,
-                                'code' => 0,
-                                'cart_count' => $cartTotalArray['count'],
-                                'total_saving' => $cartTotalArray['total_saving'],
-                                'total_saving_percentage' => $cartTotalArray['total_saving_percentage'],
-                                'product_price' => $cartTotalArray['offer_price_total'],
-                                'delivery_charge' => $cartTotalArray['delivery_charge'],
-                                'total_price' => $cartTotalArray['offer_price_total']+$cartTotalArray['delivery_charge'],
-                                'currency' => '₹' ,
-                                'message'=>trans('order.removed_from_cart'),
-                            ];
-                            return response()->json($response, 200);
+                }
 
-                        }
-                        //return $cart->qty - $request->qty;
-                       /* if($request->action == 'remove'){
-                            $qtyArray = ['qty'=> $cart->qty - $request->qty];
-                            $cart->fill($qtyArray)->save();
-                        }else{
-                            $cart->fill($request->only('qty'))->save();
-                        }*/
-                      $cart->fill($request->only('qty'))->save();
-                        $message = trans('order.updated_cart');
-                    }
+                $input_request = $request->all();
+                $input_request['zone_id'] = $user->zone_id;
 
+                $cart = $user->cart()->create($input_request);
+                $cartTotalArray= Helper::cartTotal($user->id,$user->zone_id);
+                $this->response->cart = new CartResource($cartTotalArray); 
+                return ResponseBuilder::success($this->response, trans('order.added_in_cart'), $this->successStatus);
 
             } catch (\Exception $e) {
-                 
-                return $this->clientErrorResponse($e);
+                return ResponseBuilder::error($e->getMessage(), $this->errorStatus);
             }
-            $cartTotalArray= Helper::cartTotal(Auth::guard('api')->user()->id,Auth::guard('api')->user()->zone_id);
-    if(!empty(Auth::guard('api')->user()->membership) && (Auth::guard('api')->user()->membership_to>=date('Y-m-d H:i:s')) ){
-        if($cartTotalArray['offer_price_total']>=$AppSetting->mim_amount_for_free_delivery){
-                $cartTotalArray['delivery_charge'] = 0;
-            }else{
-                $cartTotalArray['delivery_charge'] = $cartTotalArray['delivery_charge'];
-        }
-    }
-
-            $response = [
-                'error'=>false,
-                'code' => 0,
-                'data' => $cart,
-                'cart_count' => $cartTotalArray['count'],
-                'total_saving' => $cartTotalArray['total_saving'],
-                'total_saving_percentage' => $cartTotalArray['total_saving_percentage'],
-                'product_price' => $cartTotalArray['offer_price_total'],
-                'delivery_charge' => $cartTotalArray['delivery_charge'],
-                'total_price' => $cartTotalArray['offer_price_total']+$cartTotalArray['delivery_charge'],
-                'currency' => $cartTotalArray['currency'],
-                'message'=>$message,
-            ];
-
-            return response()->json($response, 200);
         }
     }
 
