@@ -79,7 +79,6 @@ class CartController extends Controller
         // $order_count = $this->productOrder->where('user_id',Auth::guard('api')->user()->id)->count();
         $order_count = $user->productOrder->count();
         $first_order = $this->first_order->first();
-        $result= [];
         foreach ($data as $rec){
             if(($order_count == 0) && ($flag==0)){
                 if(!empty($first_order)){
@@ -96,45 +95,34 @@ class CartController extends Controller
             }
         }
 //  $cartTotalArray= Helper::cartTotal(Auth::guard('api')->user()->id,Auth::guard('api')->user()->zone_id);
-        $total = $cartTotalArray['offer_price_total']+$cartTotalArray['delivery_charge'];
-  
+        
         if(!empty($user->membership) && $user->membership_to >= now()){
             if($cartTotalArray['offer_price_total'] >= $AppSetting->mim_amount_for_free_delivery_prime){
                 $cartTotalArray['delivery_charge'] = 0;
-            }else{
-                $cartTotalArray['delivery_charge'] = $cartTotalArray['delivery_charge'];
             }
             $left_amount = $AppSetting->mim_amount_for_free_delivery_prime - $cartTotalArray['offer_price_total'];
   
         }else{
             if($cartTotalArray['offer_price_total'] >= $AppSetting->mim_amount_for_free_delivery){
                 $cartTotalArray['delivery_charge'] = 0;
-            }else{
-                $cartTotalArray['delivery_charge'] = $cartTotalArray['delivery_charge'];
             }
             $left_amount = $AppSetting->mim_amount_for_free_delivery - $cartTotalArray['offer_price_total'];
         }
         if($left_amount>0){
-            $delivery_charges_msg = "Shop INR".$left_amount." more to get Free Delivery";
+            $delivery_charges_msg = "Shop ₹".$left_amount." more to get Free Delivery";
         }else{
             $delivery_charges_msg="Yay! Free Delivery";
         }
-             
         $response = [
-            'error'=>false,
-            'code' => 0,
-            'cart_list' => $data,
+            'cart_list' => CartResource::collection($data),
             'cart_count' => count($data),
             'total_saving' => $cartTotalArray['total_saving'],
             'total_saving_percentage' => $cartTotalArray['total_saving_percentage'],
             'product_price' => $cartTotalArray['offer_price_total'],
-            'min_amount_for_order' => $cartTotalArray['min_amount_for_order'],
-            'min_amount_for_free_delivery' => $cartTotalArray['min_amount_for_free_delivery'],
             'delivery_charge' => $cartTotalArray['delivery_charge'],
             'delivery_charges_msg' => $delivery_charges_msg,
             'total_mrp' => $cartTotalArray['total'],
             'total_price' => $cartTotalArray['offer_price_total']+$cartTotalArray['delivery_charge'],
-            'message'=>trans('site.success'),
             'mim_amount_for_order' => $AppSetting->mim_amount_for_order,
             'mim_amount_for_order_prime' => $AppSetting->mim_amount_for_order_prime,
             'mim_amount_for_free_delivery' => $AppSetting->mim_amount_for_free_delivery,
@@ -165,15 +153,11 @@ class CartController extends Controller
             return ResponseBuilder::error($validator->errors()->first(), $this->validationStatus);
         }else{
             try {
-                $cart= $this->cart->where(['user_id'=>Auth::guard('api')->user()->id,'vendor_product_id'=>$request->vendor_product_id])->first();
+                $cart= $this->cart->where(['user_id'=>$user->id,'vendor_product_id'=>$request->vendor_product_id])->first();
                 $qty = Helper::outOfStock($request->vendor_product_id,$zone_id);
                 if($qty < $request->qty && $request->action == 'add'){
                     return ResponseBuilder::error(trans('order.product_out_of_stock'), $this->validationStatus);
                 }
-
-                
-                
-
                 if($cart){
                     if($request->qty == 0){
                         $cart->delete();
@@ -192,11 +176,12 @@ class CartController extends Controller
                         if($cartTotalArray['offer_price_total'] >= $AppSetting->mim_amount_for_free_delivery){
                             $cartTotalArray['delivery_charge'] = 0;
                         }
-                        $cartTotalArray= Helper::cartTotal($user->id,$user->zone_id);
-                        $cartTotalArray['cart'] = $cart;
-                        $this->response->cart = new CartResource($cartTotalArray); 
-                        return ResponseBuilder::success($this->response, trans('order.updated_in_cart'), $this->successStatus);
                     }
+                    
+                    $cartTotalArray= Helper::cartTotal($user->id,$user->zone_id);
+                    $cartTotalArray['cart'] = $cart;
+                    $this->response->cart = new CartResource($cartTotalArray); 
+                    return ResponseBuilder::success($this->response, trans('order.updated_in_cart'), $this->successStatus);
                 }
 
                 $input_request = $request->all();
@@ -208,7 +193,8 @@ class CartController extends Controller
                 return ResponseBuilder::success($this->response, trans('order.added_in_cart'), $this->successStatus);
 
             } catch (\Exception $e) {
-                return ResponseBuilder::error($e->getMessage(), $this->errorStatus);
+                return $e;
+                // return ResponseBuilder::error($e->getMessage(), $this->errorStatus);
             }
         }
     }

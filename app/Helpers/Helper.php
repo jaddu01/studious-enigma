@@ -387,117 +387,110 @@ public static function hasImage($imageName) {
 	}
     
 	public static function cartTotal($user_id, $zone_id) {
-	$AppSetting =AppSetting::select('mim_amount_for_order','mim_amount_for_free_delivery','mim_amount_for_free_delivery_prime')->firstOrfail();
-		$cartRec = Cart::whereHas('vendorProduct',function($q){ $q->where('status','1');  })->with(['vendorProduct.Product' => function ($query) {//$query->withTrashed();
-			},'zone' => function ($query) {// $query->withTrashed();
-			},
-			])->where(['user_id' => $user_id, 'zone_id' => $zone_id])->get();
-/**First ordrer product free **/
-$is_free_product =false;
-$flag=0;
-$order_count = ProductOrder::where('user_id',$user_id)->count();
-if($order_count==0){
-	//$zone_id = implode(',', $zone_id);
-$user  = User::select('*')->whereRaw('FIND_IN_SET('.$zone_id.', zone_id) ')->where(['user_type'=>'vendor'])->get();
-$useridarray =$freeproduct=[];
-foreach($user as $userkey=>$uservalue){ $useridarray[]= $uservalue->id;}
-$order_count = ProductOrder::where('user_id',$user_id)->count();
-if($order_count==0){
-$first_order = FirstOrder::first();
-if(!empty($first_order->free_product)){
-$free_product =  $first_order->free_product;
-$freeproductdata = [];
-foreach($free_product as $kk=>$vv){
-$dd =VendorProduct::with(['Product'])->where('product_id',$vv)->whereIn('user_id',$useridarray)->first();
-if(!empty($dd)){                        
-$freeproduct[$kk] = $dd->product_id;
-}
-}
-$first_order->free_product_data = $freeproduct;
-}
-foreach($cartRec as $dk=>$dv){
-foreach($freeproduct as $fk=>$fv){
-if($fv==$dv['vendorProduct']['product_id']){
-$is_free_product =true;
-$free_product_id = $fv;
-}
-}    
-}
-}
-}else{ $flag=1; }
-/**End First ordrer product free **/
+		$AppSetting = AppSetting::select('mim_amount_for_order','mim_amount_for_free_delivery','mim_amount_for_free_delivery_prime')->firstOrfail();
+		$cartRec = Cart::whereHas('vendorProduct',function($q){ 
+				$q->where('status','1');  
+			})
+			->with(['vendorProduct.Product','zone'])
+			->where(['user_id' => $user_id, 'zone_id' => $zone_id])->get();
+		
+			/**First ordrer product free **/
+		$is_free_product = false;
+		$flag = 0;
+		$order_count = ProductOrder::where('user_id',$user_id)->count();
+		
+		if($order_count == 0){
+			//$zone_id = implode(',', $zone_id);
+			$user  = User::select('*')->whereRaw('FIND_IN_SET('.$zone_id.', zone_id)')->where(['user_type'=>'vendor'])->get();
+			$useridarray = $freeproduct = [];
+			foreach($user as $userkey=>$uservalue){ 
+				$useridarray[]= $uservalue->id;
+			}
+			$first_order = FirstOrder::first();
+			if(!empty($first_order->free_product)){
+				$free_product = $first_order->free_product;
+				foreach($free_product as $kk=>$vv){
+					$dd = VendorProduct::with(['Product'])->where('product_id',$vv)->whereIn('user_id',$useridarray)->first();
+					if(!empty($dd)){
+						$freeproduct[$kk] = $dd->product_id;
+					}
+				}
+				$first_order->free_product_data = $freeproduct;
+			}
+			foreach($cartRec as $dk=>$dv){
+				foreach($freeproduct as $fk=>$fv){
+					if($fv == $dv['vendorProduct']['product_id']){
+						$is_free_product = true;
+					}
+				}
+			}
+		}else{ 
+			$flag=1; 
+		}
+		/**End First ordrer product free **/
 		$offer_price_total = 0;
 		$total = 0;
 		$dc = 0;
-		$parr = $result= [];
-	foreach ($cartRec as $Rec) {
+		$result= [];
+		foreach ($cartRec as $Rec) {
 			if(!empty($Rec['vendorProduct'])){
-
-	if(  (isset($freeproduct)) && ($flag==0) && (in_array($Rec['vendorProduct']['product']['id'],$freeproduct)) ) {
-           	   if($Rec['qty']==1){
-           	   $Rec['vendorProduct']['offer_price'] = $Rec['vendorProduct']['price'] = 0;
-           	  }else{
-           	  	$Rec['qty']=$Rec['qty'] - 1;
-           	  }
-           	   $Rec['vendorProduct']['is_offer'] = false;
-               $Rec['vendorProduct']['offer']= [];
-               $flag=1;
+				if((isset($freeproduct)) && ($flag==0) && (in_array($Rec['vendorProduct']['product']['id'],$freeproduct)) ) {
+           	   		if($Rec['qty'] == 1){
+           	   			$Rec['vendorProduct']['offer_price'] = $Rec['vendorProduct']['price'] = 0;
+           	  		}else{
+           	  			$Rec['qty'] = $Rec['qty'] - 1;
+           	  		}
+           	   		$Rec['vendorProduct']['is_offer'] = false;
+               		$Rec['vendorProduct']['offer']= [];
+               		$flag = 1;
 				}else{
-				  $Rec['vendorProduct']['offer_price'] = $Rec['vendorProduct']['price'];
+				  	$Rec['vendorProduct']['offer_price'] = $Rec['vendorProduct']['price'];
 					if(!empty($Rec['vendorProduct']['offer_id'])){
 						$offer = Offer::where('id',$Rec['vendorProduct']['offer_id'])->where('from_time','<=',date('Y-m-d'))->where('to_time','>=',date('Y-m-d'))->first();
 						if(!empty($offer)){
 							$offer->toArray();
-						if($offer['offer_type']=='amount'){ 
-							$Rec['vendorProduct']['offer_price'] = $Rec['vendorProduct']['offer_price'] - $offer['offer_value']; }
-						else if($offer['offer_type']=='percentages'){
-							$Rec['vendorProduct']['offer_price'] = $Rec['vendorProduct']['offer_price'] - (($Rec['vendorProduct']['offer_price'] * $offer['offer_value'] ) / 100 );
-			            }
-			            $Rec['vendorProduct']['offer_price'] = number_format($Rec['vendorProduct']['offer_price'],2, '.', '');
-                       $Rec['vendorProduct']['is_offer'] = true;
-                       $Rec['vendorProduct']['offer']= $offer;
-			        }
+							if($offer['offer_type']=='amount'){ 
+								$Rec['vendorProduct']['offer_price'] = $Rec['vendorProduct']['offer_price'] - $offer['offer_value']; }
+							else if($offer['offer_type']=='percentages'){
+								$Rec['vendorProduct']['offer_price'] = $Rec['vendorProduct']['offer_price'] - (($Rec['vendorProduct']['offer_price'] * $offer['offer_value'] ) / 100 );
+			            	}
+			            	$Rec['vendorProduct']['offer_price'] = number_format($Rec['vendorProduct']['offer_price'],2, '.', '');
+                       		$Rec['vendorProduct']['is_offer'] = true;
+                       		$Rec['vendorProduct']['offer']= $offer;
+			        	}
                      }else{
-					  $Rec['vendorProduct']['offer_price'] = $Rec['vendorProduct']['offer_price']	;
-		   			  $Rec['vendorProduct']['is_offer'] = false;
-                      $Rec['vendorProduct']['offer']= [];
+		   			  	$Rec['vendorProduct']['is_offer'] = false;
+                      	$Rec['vendorProduct']['offer']= [];
+					}
 				}
 			}
-					}
-				//echo "<pre>"; print_r($Rec); die;
-		$total = $total + ( $Rec['vendorProduct']['price'] * $Rec['qty'] );
-		// code change by Abhishek Bhatt for check the minimum amount for free delivery zone wise //
-		//$dc = $Rec['Zone']['delivery_charges'];
-		$offer_price_total = $offer_price_total + ( $Rec['vendorProduct']['offer_price'] * $Rec['qty'] );
-		if($offer_price_total >= $Rec['Zone']['minimum_order_amount']) {
-			$dc = 0;
-		} else {
-			$dc = $Rec['Zone']['delivery_charges'];
+			//echo "<pre>"; print_r($Rec); die;
+			$total = $total + ( $Rec['vendorProduct']['price'] * $Rec['qty'] );
+			// code change by Abhishek Bhatt for check the minimum amount for free delivery zone wise //
+			//$dc = $Rec['Zone']['delivery_charges'];
+			$offer_price_total = $offer_price_total + ( $Rec['vendorProduct']['offer_price'] * $Rec['qty'] );
+			if($offer_price_total >= $Rec['Zone']['minimum_order_amount']) {
+				$dc = 0;
+			} else {
+				$dc = $Rec['Zone']['delivery_charges'];
+			}
+	 		$result[]= $Rec;
 		}
-
-	 $result[]= $Rec;
-	}
-
-	$total_saving = $total - $offer_price_total;
-	$mim_amount_for_free_delivery = 0;
-	//echo "<pre>"; print_r(Auth::guard('api')->user()); die;
-	if(!empty(Auth::guard('api')->user()->membership) && (Auth::guard('api')->user()->membership_to>=date('Y-m-d H:i:s')) ){
-		if($offer_price_total>=$AppSetting->mim_amount_for_free_delivery_prime){
-		     $dc = 0;
-		}else{  
-			$dc = $dc;
+		$total_saving = $total - $offer_price_total;
+		$mim_amount_for_free_delivery = 0;
+		//echo "<pre>"; print_r(Auth::guard('api')->user()); die;
+		if(!empty(Auth::guard('api')->user()->membership) && (Auth::guard('api')->user()->membership_to>=date('Y-m-d H:i:s')) ){
+			if($offer_price_total>=$AppSetting->mim_amount_for_free_delivery_prime){
+		     	$dc = 0;
+			}
+			$mim_amount_for_free_delivery = $AppSetting->mim_amount_for_free_delivery_prime;
+		}else{
+			$mim_amount_for_free_delivery = (isset($Rec['Zone']['minimum_order_amount']) && $Rec['Zone']['minimum_order_amount'] > 0) ? $Rec['Zone']['minimum_order_amount'] : $AppSetting->mim_amount_for_free_delivery;
+			if($offer_price_total>=$mim_amount_for_free_delivery){  
+				$dc = 0;
+			}
+			//$mim_amount_for_free_delivery = $AppSetting->mim_amount_for_free_delivery;
 		}
-		$mim_amount_for_free_delivery = $AppSetting->mim_amount_for_free_delivery_prime;
-	}else{
-		$mim_amount_for_free_delivery = (isset($Rec['Zone']['minimum_order_amount']) && $Rec['Zone']['minimum_order_amount'] > 0) ? $Rec['Zone']['minimum_order_amount'] : $AppSetting->mim_amount_for_free_delivery;
-		if($offer_price_total>=$mim_amount_for_free_delivery){  
-			$dc = 0;
-			}else{   
-			$dc = $dc;
-		}
-		//$mim_amount_for_free_delivery = $AppSetting->mim_amount_for_free_delivery;
-	}
-
 		return $result = [
 		   // 'cartRec' => $parr,
 			'cart_list' => $result,

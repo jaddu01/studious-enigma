@@ -15,13 +15,10 @@ class CartResource extends JsonResource
     public function toArray($request)
     {
         return [
-            'data' => $this->cart ?? null,
-            'cart_count' => $this->count,
-            'total_saving' => $this->total_saving,
-            'total_saving_percentage' => $this->total_saving_percentage,
-            'product_price' => $this->offer_price_total,
-            'delivery_charge' => $this->delivery_charge,
-            'total_price' => $this->offer_price_total+$this->delivery_charge,
+            'id' => $this->id,
+            'qty' => $this->qty,
+            'is_free_product' => $this->is_free_product,
+            'product' => new VendorProductResource($this->vendorProduct),
             'currency' => '₹' 
         ];
     }
