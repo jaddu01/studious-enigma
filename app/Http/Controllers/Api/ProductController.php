@@ -24,6 +24,7 @@ use App\Ads;
 use App\Brand;
 use App\ZoneTranslation;
 use App;
+use App\SearchQueries;
 use App\Helpers\ResponseBuilder;
 use DB;
 use Illuminate\Http\Request;
@@ -344,7 +345,6 @@ class ProductController extends Controller
     public function show($id)
     {
         try {
-            DB::enableQueryLog();
             $user = Auth::guard('api')->user();
             if($user){
                 $vendorProduct = $this->vendorProduct->whereHas('product')->with(['product.MeasurementClass','product.images','cart'=>function($q){
@@ -362,9 +362,17 @@ class ProductController extends Controller
             }
             // $vendorProduct->related_products= Helper::relatedProducts($vendorProduct->product->related_products,$vendorProduct->user_id);
             $this->response->vendorProduct = new VendorProductDetailedResource($vendorProduct);
-            //$this->response->related_products = Helper::relatedProducts($vendorProduct->product->related_products,$vendorProduct->user_id);
+            //$this->response->related_products = Helper::relatedProducts($vendorProduct->product->related_products,$vendorProduct->user_id,true,$vendorProduct->user->zone_id);
             return ResponseBuilder::success($this->response);
         } catch (\Exception $e) {
+            return ResponseBuilder::error($e->getMessage(), 500);
+        }
+    }
+
+    public function getRelatedProducts($id){
+        try{
+            $related_product_ids = Product::where('id',$id)->pluck('related_products')->first();
+        }catch (\Exception $e) {
             return ResponseBuilder::error($e->getMessage(), 500);
         }
     }
@@ -386,7 +394,6 @@ class ProductController extends Controller
             $zonedata = $this->getZoneData($request->lat, $request->lng);
             $zone_id =  $zonedata['zone_id'];
             //return $zone_id;
-            $zone_name =  $zonedata['zone_name'];
             $match_in_zone = $zonedata['match_in_zone'];
              if(Auth::guard('api')->user()){
             $vendorProduct = $this->vendorProduct->whereHas('product')->with(['product.MeasurementClass','product.images','User','cart'=>function($q)use($zone_id){
@@ -522,6 +529,56 @@ class ProductController extends Controller
        
 
        
+    }
+
+    //get popular search products
+    public function getPopularSearchProducts(){
+        try{
+            $products = SearchQueries::query()->select('query as keyword')->where('count','>=', 5)->groupBy('query')->orderBy('count','DESC')->limit(10)->get();
+            $this->response->popular_searches = $products;
+            return ResponseBuilder::success($this->response);
+        }catch (\Exception $e) {
+            return ResponseBuilder::error($e->getMessage(), 500);
+        }
+    }
+
+    public function search(Request $request){
+        try{
+            $lat = $request->header('lat');
+            $lng = $request->header('lng');
+            $zonedata = $this->getZoneData($lat, $lng);
+            $zone_id =  $zonedata['zone_id'];
+            $keyword = $request->keyword;
+            $products = $this->vendorProduct->with(['product','product.MeasurementClass','product.image'])->whereHas('Product.translations',function($q) use($keyword){
+                $q->where('name','like','%'.$keyword.'%');
+                $q->orWhere('keywords','like','%'.$keyword.'%');
+                $q->orWhere('description','like','%'.$keyword.'%');
+            })->paginate(10);
+
+            //save to search query
+            SearchQueries::query()->updateOrCreate(['query'=>$keyword],['count'=>DB::raw('count+1')]);
+            $this->response->products = VendorProductResource::collection($products);
+            $this->response->top_selling_products = $this->topsellingproducts($zone_id);
+            return ResponseBuilder::successWithPagination($products, $this->response);
+        }catch (\Exception $e) {
+            return ResponseBuilder::error($e->getMessage(), 500);
+        }
+    }
+
+    //search suggestion
+    public function searchSuggestion(Request $request){
+        try{
+            $keyword = $request->keyword;
+            $products = $this->vendorProduct->with(['product','product.MeasurementClass','product.image'])->whereHas('Product.translations',function($q) use($keyword){
+                $q->where('name','like','%'.$keyword.'%');
+                $q->orWhere('keywords','like','%'.$keyword.'%');
+                $q->orWhere('description','like','%'.$keyword.'%');
+            })->limit(10)->get();
+            $this->response->products = VendorProductResource::collection($products);
+            return ResponseBuilder::success($this->response);
+        }catch (\Exception $e) {
+            return ResponseBuilder::error($e->getMessage(), 500);
+        }
     }
 
     public function searchproduct($keyword){
@@ -879,8 +936,8 @@ class ProductController extends Controller
  
     public function getWeeklyOfferProducts(){
         try{
-            $lat = request('lat');
-            $lng = request('lng');
+            $lat = request()->header('lat');
+            $lng = request()->header('lng');
             $zone = $this->getZoneData($lat, $lng);
             $zone_id = $zone['zone_id'];
             $user_id_array = User::whereRaw('FIND_IN_SET(' . $zone_id . ', zone_id) ')->where(['user_type' => 'vendor'])->get()->pluck('id')->toArray();
@@ -899,8 +956,8 @@ class ProductController extends Controller
     }
 
     public function getAllTopSellingProducts(){
-        $lat = request('lat');
-        $lng = request('lng');
+        $lat = request()->header('lat');
+        $lng = request()->header('lng');
         $zone = $this->getZoneData($lat, $lng);
         $zone_id = $zone['zone_id'];
         $user_id_array = User::whereRaw('FIND_IN_SET(' . $zone_id . ', zone_id) ')->where(['user_type' => 'vendor'])->get()->pluck('id')->toArray();

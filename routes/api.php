@@ -24,8 +24,8 @@ Route::group(['prefix' => '/v1/'], function () {
 	|--------------------------------------------------------------------------
 	*/
 	Route::post('homedata', 'Api\ProductController@getHomedata');
-	Route::post('get-all-weekly-Offer-products', 'Api\ProductController@getWeeklyOfferProducts');
-	Route::post('get-all-top-selling-products', 'Api\ProductController@getAllTopSellingProducts');
+	Route::get('get-all-weekly-Offer-products', 'Api\ProductController@getWeeklyOfferProducts');
+	Route::get('get-all-top-selling-products', 'Api\ProductController@getAllTopSellingProducts');
 	Route::get('notification/{user}', 'Api\UserController@getUserNotificationByUserId');
 
 	Route::get('test', 'Api\UtilityController@testSMS');
@@ -125,6 +125,8 @@ Route::group(['prefix' => '/v1/'], function () {
 
 		Route::get('topSellingProduct', 'Api\ProductController@getTopSellingProduct');
 		Route::get('product/searchproduct/{keyword}', 'Api\ProductController@searchproduct');
+		Route::get('product-search', 'Api\ProductController@search');
+		Route::get('popular-search', 'Api\ProductController@getPopularSearchProducts');
 
 
 	});

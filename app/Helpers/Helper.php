@@ -34,6 +34,7 @@ use App\UserWallet;
 use App\FirstOrder;
 use App\Medias;
 use Carbon\Carbon;
+use Exception;
 use GuzzleHttp\Client;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -309,37 +310,46 @@ public static function hasImage($imageName) {
 	}
 
 	public static function relatedProducts($related_products = array(), $user_id, $match_in_zone=null,$zone_id) {
-		if (is_array($related_products)) {
-			$user  = User::select('*');
-            $user->whereRaw('FIND_IN_SET('.$zone_id.', zone_id) ')->where(['user_type'=>'vendor']);
-            $user = $user->get();
-
-                $useridarray =[];
-                foreach($user as $userkey=>$uservalue){
-                        $useridarray[]= $uservalue->id;
-                }
-
-			  $product = Product::whereIn('id', $related_products)->with([
-				 'MeasurementClass','image'])->get();
-			$data = [];
-			if (!empty($product)) {
-                foreach ($product as $rec) {
-                    $is_related = VendorProduct::With(['product','product.MeasurementClass','product.images','User','cart' => function ($q) {
-					$q->where(['user_id' => Auth::guard('api')->user()->id, 'zone_id' => Auth::guard('api')->user()->zone_id]);
-				    }])->whereIn('user_id',$useridarray)->where('product_id',$rec['id'])->first();
-                        if(!empty($is_related)){
-                   $image = isset($rec['image']['name']) ? $rec['image']['name'] : Helper::imageNotFound(null);
-                    unset($is_related['product']['offer'],$is_related['product']['image'], $is_related['product']['related_products']/*,$rec['product']['category_id']*/);
-                    $is_related['product']['image'] = $image;
-                    $is_related['product']['match_in_zone'] = $match_in_zone;
-                      $data[] = $is_related;
-                   }
-                    
-                }
-            }
-          	return $data;
+		try{
+			if (is_array($related_products)) {
+				$useridarray  = User::select('*')->whereIn('zone_id',$zone_id)->where(['user_type'=>'vendor'])->get()->pluck('id')->toArray();
+				dd($zone_id);
+				$product = Product::whereIn('id', $related_products)->with(['MeasurementClass','image'])->get()->pluck('id')->toArray();
+				$data = [];
+				dd($product);
+				if(Auth::guard('api')->user()){
+					$related_products = VendorProduct::With(['product','product.MeasurementClass','product.images',
+						'cart' => function ($q) {
+							$q->where(['user_id' => Auth::guard('api')->user()->id, 
+								'zone_id' => Auth::guard('api')->user()->zone_id]
+							);
+						}])->whereIn('user_id',$useridarray)->whereIn('product_id',$product)->get();
+				}else{
+					$related_products = VendorProduct::With(['product','product.MeasurementClass','product.images'])->whereIn('user_id',$useridarray)->whereIn('product_id',$product)->get();
+				}
+				dd($related_products);
+				
+				// if (!empty($product)) {
+				// 	foreach ($product as $rec) {
+				// 		$is_related = VendorProduct::With(['product','product.MeasurementClass','product.images','User','cart' => function ($q) {
+				// 		$q->where(['user_id' => Auth::guard('api')->user()->id, 'zone_id' => Auth::guard('api')->user()->zone_id]);
+				// 		}])->whereIn('user_id',$useridarray)->where('product_id',$rec['id'])->first();
+				// 			if(!empty($is_related)){
+				// 	   $image = isset($rec['image']['name']) ? $rec['image']['name'] : Helper::imageNotFound(null);
+				// 		unset($is_related['product']['offer'],$is_related['product']['image'], $is_related['product']['related_products']/*,$rec['product']['category_id']*/);
+				// 		$is_related['product']['image'] = $image;
+				// 		$is_related['product']['match_in_zone'] = $match_in_zone;
+				// 		  $data[] = $is_related;
+				// 	   }
+						
+				// 	}
+				// }
+				//   return $data;
+			}
+			// return [];
+		}catch(Exception $e){
+			return $e;
 		}
-		return [];
 
 	}
 
