@@ -863,7 +863,7 @@ class ProductController extends Controller
          
         $offerProduct  =  $this->offerdataHOme($zone_id);
         $topsellingproducts  =  $this->topsellingproducts($zone_id);
-        $super_deal = Helper::superDeal($zone_id);
+        $super_deal = $this->superDeal($zone_id);
         $appdata =  AppSetting::select(['mim_amount_for_order','mim_amount_for_free_delivery','mim_amount_for_free_delivery_prime','mim_amount_for_order_prime'])->first();
         $homeStrip = "Min ₹".$appdata->mim_amount_for_order." for order & Min. ₹".$appdata->mim_amount_for_free_delivery." for free delivery";
         
@@ -874,7 +874,7 @@ class ProductController extends Controller
         $adss = array("data"=>$ads, "type"=>"ads");
         $offer_sliderss = array("data"=>$offer_sliders, "type"=>"offer_sliders");
         $topsellingproductss = array("data"=>$topsellingproducts, "type"=>"product","heading"=>'Top selling products','api_url'=>'get-all-top-selling-products');
-        $super_dealss = array("data"=>$super_deal, "type"=>"product","heading"=>'Super Deals');
+        $super_dealss = array("data"=>$super_deal, "type"=>"product","heading"=>'Super Deals', 'api_url'=>'get-all-super-deal-products');
         $brands = array('brands'=>$brands, "type"=>"brands",'api_url'=>'brands');
 
         // $this->response->sliders = $slider;
@@ -934,6 +934,34 @@ class ProductController extends Controller
         return VendorProductResource::collection($vendorProduct);
     }
  
+    public function superDeal($zone_id) {
+		$user_id_array  = User::whereRaw('FIND_IN_SET('.$zone_id.', zone_id) ')->where(['user_type'=>'vendor'])->get()->pluck('id')->toArray(); 
+		$vendorProduct = VendorProduct::with(['product.MeasurementClass','product.image'])->whereHas('product', function($q){
+			$q->whereHas('category.translations', function($q){
+				$q->where('name', 'SUPER DUPER OFFER');
+			});
+		})->whereIn('user_id',$user_id_array)->limit(10)->get();
+		return VendorProductResource::collection($vendorProduct);
+	}
+    public function getAllSuperDealProducts(){
+        try{
+            $lat = request()->header('lat');
+            $lng = request()->header('lng');
+            $zone = $this->getZoneData($lat, $lng);
+            $zone_id = $zone['zone_id'];
+            $user_id_array  = User::whereRaw('FIND_IN_SET('.$zone_id.', zone_id) ')->where(['user_type'=>'vendor'])->get()->pluck('id')->toArray(); 
+            // $category_name = 'SUPER DUPER OFFER';
+            $vendorProduct = VendorProduct::with(['product.MeasurementClass','product.image'])->whereHas('product', function($q){
+                $q->whereHas('category.translations', function($q){
+                    $q->where('name', 'SUPER DUPER OFFER');
+                });
+            })->whereIn('user_id',$user_id_array)->paginate(20);
+            $this->response->vendorProduct = VendorProductResource::collection($vendorProduct);
+            return ResponseBuilder::successWithPagination($vendorProduct, $this->response);
+        }catch(\Exception $e){
+            return ResponseBuilder::error($e->getMessage(), 500);
+        }
+    }
     public function getWeeklyOfferProducts(){
         try{
             $lat = request()->header('lat');

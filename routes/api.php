@@ -26,6 +26,7 @@ Route::group(['prefix' => '/v1/'], function () {
 	Route::post('homedata', 'Api\ProductController@getHomedata');
 	Route::get('get-all-weekly-Offer-products', 'Api\ProductController@getWeeklyOfferProducts');
 	Route::get('get-all-top-selling-products', 'Api\ProductController@getAllTopSellingProducts');
+	Route::get('get-all-super-deal-products', 'Api\ProductController@getAllSuperDealProducts');
 	Route::get('notification/{user}', 'Api\UserController@getUserNotificationByUserId');
 
 	Route::get('test', 'Api\UtilityController@testSMS');
@@ -123,10 +124,6 @@ Route::group(['prefix' => '/v1/'], function () {
 		Route::get('user/wallet_recharge', 'Api\MembershipController@wallet_recharge');
 
 
-		Route::get('topSellingProduct', 'Api\ProductController@getTopSellingProduct');
-		Route::get('product/searchproduct/{keyword}', 'Api\ProductController@searchproduct');
-		Route::get('product-search', 'Api\ProductController@search');
-		Route::get('popular-search', 'Api\ProductController@getPopularSearchProducts');
 
 
 	});
@@ -151,6 +148,11 @@ Route::group(['prefix' => '/v1/'], function () {
 		
 		Route::resource('delivery_location', 'Api\DeliveryLocationController');
 
+		
+		Route::get('topSellingProduct', 'Api\ProductController@getTopSellingProduct');
+		Route::get('product/searchproduct/{keyword}', 'Api\ProductController@searchproduct');
+		Route::get('product-search', 'Api\ProductController@search');
+		Route::get('popular-search', 'Api\ProductController@getPopularSearchProducts');
 
 		Route::get('user/wallet_history', 'Api\UserController@getwalletHistories');
 		Route::post('user/update_wallet', 'Api\UserController@updateWallet');
