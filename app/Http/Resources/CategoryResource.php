@@ -2,7 +2,9 @@
 
 namespace App\Http\Resources;
 
+use App\Helpers\Helper;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Facades\Storage;
 
 class CategoryResource extends JsonResource
 {
@@ -14,6 +16,17 @@ class CategoryResource extends JsonResource
      */
     public function toArray($request)
     {
-        return Parent::toArray($request);
+        return [
+            'id' => $this->id,
+            'parent_category_id' => $this->parent_id,
+            'name' => $this->name,
+            'image' => $this->image,
+            'banner_image' => Helper::imageNotFound($this->banner_image),
+            'slug' => $this->slug,
+            'sort_no' => $this->sort_no,
+            'status' => (boolean) $this->status,
+            'is_show' => (boolean) $this->is_show,
+            'sub_category' => CategoryResource::collection($this->whenLoaded('subCategory')),
+        ];
     }
 }

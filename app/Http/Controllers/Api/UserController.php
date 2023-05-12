@@ -363,7 +363,9 @@ class UserController extends Controller
 
 
         $userData->update($input);
-        return $this->showResponse($userData);
+        // return $this->showResponse($userData);
+        $this->response->user = new UserResource($userData);
+        return ResponseBuilder::success($this->response,'User updated successfully', $this->successStatus);
 
     }
     /**

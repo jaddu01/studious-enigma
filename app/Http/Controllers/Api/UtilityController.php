@@ -43,6 +43,7 @@ use App;
 use App\Brand;
 use App\Helpers\ResponseBuilder;
 use App\Http\Resources\BrandsResource;
+use App\Http\Resources\CategoryResource;
 use DB;
 
 class UtilityController extends Controller
@@ -136,22 +137,15 @@ class UtilityController extends Controller
 
     public function getCategory(Request $request){
 
-        $categories = Category::where('parent_id','=','0')->orderBy('sort_no', 'ASC')->get();
-        //return $categories;
-        $data = [];
-        foreach ($categories as $category){
-            $category['sub_category'] = Category::where('parent_id','=',$category->id)->orderBy('sort_no', 'ASC')->get();
-            $data[]=$category;
-        }
-
-        return $this->listResponse($data);
+        $categories = Category::where('parent_id','=','0')->orderBy('sort_no', 'ASC')->paginate(20);
+        $this->response->category = CategoryResource::collection($categories);
+        return ResponseBuilder::successWithPagination($categories,$this->response, $this->successStatus);
     }
 
     public function getSubCategoryByCategoryId(Request $request,$categoryId){
-        $categories = Category::where('parent_id','=',$categoryId)->orderBy('sort_no', 'ASC')->get();
-
-
-        return $this->listResponse($categories);
+        $categories = Category::where('parent_id','=',$categoryId)->orderBy('sort_no', 'ASC')->paginate(20);
+        $this->response->category = CategoryResource::collection($categories);
+        return ResponseBuilder::successWithPagination($categories,$this->response, $this->successStatus);
     }
 
 
