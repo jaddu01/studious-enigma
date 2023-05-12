@@ -153,6 +153,7 @@ Route::group(['prefix' => '/v1/'], function () {
 		Route::get('product/searchproduct/{keyword}', 'Api\ProductController@searchproduct');
 		Route::get('product-search', 'Api\ProductController@search');
 		Route::get('popular-search', 'Api\ProductController@getPopularSearchProducts');
+		Route::get('category-products/{category_id}', 'Api\ProductController@categoryProducts');
 
 		Route::get('user/wallet_history', 'Api\UserController@getwalletHistories');
 		Route::post('user/update_wallet', 'Api\UserController@updateWallet');

@@ -26,6 +26,7 @@ use App\ZoneTranslation;
 use App;
 use App\SearchQueries;
 use App\Helpers\ResponseBuilder;
+use App\Http\Resources\CategoryResource;
 use DB;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -1102,6 +1103,33 @@ class ProductController extends Controller
             return ResponseBuilder::successWithPagination($vendorProduct, $this->response);
         }catch(\Exception $e){
             return ResponseBuilder::error($e->getMessage(), $e->getCode());
+        }
+    }
+
+    //get category Products
+    public function categoryProducts($category_id){
+        try{
+            $lat = request()->header('lat');
+            $lng = request()->header('lng');
+            $zone = $this->getZoneData($lat, $lng);
+            $zone_id = $zone['zone_id'];
+            $vendorProduct = $this->vendorProduct->with(['product.MeasurementClass','product.image',
+                'cart'=>function($q) use($zone_id){
+                    $q->where(['zone_id'=>$zone_id]);
+                }
+            ])
+            ->whereHas('product',function($q){ $q->where('status','1'); })->whereHas('product.category',function($q) use($category_id){
+                $q->whereRaw('FIND_IN_SET('.$category_id.', category_id) ');
+            })->paginate(20);
+
+            //get category details
+            $category = Category::query()->with('translations')->where('id',$category_id)->first();
+            $this->response->vendorProduct = VendorProductResource::collection($vendorProduct);
+            $this->response->category = new CategoryResource($category);
+            return ResponseBuilder::successWithPagination($vendorProduct, $this->response);
+        }catch(\Exception $e){
+            return $e;
+            //return ResponseBuilder::error($e->getMessage(), $this->errorStatus);
         }
     }
 }

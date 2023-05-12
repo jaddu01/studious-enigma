@@ -26,7 +26,8 @@ class VendorProductDetailedResource extends JsonResource
             "is_offer" => $this->is_offer,
             "offer_price"  => $this->offer_price,
             "product" => new ProductDetailedResource($this->product),
-            "match_in_zone" => true
+            "match_in_zone" => true,
+            "is_wishlist" => (boolean) $this->wishList()->where('user_id',auth('api')->user()->id)->first(),
         ];
     }
 }
