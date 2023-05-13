@@ -23,11 +23,7 @@ Route::group(['prefix' => '/v1/'], function () {
 	| global  API Routes
 	|--------------------------------------------------------------------------
 	*/
-	Route::post('homedata', 'Api\ProductController@getHomedata');
-	Route::get('get-all-weekly-Offer-products', 'Api\ProductController@getWeeklyOfferProducts');
-	Route::get('get-all-top-selling-products', 'Api\ProductController@getAllTopSellingProducts');
-	Route::get('get-all-super-deal-products', 'Api\ProductController@getAllSuperDealProducts');
-	Route::get('notification/{user}', 'Api\UserController@getUserNotificationByUserId');
+	
 
 	Route::get('test', 'Api\UtilityController@testSMS');
 
@@ -40,40 +36,9 @@ Route::group(['prefix' => '/v1/'], function () {
 	Route::get('app-version', 'Api\UtilityController@appVersion');
 	Route::get('phone_code', 'Api\UtilityController@getPhoneCode');
 	Route::get('language', 'Api\UtilityController@getLanguage');
-	Route::post('user/update-location', 'Api\UserController@updateCurrentLocation');
 	// TODO cms page
 	Route::get('cms/{page}', 'Api\CmsController@index');
-	Route::get('brands', 'Api\UtilityController@brands');
-
-	// TODO global setting
-    Route::get('home', 'Api\UtilityController@home');
-     //TODO section
-	Route::get('product_details', 'Api\ProductController@productDetails');
-	Route::resource('product', 'Api\ProductController')->only(['index', 'show']);
-		
-	Route::post('user/profile', 'Api\UserController@details');
-	Route::get('cart', 'Api\CartController@index');
-	Route::get('category', 'Api\UtilityController@getCategory');
-	Route::get('user/getmembership', 'Api\MembershipController@getmembership');
-
-	Route::post('order/statusUpdate', 'Api\OrderController@statusUpdate');
-	Route::get('order/sendinvoiceonmail/{id}', 'Api\OrderController@sendinvoiceonmail');
-	Route::resource('order', 'Api\OrderController');
-
-	Route::get('offer-slider', 'Api\UtilityController@getOfferSlider');
-
-	//TODO Utility section routes
-	Route::get('subcategory/{category_id}', 'Api\UtilityController@getSubCategoryByCategoryId');
-	Route::get('slider', 'Api\UtilityController@getSlider');
-	Route::post('user/notification', 'Api\UserController@notification');
-
-	//TODO cart section
-	Route::any('clear-cart', 'Api\CartController@clearCart');
-	Route::post('cart/reorder', 'Api\CartController@reOrder');
-	Route::resource('cart', 'Api\CartController');
-	Route::get('getcouponcodes','Api\CouponController@getcouponcodes');
-	Route::post('user/addressupdate', 'Api\UserController@addressUpdate');
-	Route::post('user/getaddressbylatlong', 'Api\UserController@getAddressBylatlong');	
+	
 		/*
 		|--------------------------------------------------------------------------
 		| Guest User API Routes
@@ -87,41 +52,11 @@ Route::group(['prefix' => '/v1/'], function () {
 		Route::post('user/login_otp_verify', [AuthController::class, 'loginOtpVerify']);
 		Route::post('user/tokenUpdate', 'Api\UserController@userTokenUpdate');
 		Route::post('user/signup', 'Api\UserController@register');
+
 		
 		Route::post('user/driverRegister', 'Api\UserController@driverRegister');
-		Route::post('user/driverProfile', 'Api\UserController@driverProfile');
-		Route::post('user/driverUpdate', 'Api\UserController@driverUpdate');
 		Route::post('user/driverLogin', 'Api\UserController@driverLogin');
-		Route::post('user/driverUpdateUserLocation', 'Api\UserController@driverUpdateUserLocation');
-		Route::post('user/driverOrderList', 'Api\UserController@driverOrderList');
-		Route::post('user/driverOrderDetail', 'Api\UserController@driverOrderDetail');
-		Route::post('user/driverOrderCompletedList', 'Api\UserController@driverOrderCompletedList');
-		Route::post('user/driverOrderNotificationList', 'Api\UserController@driverOrderNotificationList');
-		Route::post('user/driverDiliveryConfirm', 'Api\UserController@driverDiliveryConfirm');
-		Route::get('user/locationTracker', 'Api\UserController@locationTracker');
-		Route::post('user/driverOrderReturn', 'Api\UserController@driverOrderReturn');
-		Route::post('user/driverAssignment', 'Api\UserController@driverAssignment');
-		Route::post('user/orderStatusChange', 'Api\UserController@orderStatusChange');
 		Route::post('user/shopperLogin', 'Api\UserController@shopperLogin');
-		Route::post('user/shopperOrderList', 'Api\UserController@shopperOrderList');
-		Route::post('user/shopperOrderDetail', 'Api\UserController@shopperOrderDetail');
-		Route::post('user/shopperProfile', 'Api\UserController@shopperProfile');
-		Route::post('user/shopperAssignment', 'Api\UserController@shopperAssignment');
-		Route::post('user/shopperUpdate', 'Api\UserController@shopperUpdate');
-		Route::post('user/shopperUpdateUserLocation', 'Api\UserController@shopperUpdateUserLocation');
-		Route::post('user/productStatus', 'Api\UserController@productStatus');
-		Route::post('user/newProduct', 'Api\UserController@newProduct');
-		Route::post('user/categoryList', 'Api\UserController@categoryList');
-		Route::post('user/productList', 'Api\UserController@categoryProductList');
-		Route::post('user/updatePrice', 'Api\UserController@updatePrice');
-		Route::post('user/manageUpdatePrice', 'Api\UserController@manageUpdatePrice');
-		Route::post('user/ManageOutStock', 'Api\UserController@ManageOutStock');
-		Route::post('user/update/unavailable', 'Api\UserController@updateUnavailability');
-		Route::post('user/update/orderstatus', 'Api\UserController@updateOrderStatus');
-		Route::post('user/vendorDetail', 'Api\UserController@getVendorDetail');
-
-		Route::get('user/check_membership', 'Api\MembershipController@check_membership');
-		Route::get('user/wallet_recharge', 'Api\MembershipController@wallet_recharge');
 
 
 
@@ -140,6 +75,14 @@ Route::group(['prefix' => '/v1/'], function () {
 	Route::get('product-demo', 'Api\ProductController@listDemo');
 	// Route::group(['middleware' => ['auth.verify','auth:api']], function () {
 	Route::middleware(['auth.verify'])->group(function () {
+		Route::post('homedata', 'Api\ProductController@getHomedata');
+		Route::get('get-all-weekly-Offer-products', 'Api\ProductController@getWeeklyOfferProducts');
+		Route::get('get-all-top-selling-products', 'Api\ProductController@getAllTopSellingProducts');
+		Route::get('get-all-super-deal-products', 'Api\ProductController@getAllSuperDealProducts');
+		Route::get('notification/{user}', 'Api\UserController@getUserNotificationByUserId');
+		
+		Route::post('user/update-location', 'Api\UserController@updateCurrentLocation');
+		
 		//Route::get('city', 'Api\UtilityController@getCity');
 		//TODO user section routes
 		//Route::post('user/profile', 'Api\UserController@details');
@@ -182,6 +125,74 @@ Route::group(['prefix' => '/v1/'], function () {
 		Route::resource('coupon','Api\CouponController');
 		
 		Route::get('topSellingProduct', 'Api\ProductController@getTopSellingProduct');
+		Route::get('brands', 'Api\UtilityController@brands');
+		Route::get('brands/products/{brand_id}', 'Api\UtilityController@brandProducts');
+
+		// TODO global setting
+		Route::get('home', 'Api\UtilityController@home');
+		 //TODO section
+		Route::get('product_details', 'Api\ProductController@productDetails');
+		Route::resource('product', 'Api\ProductController')->only(['index', 'show']);
+			
+		Route::post('user/profile', 'Api\UserController@details');
+		Route::get('cart', 'Api\CartController@index');
+		Route::get('category', 'Api\UtilityController@getCategory');
+		Route::get('user/getmembership', 'Api\MembershipController@getmembership');
+	
+		Route::post('order/statusUpdate', 'Api\OrderController@statusUpdate');
+		Route::get('order/sendinvoiceonmail/{id}', 'Api\OrderController@sendinvoiceonmail');
+		Route::resource('order', 'Api\OrderController');
+	
+		Route::get('offer-slider', 'Api\UtilityController@getOfferSlider');
+	
+		//TODO Utility section routes
+		Route::get('subcategory/{category_id}', 'Api\UtilityController@getSubCategoryByCategoryId');
+		Route::get('slider', 'Api\UtilityController@getSlider');
+		Route::post('user/notification', 'Api\UserController@notification');
+	
+		//TODO cart section
+		Route::any('clear-cart', 'Api\CartController@clearCart');
+		Route::post('cart/reorder', 'Api\CartController@reOrder');
+		Route::resource('cart', 'Api\CartController');
+		Route::get('getcouponcodes','Api\CouponController@getcouponcodes');
+		Route::post('user/addressupdate', 'Api\UserController@addressUpdate');
+		Route::post('user/getaddressbylatlong', 'Api\UserController@getAddressBylatlong');
+
+		
+		Route::post('user/shopperOrderList', 'Api\UserController@shopperOrderList');
+		Route::post('user/shopperOrderDetail', 'Api\UserController@shopperOrderDetail');
+		Route::post('user/shopperProfile', 'Api\UserController@shopperProfile');
+		Route::post('user/shopperAssignment', 'Api\UserController@shopperAssignment');
+		Route::post('user/shopperUpdate', 'Api\UserController@shopperUpdate');
+		Route::post('user/shopperUpdateUserLocation', 'Api\UserController@shopperUpdateUserLocation');
+		Route::post('user/productStatus', 'Api\UserController@productStatus');
+		Route::post('user/newProduct', 'Api\UserController@newProduct');
+		Route::post('user/categoryList', 'Api\UserController@categoryList');
+		Route::post('user/productList', 'Api\UserController@categoryProductList');
+		Route::post('user/updatePrice', 'Api\UserController@updatePrice');
+		Route::post('user/manageUpdatePrice', 'Api\UserController@manageUpdatePrice');
+		Route::post('user/ManageOutStock', 'Api\UserController@ManageOutStock');
+		Route::post('user/update/unavailable', 'Api\UserController@updateUnavailability');
+		Route::post('user/update/orderstatus', 'Api\UserController@updateOrderStatus');
+		Route::post('user/vendorDetail', 'Api\UserController@getVendorDetail');
+
+		Route::get('user/check_membership', 'Api\MembershipController@check_membership');
+		Route::get('user/wallet_recharge', 'Api\MembershipController@wallet_recharge');
+
+
+		
+		Route::post('user/driverUpdateUserLocation', 'Api\UserController@driverUpdateUserLocation');
+		Route::post('user/driverOrderList', 'Api\UserController@driverOrderList');
+		Route::post('user/driverOrderDetail', 'Api\UserController@driverOrderDetail');
+		Route::post('user/driverOrderCompletedList', 'Api\UserController@driverOrderCompletedList');
+		Route::post('user/driverOrderNotificationList', 'Api\UserController@driverOrderNotificationList');
+		Route::post('user/driverDiliveryConfirm', 'Api\UserController@driverDiliveryConfirm');
+		Route::get('user/locationTracker', 'Api\UserController@locationTracker');
+		Route::post('user/driverOrderReturn', 'Api\UserController@driverOrderReturn');
+		Route::post('user/driverAssignment', 'Api\UserController@driverAssignment');
+		Route::post('user/orderStatusChange', 'Api\UserController@orderStatusChange');
+		Route::post('user/driverProfile', 'Api\UserController@driverProfile');
+		Route::post('user/driverUpdate', 'Api\UserController@driverUpdate');
 
 	});
 

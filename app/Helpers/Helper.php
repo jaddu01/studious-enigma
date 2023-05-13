@@ -41,6 +41,9 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Intervention\Image\Facades\Image;
 
+//use resource
+use App\Http\Resources\VendorProductResource;
+
 class Helper {
 
 	public static $gender = ['male' => 'Male', 'female' => 'Female'];
@@ -312,22 +315,21 @@ public static function hasImage($imageName) {
 	public static function relatedProducts($related_products = array(), $user_id, $match_in_zone=null,$zone_id) {
 		try{
 			if (is_array($related_products)) {
-				$useridarray  = User::select('*')->whereIn('zone_id',$zone_id)->where(['user_type'=>'vendor'])->get()->pluck('id')->toArray();
-				dd($zone_id);
 				$product = Product::whereIn('id', $related_products)->with(['MeasurementClass','image'])->get()->pluck('id')->toArray();
 				$data = [];
-				dd($product);
 				if(Auth::guard('api')->user()){
 					$related_products = VendorProduct::With(['product','product.MeasurementClass','product.images',
 						'cart' => function ($q) {
 							$q->where(['user_id' => Auth::guard('api')->user()->id, 
 								'zone_id' => Auth::guard('api')->user()->zone_id]
 							);
-						}])->whereIn('user_id',$useridarray)->whereIn('product_id',$product)->get();
+						}])->whereIn('product_id',$product)->limit(20)->get();
 				}else{
-					$related_products = VendorProduct::With(['product','product.MeasurementClass','product.images'])->whereIn('user_id',$useridarray)->whereIn('product_id',$product)->get();
+					$related_products = VendorProduct::With(['product','product.MeasurementClass','product.images'])->whereIn('product_id',$product)->limit(20)->get();
 				}
-				dd($related_products);
+				return VendorProductResource::collection($related_products);
+				
+				//dd($related_products);
 				
 				// if (!empty($product)) {
 				// 	foreach ($product as $rec) {

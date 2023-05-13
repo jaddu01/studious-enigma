@@ -132,4 +132,10 @@ class Brand extends BaseModel
     {
         return $this->belongsTo(BrandTranslation::class, 'brand_id');
     }
+
+    //products
+    public function products()
+    {
+        return $this->hasMany(Product::class, 'brand_id');
+    }
 }

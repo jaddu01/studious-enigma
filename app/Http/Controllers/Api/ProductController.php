@@ -347,26 +347,24 @@ class ProductController extends Controller
     {
         try {
             $user = Auth::guard('api')->user();
-            if($user){
-                $vendorProduct = $this->vendorProduct->whereHas('product')->with(['product.MeasurementClass','product.images','cart'=>function($q){
-                    $q->where(['user_id'=>Auth::guard('api')->user()->id,'zone_id'=>Auth::guard('api')->user()->zone_id]);
-                },'wishList'=>function($q){
-                    $q->where(['user_id'=>Auth::guard('api')->user()->id]);
-                }])->find($id);
-            }else{
-                $vendorProduct = $this->vendorProduct->whereHas('product')->with(['product.MeasurementClass','product.images'])
-                ->find($id);
-            }
+           
+            $vendorProduct = $this->vendorProduct->whereHas('product')->with(['product.MeasurementClass','product.images','cart'=>function($q) use($user){
+                $q->where(['user_id'=>$user->id,'zone_id'=>$user->zone_id]);
+            },'wishList'=>function($q) use($user){
+                $q->where(['user_id'=>$user->id]);
+            }])->find($id);
+            
             //dd(DB::getQueryLog());
             if(!$vendorProduct){
                 return ResponseBuilder::error("Vendor Product not found", 404);
             }
             // $vendorProduct->related_products= Helper::relatedProducts($vendorProduct->product->related_products,$vendorProduct->user_id);
             $this->response->vendorProduct = new VendorProductDetailedResource($vendorProduct);
-            //$this->response->related_products = Helper::relatedProducts($vendorProduct->product->related_products,$vendorProduct->user_id,true,$vendorProduct->user->zone_id);
+            // dd($vendorProduct->user->zone_id);
+            $this->response->related_products = Helper::relatedProducts($vendorProduct->product->related_products,$vendorProduct->user_id,true,$vendorProduct->user->zone_id);
             return ResponseBuilder::success($this->response);
         } catch (\Exception $e) {
-            return ResponseBuilder::error($e->getMessage(), 500);
+            return ResponseBuilder::error($e, 500);
         }
     }
 

@@ -44,6 +44,7 @@ use App\Brand;
 use App\Helpers\ResponseBuilder;
 use App\Http\Resources\BrandsResource;
 use App\Http\Resources\CategoryResource;
+use App\Http\Resources\VendorProductResource;
 use DB;
 
 class UtilityController extends Controller
@@ -895,5 +896,23 @@ $next_tomorrow_day_name = $next_tomorrow_date->format('D');
         return ResponseBuilder::error($e->getMessage(),$this->errorStatus);
     }
  }
+
+ //get brands products
+    public function brandProducts($brand_id){
+        try{
+            $brand = Brand::find($brand_id);
+            if(!$brand){
+                return ResponseBuilder::error('Brand not found',$this->notFoundStatus);
+            }
+            $vendorProducts = $this->vendorProduct->with(['Product','product.MeasurementClass','product.image'])->whereHas("Product", function($q) use($brand_id){
+                $q->where('brand_id', $brand_id)->where('status','1');
+            })->paginate(20);
+            $this->response->products = VendorProductResource::collection($vendorProducts);
+            return ResponseBuilder::successWithPagination($vendorProducts,$this->response);
+    
+        }catch(\Exception $e){
+            return ResponseBuilder::error($e,$this->errorStatus);
+        }
+    }
 
 }

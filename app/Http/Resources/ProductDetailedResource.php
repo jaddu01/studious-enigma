@@ -38,8 +38,8 @@ class ProductDetailedResource extends JsonResource
             "disclaimer" => $this->disclaimer,
             "keywords" => $this->keywords,
             "slug" => $this->slug,
-            "related_products" => $this->related_products,
-            "variants" => $this->variants,
+            // "related_products" => $this->related_products,
+            "variants" => $this->varients,
         ];
     }
 }
