@@ -362,6 +362,7 @@ class ProductController extends Controller
             $this->response->vendorProduct = new VendorProductDetailedResource($vendorProduct);
             // dd($vendorProduct->user->zone_id);
             $this->response->related_products = Helper::relatedProducts($vendorProduct->product->related_products,$vendorProduct->user_id,true,$vendorProduct->user->zone_id);
+            $this->response->similar_products = Helper::similarProducts($vendorProduct->product->category_id,$vendorProduct->user->zone_id);
             return ResponseBuilder::success($this->response);
         } catch (\Exception $e) {
             return ResponseBuilder::error($e, 500);
@@ -555,9 +556,11 @@ class ProductController extends Controller
             })->paginate(10);
 
             //save to search query
-            SearchQueries::query()->updateOrCreate(['query'=>$keyword],['count'=>DB::raw('count+1')]);
-            $this->response->products = VendorProductResource::collection($products);
-            $this->response->top_selling_products = $this->topsellingproducts($zone_id);
+            if(!empty($keyword)){
+                SearchQueries::query()->updateOrCreate(['query'=>$keyword],['count'=>DB::raw('count+1')]);
+            }
+            $this->response->vendorProduct = VendorProductResource::collection($products);
+            $this->response->searchSuggestions = $this->searchSuggestion();
             return ResponseBuilder::successWithPagination($products, $this->response);
         }catch (\Exception $e) {
             return ResponseBuilder::error($e->getMessage(), 500);
@@ -565,16 +568,19 @@ class ProductController extends Controller
     }
 
     //search suggestion
-    public function searchSuggestion(Request $request){
+    public function searchSuggestion(){
         try{
-            $keyword = $request->keyword;
+            $keyword = \request()->keyword;
             $products = $this->vendorProduct->with(['product','product.MeasurementClass','product.image'])->whereHas('Product.translations',function($q) use($keyword){
-                $q->where('name','like','%'.$keyword.'%');
-                $q->orWhere('keywords','like','%'.$keyword.'%');
-                $q->orWhere('description','like','%'.$keyword.'%');
+                $q->where('name','like','%'.$keyword);
+                $q->orWhere('keywords','like','%'.$keyword);
+                $q->orWhere('description','like','%'.$keyword);
             })->limit(10)->get();
-            $this->response->products = VendorProductResource::collection($products);
-            return ResponseBuilder::success($this->response);
+            $suggestions = [];
+            foreach($products as $product){
+                $suggestions[] = $product->product->name;
+            }
+            return $suggestions;
         }catch (\Exception $e) {
             return ResponseBuilder::error($e->getMessage(), 500);
         }

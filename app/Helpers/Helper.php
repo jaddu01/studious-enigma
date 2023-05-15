@@ -355,6 +355,23 @@ public static function hasImage($imageName) {
 
 	}
 
+	public static function similarProducts($category_id, $zone_id) {
+		try{
+            $vendorProduct = VendorProduct::with(['product.MeasurementClass','product.image',
+                'cart'=>function($q) use($zone_id){
+                    $q->where(['zone_id'=>$zone_id]);
+                }
+            ])
+            ->whereHas('product',function($q){ $q->where('status','1'); })->whereHas('product.category',function($q) use($category_id){
+                $q->whereRaw('FIND_IN_SET('.$category_id.', category_id) ');
+            })->paginate(20);
+
+			return VendorProductResource::collection($vendorProduct);
+		}catch(Exception $e){
+			return $e;
+		}
+
+	}
 	public static function checkProducInCart($user_id, $zone_id = null) {
 		try {
 			$cart = Cart::select('*')->where('user_id', '=', $user_id);

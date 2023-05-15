@@ -6,7 +6,7 @@ use App\Helpers\Helper;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Storage;
 
-class CategoryResource extends JsonResource
+class SubcategoryResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -25,8 +25,7 @@ class CategoryResource extends JsonResource
             'slug' => $this->slug,
             'sort_no' => $this->sort_no,
             'status' => (boolean) $this->status,
-            'is_show' => (boolean) $this->is_show,
-            'sub_category' => SubcategoryResource::collection($this->children),
+            'is_show' => (boolean) $this->is_show
         ];
     }
 }

@@ -32,6 +32,7 @@ class ProductDetailedResource extends JsonResource
             "name" => $this->name,
             "print_name" => $this->print_name,
             "image" => $this->image,
+            "images" => $this->images,
             "category" => new CategoryResource($this->category),
             "brand" => $this->brand,
             "description" => $this->description,

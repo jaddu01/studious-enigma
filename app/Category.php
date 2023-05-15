@@ -122,13 +122,10 @@ class Category extends BaseModel
         }
     }
 
-    public function subCategory()
+    public function children()
     {
-        return $this->hasMany('App\SubCategory', 'cat_id', 'id');
+        return $this->hasMany(Category::class, 'parent_id');
     }
-
-
-
 
 
     protected static function boot()
