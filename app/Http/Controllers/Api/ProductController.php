@@ -24,12 +24,15 @@ use App\Ads;
 use App\Brand;
 use App\ZoneTranslation;
 use App;
+use App\Coupon;
 use App\SearchQueries;
 use App\Helpers\ResponseBuilder;
 use App\Http\Resources\CategoryResource;
 use DB;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Http\Resources\CouponResource;
+use App\Http\Resources\OfferResource;
 use App\Http\Resources\OrderProductResource;
 use App\Http\Resources\VendorProductDetailedResource;
 use App\Http\Resources\VendorProductResource;
@@ -544,17 +547,20 @@ class ProductController extends Controller
 
     public function search(Request $request){
         try{
-            $lat = $request->header('lat');
-            $lng = $request->header('lng');
-            $zonedata = $this->getZoneData($lat, $lng);
-            $zone_id =  $zonedata['zone_id'];
             $keyword = $request->keyword;
             $products = $this->vendorProduct->with(['product','product.MeasurementClass','product.image'])->whereHas('Product.translations',function($q) use($keyword){
                 $q->where('name','like','%'.$keyword.'%');
                 $q->orWhere('keywords','like','%'.$keyword.'%');
                 $q->orWhere('description','like','%'.$keyword.'%');
-            })->paginate(10);
+            });
 
+            if($request->has('category_id')){
+                $category_id = $request->category_id;
+                $products = $products->whereHas('product',function($q){ $q->where('status','1'); })->whereHas('product.category',function($q) use($category_id){
+                    $q->whereRaw('FIND_IN_SET('.$category_id.', category_id) ');
+                });
+            }
+            $products = $products->paginate(20);
             //save to search query
             if(!empty($keyword)){
                 SearchQueries::query()->updateOrCreate(['query'=>$keyword],['count'=>DB::raw('count+1')]);
@@ -1136,5 +1142,30 @@ class ProductController extends Controller
             //return ResponseBuilder::error($e->getMessage(), $this->errorStatus);
         }
     }
+
+    //getAllOffers
+    public function getAllOffers(){
+        try{
+            //get offers
+            $offers = Offer::with(['translations'])->paginate(20);
+            $this->response->offers = OfferResource::collection($offers);
+            return ResponseBuilder::successWithPagination($offers, $this->response);
+        }catch(\Exception $e){
+            return ResponseBuilder::error($e->getMessage(), $this->errorStatus);
+        }
+    }
+
+    //getAllCoupons
+    public function getAllCoupons(){
+        try{
+            //get offers
+            $coupons = Coupon::with(['translations'])->paginate(20);
+            $this->response->coupons = CouponResource::collection($coupons);
+            return ResponseBuilder::successWithPagination($coupons, $this->response);
+        }catch(\Exception $e){
+            return ResponseBuilder::error($e->getMessage(), $this->errorStatus);
+        }
+    }
+
 }
 

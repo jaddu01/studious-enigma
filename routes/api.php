@@ -75,6 +75,8 @@ Route::group(['prefix' => '/v1/'], function () {
 	Route::get('product-demo', 'Api\ProductController@listDemo');
 	// Route::group(['middleware' => ['auth.verify','auth:api']], function () {
 	Route::middleware(['auth.verify'])->group(function () {
+		//update device token
+		Route::post('user/update_device_token', 'Api\UserController@updateDeviceToken');
 		Route::post('homedata', 'Api\ProductController@getHomedata');
 		Route::get('get-all-weekly-Offer-products', 'Api\ProductController@getWeeklyOfferProducts');
 		Route::get('get-all-top-selling-products', 'Api\ProductController@getAllTopSellingProducts');
@@ -193,6 +195,13 @@ Route::group(['prefix' => '/v1/'], function () {
 		Route::post('user/orderStatusChange', 'Api\UserController@orderStatusChange');
 		Route::post('user/driverProfile', 'Api\UserController@driverProfile');
 		Route::post('user/driverUpdate', 'Api\UserController@driverUpdate');
+
+
+		//get all offers
+		Route::get('get-all-offers', 'Api\ProductController@getAllOffers');
+
+		//get all coupons
+		Route::get('get-all-coupons', 'Api\ProductController@getAllCoupons');
 
 	});
 

@@ -46,6 +46,7 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Pagination\LengthAwarePaginator;
 
 use GuzzleHttp\Client;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rule;
 
 class UserController extends Controller
@@ -2775,6 +2776,35 @@ public function orderStatusChange(Request $request){
         $response = $client->request('GET',"http://login.yourbulksms.com/api/sendhttp.php?authkey=".$authkey."&mobiles=".$phone_number."&message=".$message."&sender=".$senderid."&route=4&country=91&DLT_TE_ID=".$tmp_id);
         $statusCode = $response->getStatusCode();
         echo $statusCode;
+    }
+
+
+    //updateDeviceToken
+    public function updateDeviceToken(Request $request){
+        try{
+            $validator = Validator::make($request->all(), [
+                'device_token'=>'required',
+                'device_id'=>'required',
+                'device_type'=> 'required|in:A,I',
+            ]);
+            if ($validator->fails()) { 
+                return $this->validationErrorResponse($validator);
+            }
+            //logged in user
+            $user = Auth::guard('api')->user();
+            $user->device_token = $request->device_token;
+            $user->device_id = $request->device_id;
+            $user->device_type = $request->device_type;
+            $user->save();
+
+            $this->response->user = new UserResource($user);
+            return ResponseBuilder::success($this->response, "Device updated successfully", $this->successStatus);
+
+        }catch(\Exception $e){
+            Log::error($e);
+            return ResponseBuilder::error('Something went wrong', $this->errorStatus);
+
+        }
     }
 
 }

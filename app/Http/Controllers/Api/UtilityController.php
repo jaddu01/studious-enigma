@@ -907,7 +907,7 @@ $next_tomorrow_day_name = $next_tomorrow_date->format('D');
             $vendorProducts = $this->vendorProduct->with(['Product','product.MeasurementClass','product.image'])->whereHas("Product", function($q) use($brand_id){
                 $q->where('brand_id', $brand_id)->where('status','1');
             })->paginate(20);
-            $this->response->products = VendorProductResource::collection($vendorProducts);
+            $this->response->vendorProduct = VendorProductResource::collection($vendorProducts);
             return ResponseBuilder::successWithPagination($vendorProducts,$this->response);
     
         }catch(\Exception $e){
