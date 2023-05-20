@@ -203,6 +203,8 @@ Route::group(['prefix' => '/v1/'], function () {
 		//get all coupons
 		Route::get('get-all-coupons', 'Api\ProductController@getAllCoupons');
 
+		//add to notify me
+		Route::post('add-to-notify-me', 'Api\ProductController@addToNotifyMe');
 	});
 
 });

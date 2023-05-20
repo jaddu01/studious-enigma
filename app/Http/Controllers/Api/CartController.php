@@ -161,9 +161,10 @@ class CartController extends Controller
                 if($cart){
                     if($request->qty == 0){
                         $cart->delete();
-                        $cartTotalArray= Helper::cartTotal($user->id,$user->zone_id);
-                        $this->response->cart = new CartResource($cartTotalArray); 
+                        // $cartTotalArray= Helper::cartTotal($user->id,$user->zone_id);
+                        $this->response->cart = new CartResource($cart); 
                         return ResponseBuilder::success($this->response, trans('order.removed_from_cart'), $this->successStatus);
+                        // return $cartTotalArray;
                         // return response()->json($response, 200);
                     }
 
@@ -178,9 +179,10 @@ class CartController extends Controller
                         }
                     }
                     
-                    $cartTotalArray= Helper::cartTotal($user->id,$user->zone_id);
-                    $cartTotalArray['cart'] = $cart;
-                    $this->response->cart = new CartResource($cartTotalArray); 
+                    // $cartTotalArray= Helper::cartTotal($user->id,$user->zone_id);
+                    // return $cartTotalArray;
+                    // $cartTotalArray['cart'] = $cart;
+                    $this->response->cart = new CartResource($cart); 
                     return ResponseBuilder::success($this->response, trans('order.updated_in_cart'), $this->successStatus);
                 }
 
@@ -188,8 +190,9 @@ class CartController extends Controller
                 $input_request['zone_id'] = $user->zone_id;
 
                 $cart = $user->cart()->create($input_request);
-                $cartTotalArray= Helper::cartTotal($user->id,$user->zone_id);
-                $this->response->cart = new CartResource($cartTotalArray); 
+                // $cartTotalArray= Helper::cartTotal($user->id,$user->zone_id);
+                // return $cartTotalArray;
+                $this->response->cart = new CartResource($cart); 
                 return ResponseBuilder::success($this->response, trans('order.added_in_cart'), $this->successStatus);
 
             } catch (\Exception $e) {

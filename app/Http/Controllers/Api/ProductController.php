@@ -41,7 +41,7 @@ use Illuminate\Support\Facades\Validator;
 
 
 use App\ProductOrderItem;
-
+use Request as GlobalRequest;
 
 class ProductController extends Controller
 {
@@ -1162,6 +1162,15 @@ class ProductController extends Controller
             $coupons = Coupon::with(['translations'])->paginate(20);
             $this->response->coupons = CouponResource::collection($coupons);
             return ResponseBuilder::successWithPagination($coupons, $this->response);
+        }catch(\Exception $e){
+            return ResponseBuilder::error($e->getMessage(), $this->errorStatus);
+        }
+    }
+
+    //function to add to notify me
+    public function addToNotifyMe(GlobalRequest $request){
+        try{
+
         }catch(\Exception $e){
             return ResponseBuilder::error($e->getMessage(), $this->errorStatus);
         }
