@@ -1,0 +1,118 @@
+/* CHECK API WITH DATA */
+
+1.Shopper Login
+path:-http://172.104.186.169/darbar_mart/api/v1/user/shopperLogin
+method:-post
+parameters:-device_type,device_id,device_token,phone_code,phone_number,password
+body:-device_type:A
+language:en
+device_id:ffffffff-c95d-8db0-ffff-ffffca01fdf4
+device_token:sakjdasdajshdjaghd
+phone_code:91
+phone_number:960263580
+password:123456
+headers:- Authorization:
+accept:application/json
+
+2.Shopper Order List
+path:-http://172.104.186.169/darbar_mart/api/v1/user/shopperOrderList
+method:-post
+parameters:-user_id,type=(1 for upcoming,2 for today,3 for all)
+
+3.Shopper Order Details
+path:-http://172.104.186.169/vomanto_mart/api/v1/user/shopperOrderDetail
+method:-post
+parameters:-order_id,type=(1 for address,2 for products,3 for details)
+
+4.Shoper shopperProfile
+path:-http://172.104.186.169/darbar_mart/api/v1/user/shopperProfile
+method:-post
+parameters:-user_id
+for data: user_id = 7
+
+5.Shoper shopperUpdate
+path:-http://172.104.186.169/darbar_mart/api/v1/user/shopperUpdate
+method:-post
+parameters:-user_id,email,name,phone_number
+Data: user_id:7, email:vendor@gmail.com,phone_number:960263580,name:prashant
+
+6. shopperAssignment
+path:-http://172.104.186.169/darbar_mart/api/v1/user/shopperAssignment
+method:-post
+parameters:-shopper_id
+Data: shopper_id = 7
+
+7. productStatus(for instock or out of stock products)
+path:-http://172.104.186.169/darbar_mart/api/v1/user/productStatus
+method:-post
+parameters:- id(unique id of product order item table)
+
+8. categoryList
+path:-http://172.104.186.169/darbar_mart/api/v1/user/categoryList
+method:-post
+parameters:- language
+Data:language=en
+
+9. categoryProductList
+path:-http://172.104.186.169/darbar_mart/api/v1/user/productList
+method:-post
+parameters:- language,user_id,category_id(default 0 for all catregory)
+Data:language:en, category_id:9(category_id= null for products),zone_id=32
+
+10. updatePrice
+path:-http://172.104.186.169/darbar_mart/api/v1/user/updatePrice
+method:-post
+parameters:- id(unique id of product order item table),price,offer_price
+Data :id:4, price:30, offer_price:70
+
+11.updateUnavailability
+path:-http://172.104.186.169/darbar_mart/api/v1/user/update/unavailable
+method:-post
+parameters:- id(unique row id of product_order_items table),status
+Data :id:357, status:[u=unavailable, o=collected]
+
+12.update orderstatus of full order
+path:-http://172.104.186.169/darbar_mart/api/v1/user/update/orderstatus
+method:-post
+parameters:- order_id,status
+Data :order_id:145, order_status:o
+
+12.New product
+path:-http://172.104.186.169/darbar_mart/api/v1/user/newProduct
+method:-post
+parameters:-
+
+vendor_id:36
+shopper_id:8
+product_name:test
+price:100
+offer_price:20
+measurement:kg
+
+
+13. Vendor Detail
+http://172.104.186.169/darbar_mart/api/v1/user/vendorDetail
+method:-post
+parameters:-
+zone_id:20
+
+14.path:-http://172.104.186.169/darbar_mart/api/v1/user/manageUpdatePrice
+method:-post
+parameters:- 
+vendor_id:55
+shopper_id:7
+product_id:72
+price:100
+offer_price:20
+vendor_name:BigBazar
+
+14.path:-http://172.104.186.169/darbar_mart/api/v1/user/ManageOutStock
+method:-post
+parameters:- 
+vendor_id:55
+shopper_id:7
+product_id:72
+vendor_name:BigBazar
+
+/* CHECK API WITH DATA */
+

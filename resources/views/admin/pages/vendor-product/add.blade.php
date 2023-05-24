@@ -14,6 +14,27 @@
 
 @push('css')
     <link href="{{asset('public/css/select2.min.css')}}" rel="stylesheet"/>
+    <style>
+        .ui-autocomplete {
+            position: absolute;
+            z-index: 9999;
+            cursor: default;
+            background-color: #fff;
+            border: 1px solid #ccc;
+            padding: 5px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+    
+        .ui-menu-item {
+            padding: 5px 10px;
+        }
+    
+        .ui-menu-item:hover {
+            background-color: #f0f0f0;
+            cursor: pointer;
+        }
+    </style>
 @endpush
 
 @section('content')
@@ -49,7 +70,9 @@
                                 </label>
                                 <div class="col-md-6 col-sm-6 col-xs-12">
 
-                                    {!!  Form::select('product_id', $products,null, array('class' => 'form-control col-md-7 col-xs-12 select2-multiple_product','placeholder'=>'Product','empty' => false,'value'=>0,'id'=>'product_id')) !!}
+                                    <input type="text" name="product_id" id="product" class="form-control col-md-7 col-xs-12 select2-multiple_product" autocomplete="off">
+                                    <div id="product-list"></div>
+                                    {{-- {!!  Form::select('product_id', $products,null, array('class' => 'form-control col-md-7 col-xs-12 select2-multiple_product','placeholder'=>'Product','empty' => false,'value'=>0,'id'=>'product_id')) !!} --}}
                                     {{ Form::filedError('product_id') }}
                                 </div>
                             </div>
@@ -217,5 +240,25 @@
             }
         });
 
+    </script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<script src="https://code.jquery.com/ui/1.13.0/jquery-ui.min.js"></script>
+    <script>
+        var $j = jQuery.noConflict();
+        $j(function () {
+            $j("#product").autocomplete({
+                source: "{{ route('autocomplete.search') }}",
+                minLength: 2,
+                select: function (event, ui) {
+                    $j("#product").val(ui.item.name);
+                    return false;
+                }
+            }).autocomplete("instance")._renderItem = function (ul, item) {
+                return $j("<li>")
+                    .append("<div>" + item.name + "</div>")
+                    .appendTo(ul);
+            };
+        });
     </script>
 @endpush

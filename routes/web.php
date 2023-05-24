@@ -427,6 +427,8 @@ Route::group(['prefix' => 'admin', 'namespace' => 'Admin'], function () {
         Route::any('vendor-product/import', 'VendorProductController@import')->name('admin.vendorproduct.import');
         Route::post('vendor-product/importExcel', 'VendorProductController@importExcel')->name('admin.vendorproduct.importExcel');;
         Route::resource('vendor-product', 'VendorProductController');
+        //autocomplete.search
+        Route::any('autocomplete/search', 'VendorProductController@search')->name('autocomplete.search');
 
 		// TODO admin vendor-commission section
 		

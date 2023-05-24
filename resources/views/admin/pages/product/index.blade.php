@@ -120,7 +120,7 @@ $(function() {
         scrollCollapse: true,
         fixedColumns: true,
         dom: 'lBfrtip',
-        order: [[ 5, "desc" ]],
+        // order: [[ 5, "desc" ]],
         buttons: [
            
             {

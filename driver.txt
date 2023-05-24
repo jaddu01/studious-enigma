@@ -1,0 +1,49 @@
+
+
+
+1.Driver Login With Otp
+path:-http://172.104.186.169/grocery/api/v1/user/driverLogin
+method:-post
+parameters:-device_type,device_id,device_token,phone_code,phone_number,password
+
+2.Driver Order List
+path:-http://172.104.186.169/grocery/api/v1/user/driverOrderList
+method:-post
+parameters:-user_id,type=(1 for upcoming,2 for today,3 for all)
+
+
+3.Driver Order Details
+path:-http://172.104.186.169/grocery/api/v1/user/driverOrderDetail
+method:-post
+parameters:-order_id,type=(1 for address,2 for products,3 for details)
+
+
+4.Driver driverProfile
+path:-http://172.104.186.169/grocery/api/v1/user/driverProfile
+method:-post
+parameters:-user_id
+
+5.Driver driverUpdate
+path:-http://172.104.186.169/grocery/api/v1/user/driverUpdate
+method:-post
+parameters:-user_id,email,name,phone_number
+
+
+6. Update User Location
+path:-http://172.104.186.169/grocery/api/v1/user/driverUpdateUserLocation
+method:-post
+parameters:-order_id,address,name,lat,lng
+
+
+7. Assignment
+path:-http://172.104.186.169/grocery/api/v1/user/driverAssignment
+method:-post
+parameters:-driver_id
+
+
+8. Order Status
+path:-http://172.104.186.169/grocery/api/v1/user/orderStatusChange
+method:-post
+parameters:-order_id,order_status=("N"=New",CF"=Confirmed,"O" =Collected,"S"=On the way,"A"=At Doorstep,"D"=Delivered,"R"=Returned,"C"=Canceled)
+
+ 

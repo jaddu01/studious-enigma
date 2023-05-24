@@ -57,48 +57,10 @@ class ProductController extends Controller
         if ($this->user->can('view', Product::class)) {
             return abort(403,'not able to access');
         }
-        $products = $this->model->with(['MeasurementClass'])->get();
         $brands=Brand::where('status','=','1')->listsTranslations('name','id')->pluck('name','id')->all();
-        if(isset($products) && !empty($products)) {
-            foreach ($products as $key => $value) {
-                $product[$key] = [
-                    'id' => $value['id'],
-                    'name' => $value['name'],
-                    'category_id' => $value['category_id'],
-                    'sku_code' => $value['sku_code'],
-                    'barcode' => $value['barcode'],
-                    'brand_id' => $value['brand_id'],
-                    'gst' => ($value['gst']!=null && $value['gst']!='null') ? $value['gst'].' %' : '',
-                    'created_at' => date('d/m/Y',strtotime($value['created_at'])),
-                    'measurement_class' => $value['measurement_class'],
-                    'measurement_value' => $value['measurement_value'],
-                    'status' => $value['status']
-                ];
-                $brand_name = '';
-                if($value['brand_id']!='' &&  $value['brand_id']!=null){
-                    $brand = BrandTranslation::where('brand_id',$value['brand_id'])->first();
-                    //if($brand->isNotEmpty()) {
-                        $brand_name = $brand->name;
-                    //}
-                }
-                $product[$key]['brand_name'] = $brand_name;
-                $product_category_name ='';
-                 $product_categories  = Category::whereIn('id',$value['category_id'])->get();
-                 foreach ($product_categories as $key1=>$product_category){
-                     $product_category_name.=++$key1.') '.$product_category->name.'<br>';
-                }
-                $product[$key]['category_name'] = $product_category_name;
-
-            }
-        }
-        $category=Category::all();
-        if(isset($category) && !empty($category)) {
-            foreach ($category as $key => $value) {
-                $categories[$value['id']] = $value['name'];
-            }
-            
-        }
-        return view('admin/pages/product/index')->with('products',$product)->with('categories',json_encode($categories,JSON_HEX_APOS))->with('brands',json_encode($brands,JSON_HEX_APOS));
+        
+        
+        return view('admin/pages/product/index')->with('brands',json_encode($brands,JSON_HEX_APOS));
     }
 
     /**
@@ -290,30 +252,12 @@ class ProductController extends Controller
             //$product = $this->model->getNewTranslation('in')->get();
         //$product = $this->model->with(['MeasurementClass'])->get();
         //$product = $this->model->get();
-        $products = $this->model->with(['MeasurementClass'])->get();
-        if(isset($products) && !empty($products)) {
-            foreach ($products as $key => $value) {
-                $product[$key] = (object)[
-                    'id' => $value['id'],
-                    'name' => $value['name'],
-                    'category_id' => $value['category_id'],
-                    'sku_code' => $value['sku_code'],
-                    'barcode' => $value['barcode'],
-                    'brand_id' => $value['brand_id'],
-                    'gst' => $value['gst'],
-                    //'created_at' => $value['created_at'],
-                    'measurement_class' => $value['measurement_class'],
-                    'measurement_value' => $value['measurement_value'],
-                    'status' => $value['status']
-                ];
-
-            }
-        }
+        $products = $this->model->with(['MeasurementClass','brand']);
         /*echo '<pre>';
         print_r($product);
         echo '</pre>';*/
 
-            return Datatables::of($product)
+            return Datatables::of($products)
             ->editColumn('category_name',function ($product){
                 $name='';
                  $categories  = Category::whereIn('id',$product->category_id)->get();

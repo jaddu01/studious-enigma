@@ -270,6 +270,26 @@ class VendorProductController extends Controller
         return view('admin/pages/vendor-product/add')->with('users',$users)->with('validator',$validator)->with('products',$products)->with('offres',$offres)->with('offerValue',$offerValue);
     }
 
+    //search
+    public function search(Request $request)
+    {
+        $searchTerm = $request->input('term');
+        $products = $this->vendorProduct->with('Product')->whereHas('Product.translations', function($q) use ($searchTerm) {
+            $q->where('name', 'like', '%' . $searchTerm.'%')
+            ->orWhere('keywords', 'like', '%' . $searchTerm.'%');
+            })->limit(5)->get();
+
+        $result = $products->map(function ($product) {
+            return [
+                'id' => $product->id,
+                'name' => $product->product->name,
+            ];
+        });
+            
+        
+        return response()->json($result);
+    }
+
 
     /*get offer value on change of offer*/
      public function getOfferValue(Request $request)
@@ -493,9 +513,7 @@ class VendorProductController extends Controller
         if ($request->has('unavailable') and !empty($request->unavailable) and $request->unavailable==1) {
             $product->where('qty','=',0);
         }
-
-
-        $product->get()->toArray();
+        
         //return  $product;
        //print_r($product->get()->toArray());
        //echo json_encode("sdf");
