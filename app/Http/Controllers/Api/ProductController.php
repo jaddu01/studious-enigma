@@ -549,9 +549,9 @@ class ProductController extends Controller
         try{
             $keyword = $request->keyword;
             $products = $this->vendorProduct->with(['product','product.MeasurementClass','product.image'])->whereHas('Product.translations',function($q) use($keyword){
-                $q->where('name','like','%'.$keyword.'%');
-                $q->orWhere('keywords','like','%'.$keyword.'%');
-                $q->orWhere('description','like','%'.$keyword.'%');
+                $q->where('name','like', $keyword.'%');
+                $q->orWhere('keywords','like',$keyword.'%');
+                $q->orWhere('description','like', $keyword.'%');
             });
 
             if($request->has('category_id')){
@@ -564,9 +564,10 @@ class ProductController extends Controller
             //save to search query
             if(!empty($keyword)){
                 SearchQueries::query()->updateOrCreate(['query'=>$keyword],['count'=>DB::raw('count+1')]);
+                $this->response->searchSuggestions = $this->searchSuggestion();
             }
             $this->response->vendorProduct = VendorProductResource::collection($products);
-            $this->response->searchSuggestions = $this->searchSuggestion();
+            
             return ResponseBuilder::successWithPagination($products, $this->response);
         }catch (\Exception $e) {
             return ResponseBuilder::error($e->getMessage(), 500);

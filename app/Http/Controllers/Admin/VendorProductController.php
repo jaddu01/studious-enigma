@@ -275,8 +275,8 @@ class VendorProductController extends Controller
     {
         $searchTerm = $request->input('term');
         $products = $this->vendorProduct->with('Product')->whereHas('Product.translations', function($q) use ($searchTerm) {
-            $q->where('name', 'like', '%' . $searchTerm.'%')
-            ->orWhere('keywords', 'like', '%' . $searchTerm.'%');
+            $q->where('name', 'like', $searchTerm.'%')
+            ->orWhere('keywords', 'like', $searchTerm.'%');
             })->limit(5)->get();
 
         $result = $products->map(function ($product) {
@@ -513,7 +513,7 @@ class VendorProductController extends Controller
         if ($request->has('unavailable') and !empty($request->unavailable) and $request->unavailable==1) {
             $product->where('qty','=',0);
         }
-        
+
         //return  $product;
        //print_r($product->get()->toArray());
        //echo json_encode("sdf");

@@ -340,7 +340,7 @@ class UserController extends Controller
             'image' => 'sometimes|required|image|mimes:jpeg,png,jpg,gif,svg',
           //  'email' => 'sometimes|required|email|unique:users,email,'.$user->id,
             //'dob' =>   'sometimes|required|date_format:"d-m-Y',
-            //'gender' =>'sometimes|required|in:male,female',
+            'gender' =>'sometimes|required|in:male,female',
 
         ]);
         if ($validator->fails()) {
