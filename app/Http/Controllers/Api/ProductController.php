@@ -36,11 +36,13 @@ use App\Http\Resources\OfferResource;
 use App\Http\Resources\OrderProductResource;
 use App\Http\Resources\VendorProductDetailedResource;
 use App\Http\Resources\VendorProductResource;
+use App\NotifyMe;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 
 
 use App\ProductOrderItem;
+use Illuminate\Validation\Rule;
 use Request as GlobalRequest;
 
 class ProductController extends Controller
@@ -1169,11 +1171,34 @@ class ProductController extends Controller
     }
 
     //function to add to notify me
-    public function addToNotifyMe(GlobalRequest $request){
+    public function addToNotifyMe(Request $request){
         try{
+            //write laravel validation here product id required
+            $validator = Validator::make($request->all(), [
+                'product_id' => ['required', Rule::exists('vendor_products','id')->where(function ($query) {
+                    $query->where('status', '1');
+                })],
+            ]);
+
+            //if validation fails
+            if ($validator->fails()) {
+                return ResponseBuilder::error($validator->errors()->first(), $this->validationStatus);
+            }
+
+            $user = $request->user('api');
+            $product_id = $request->product_id;
+
+            //save or update to notify me
+            NotifyMe::updateOrCreate(
+                ['user_id' => $user->id, 'product_id' => $product_id],
+                ['user_id' => $user->id, 'product_id' => $product_id]
+            );
+
+            return ResponseBuilder::success(__('api.notification.added_to_notify_me'));
 
         }catch(\Exception $e){
-            return ResponseBuilder::error($e->getMessage(), $this->errorStatus);
+            return $e;
+            // return ResponseBuilder::error($e->getMessage(), $this->errorStatus);
         }
     }
 

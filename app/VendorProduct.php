@@ -161,6 +161,10 @@ class VendorProduct extends BaseModel
         return $this->hasOne('App\WishLish');
     }
 
+    //notify me
+    public function notifyMe(){
+        return $this->hasMany('App\NotifyMe');
+    }
 
     protected static function boot()
     {

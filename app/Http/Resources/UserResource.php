@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use Carbon\Carbon;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class UserResource extends JsonResource
@@ -20,9 +21,9 @@ class UserResource extends JsonResource
             "email"=>$this->email ?? null,
             "phone_code"=>$this->phone_code,
             "phone_number"=>$this->phone_number,
-            "profile_image"=>$this->image,
+            "image"=>$this->image,
             "user_type"=>$this->user_type,
-            "dob" => $this->dob,
+            "dob" => Carbon::parse($this->dob)->timestamp ?? null,
             "gender" => $this->gender,
             "role" => $this->role,
             "wallet_amount" => $this->wallet_amount,

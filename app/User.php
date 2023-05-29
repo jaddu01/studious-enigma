@@ -206,4 +206,10 @@ class User extends Authenticatable
         $this->notify(new CustomPasswordReset($token));
     }*/
 
+    //notify me
+    public function notifyMe()
+    {
+        return $this->hasMany('App\NotifyMe');
+    }
+
 }

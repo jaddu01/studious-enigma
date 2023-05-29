@@ -212,6 +212,8 @@ Route::group(['prefix' => 'admin', 'namespace' => 'Admin'], function () {
         Route::get('product/addvariant', 'ProductController@addVariant')->name('admin.product.addvariant');
         Route::get('product/variantview', 'ProductController@variantview')->name('admin.product.variantview');
         Route::post('product/savevariant', 'ProductController@saveVariant')->name('admin.product.savevariant');
+        Route::get('product/editvariant/{id}', 'ProductController@editvariant')->name('admin.product.editvariant');
+        Route::post('product/updatevariant/{id}', 'ProductController@updateVariant')->name('admin.product.updatevariant');
         // TODO admin manual order section
        
 

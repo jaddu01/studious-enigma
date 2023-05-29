@@ -38,6 +38,7 @@ use Illuminate\Support\Facades\App;
 use App\Helpers\Helper;
 use App\Helpers\ResponseBuilder;
 use App\Http\Resources\UserAddressResource;
+use App\Rules\UnixTimeStamp;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use DB;
@@ -223,6 +224,9 @@ class UserController extends Controller
 
         $input = $request->all();
         $input['password'] = bcrypt('');
+        if(!empty($request->dob)){
+            $input['dob'] = Carbon::createFromTimestamp($request->dob)->toDateString();
+        }
         //$otp =   $input['otp'] =  rand(100000,999999);
         $otp1 = rand(100,999);
         $otp2 = rand(100,999);
@@ -339,7 +343,7 @@ class UserController extends Controller
             'name' =>  'sometimes|required',
             'image' => 'sometimes|required|image|mimes:jpeg,png,jpg,gif,svg',
           //  'email' => 'sometimes|required|email|unique:users,email,'.$user->id,
-            //'dob' =>   'sometimes|required|date_format:"d-m-Y',
+            'dob' =>   ['required', new UnixTimeStamp],
             'gender' =>'sometimes|required|in:male,female',
 
         ]);
@@ -351,6 +355,9 @@ class UserController extends Controller
         $userData  = $this->user->FindOrFail($user->id);
 
             $input = $request->all();
+            if(!empty($request->dob)){
+                $input['dob'] = Carbon::createFromTimestamp($request->dob)->toDateString();
+            }
             if($request->hasFile('image')){
                 $image = $request->file('image');
 

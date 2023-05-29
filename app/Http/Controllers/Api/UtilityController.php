@@ -46,6 +46,7 @@ use App\Http\Resources\BrandsResource;
 use App\Http\Resources\CategoryResource;
 use App\Http\Resources\VendorProductResource;
 use DB;
+use Response;
 
 class UtilityController extends Controller
 {
@@ -144,8 +145,13 @@ class UtilityController extends Controller
     }
 
     public function getSubCategoryByCategoryId(Request $request,$categoryId){
+        $parentCategory = Category::find($categoryId);
+        if(!$parentCategory){
+            return ResponseBuilder::error("Category not found", $this->notFoundStatus);
+        }
         $categories = Category::where('parent_id','=',$categoryId)->orderBy('sort_no', 'ASC')->paginate(20);
         $this->response->category = CategoryResource::collection($categories);
+        $this->response->banner_image = Helper::imageNotFound($parentCategory->banner_image);
         return ResponseBuilder::successWithPagination($categories,$this->response, $this->successStatus);
     }
 
