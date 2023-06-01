@@ -109,6 +109,11 @@
                                     <a href="{{url('admin/product')}}">View Products</a>
                                 </li>
                                 @endif
+                                @if (!Auth::guard('admin')->user()->can(['view'], App\Product::class))
+                                <li>
+                                    <a href="{{url('admin/product/variantview')}}">Product Variant</a>
+                                </li>
+                                @endif
 
                             </ul>
                         </li>
