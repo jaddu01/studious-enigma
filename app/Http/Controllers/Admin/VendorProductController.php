@@ -15,6 +15,7 @@ use App\MeasurementClass;
 use App\ProductOrder;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Validator;
@@ -260,7 +261,7 @@ class VendorProductController extends Controller
         }
         $validator = JsValidatorFacade::make($this->vendorProduct->rules('POST'));
     // echo "<pre>";  print_r($validator->toArray());die;
-        $users=$this->user->where(['user_type'=>'vendor','role'=>'user'])->pluck('name','id');
+        $users = $this->user->where(['user_type'=>'vendor','role'=>'user'])->pluck('name','id');
         $products=$this->product->listsTranslations('name','id')->pluck('name','id')->all();
 
 
@@ -274,7 +275,7 @@ class VendorProductController extends Controller
     public function search(Request $request)
     {
         $searchTerm = $request->input('term');
-        $products = $this->vendorProduct->with('Product')->whereHas('Product.translations', function($q) use ($searchTerm) {
+        $products = $this->product->whereHas('translations', function($q) use ($searchTerm) {
             $q->where('name', 'like', $searchTerm.'%')
             ->orWhere('keywords', 'like', $searchTerm.'%');
             })->limit(5)->get();
@@ -282,10 +283,9 @@ class VendorProductController extends Controller
         $result = $products->map(function ($product) {
             return [
                 'id' => $product->id,
-                'name' => $product->product->name,
+                'name' => $product->name,
             ];
         });
-            
         
         return response()->json($result);
     }
@@ -312,8 +312,10 @@ class VendorProductController extends Controller
      */
     public function store(Request $request)
     {
+        $user = Auth('admin')->user();
         $input = $request->all();
-
+        $input['user_id'] = $user->id;
+       
         $validator = Validator::make($request->all(),$this->vendorProduct->rules($this->method),$this->vendorProduct->messages($this->method));
 
         if ($validator->fails()) {
@@ -402,6 +404,10 @@ class VendorProductController extends Controller
     {
 
         $input = $request->all();
+        $user = Auth('admin')->user();
+        $input = $request->all();
+        $input['user_id'] = $user->id;
+        
         $offerId = $request->offer_id;
         $offers = [];
         $offers = $this->offer->where('id',$offerId)->select('offer_value','offer_type')->first();

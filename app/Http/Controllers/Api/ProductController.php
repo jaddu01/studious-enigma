@@ -524,7 +524,7 @@ class ProductController extends Controller
 
             }
             $zone = Zone::where('status','=','1')->where('is_default','=','1')->withoutGlobalScope(StatusScope::class)->first();
-            $zone_id_default = $zone->id;
+            $zone_id_default = $zone ? $zone->id : 1;
             $zData = ZoneTranslation::where('zone_id', $zone_id_default)->where('locale', App::getLocale())->first();
             $data['match_in_zone'] = false;
             $data['zone_id'] = $zone_id_default;

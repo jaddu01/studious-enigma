@@ -385,7 +385,7 @@
                                 </div>
                             </div>
                             <div class="item form-group {{ $errors->has('expire_date') ? ' has-error' : '' }}">
-                                <label class="control-label col-md-3 col-sm-3 col-xs-12" for="expire_date">Bar Code 
+                                <label class="control-label col-md-3 col-sm-3 col-xs-12" for="expire_date">Expiry Date
                                 </label>
                                 <div class="col-md-6 col-sm-6 col-xs-12">
 

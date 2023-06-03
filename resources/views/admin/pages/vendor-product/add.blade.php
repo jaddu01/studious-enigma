@@ -53,7 +53,7 @@
                             {{csrf_field()}}
                             <span class="section">Add Product</span>
 
-                            <div class="item form-group {{ $errors->has('user_id') ? ' has-error' : '' }}">
+                            <div class="item form-group {{ $errors->has('user_id') ? ' has-error' : '' }} hidden">
                                 <label class="control-label col-md-3 col-sm-3 col-xs-12" for="email"> Store
                                     <span class="required">*</span>
                                 </label>
@@ -251,7 +251,7 @@
                 source: "{{ route('autocomplete.search') }}",
                 minLength: 2,
                 select: function (event, ui) {
-                    $j("#product").val(ui.item.name);
+                    $j("#product").val(ui.item.id);
                     return false;
                 }
             }).autocomplete("instance")._renderItem = function (ul, item) {

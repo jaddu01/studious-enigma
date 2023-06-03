@@ -44,7 +44,6 @@ class VendorProduct extends BaseModel
             case 'POST':
                 {
                     return [
-                        'user_id' => 'required',
                         'product_id' => 'required',
                         'qty' => 'required',
                         'price' => 'required',
@@ -56,7 +55,6 @@ class VendorProduct extends BaseModel
                 }
             case 'PUT':
                 return [
-                    'user_id' => 'required',
                     'product_id' => 'required',
                     'qty' => 'required',
                     'price' => 'required',
@@ -66,7 +64,6 @@ class VendorProduct extends BaseModel
             case 'PATCH':
                 {
                     return [
-                        'user_id' => 'required',
                         'product_id' => 'required',
                         'qty' => 'required',
                         'price' => 'required',
