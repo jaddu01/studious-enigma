@@ -405,7 +405,9 @@ Route::group(['prefix' => 'admin', 'namespace' => 'Admin'], function () {
 
         Route::any('product/datatable', 'ProductController@anyData')->name('product.datatable');
         Route::any('product/import', 'ProductController@import')->name('admin.product.import');
-        Route::post('product/importExcel', 'ProductController@importExcel')->name('admin.product.importExcel');
+        // Route::post('product/importExcel', 'ProductController@importExcel')->name('admin.product.importExcel');
+        Route::post('product/importExcel', 'ProductController@excelUploadAndImport')->name('admin.product.importExcel');
+        //
         Route::any('product/status', 'ProductController@changeStatus')->name('admin.product.status');
         Route::any('product/image', 'ProductController@deleteImage')->name('admin.product.image');
         Route::resource('product', 'ProductController');

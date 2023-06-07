@@ -17,12 +17,17 @@ use App\Variant;
 use App\MeasurementClassTranslation;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Jobs\ImportJob;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Validator;
 use Proengsoft\JsValidation\Facades\JsValidatorFacade;
 use DataTables;
 use Excel;
+use Exception;
+use Log;
+use Storage;
+
 ini_set('display_startup_errors', 1);
 ini_set('display_errors', 1);
 error_reporting(-1);
@@ -252,10 +257,14 @@ class ProductController extends Controller
             //$product = $this->model->getNewTranslation('in')->get();
         //$product = $this->model->with(['MeasurementClass'])->get();
         //$product = $this->model->get();
-        $products = $this->model->with(['MeasurementClass','brand']);
+        // $products = $this->model->with(['MeasurementClass','brand']);
         /*echo '<pre>';
         print_r($product);
         echo '</pre>';*/
+
+        $user = auth('admin')->user();
+        // dd($user);
+        $products = Product::with(['MeasurementClass','brand'])->where('vendor_id', $user->id)->get();
 
             return Datatables::of($products)
             ->editColumn('category_name',function ($product){
@@ -429,6 +438,7 @@ class ProductController extends Controller
                         $catid[$key]=$cate;
                     }
                     $input['category_id'] = $catid;
+                    // dd($input);
                     $product = $this->model->create($input);
                 } else {
                     $catid=array();
@@ -437,6 +447,7 @@ class ProductController extends Controller
                         $catid[$key]=$cate;
                     }
                     $input['category_id'] = $catid;
+                    // dd($input);
                     $product = $this->model->FindOrFail($product->id);
                     $product->update($input);
                     /*echo '<pre>';
@@ -453,7 +464,8 @@ class ProductController extends Controller
             DB::commit();
             Session::flash('success','product create successful');
             } catch (\Exception $e) {
-            Session::flash('danger',$e->getMessage());
+            // Session::flash('danger',$e);
+            dd($e);
             DB::rollBack();
             }
          }
@@ -464,6 +476,44 @@ class ProductController extends Controller
 
             }
             return back()->with('success', 'Insert Record successfully.');
+  }
+
+  //upload excel file and import to db
+  public function excelUploadAndImport(Request $request){
+    try{
+        $request->validate([
+            'import_file' => 'required'
+        ]);
+
+        if($request->hasFile('import_file')){
+            try{
+                dispatch_now(new ImportJob());
+            }catch(Exception $e){
+                Session::flash('danger',$e->getMessage());
+               return $e;
+            }
+            Session::flash('success','File has been uploaded successfully. The file is being processed in the background');
+            return back()->with([
+                'message' =>
+                    'File has been uploaded successfully. The file is being processed in the background',
+            ]);
+            // dd('File has been uploaded successfully. The file is being processed in the background');
+        }else {
+            Session::flash('danger','Kindly choose file to import.');
+            return back()->with([
+                'error_message' => 'Kindly choose file to import.',
+            ]);
+            // dd('Kindly choose file to import.');
+        }
+
+    }catch(Exception $e){
+        Log::error($e);
+        // dd($e->getMessage());
+        Session::flash('danger',$e->getMessage());
+        return back()->with([
+            'error_message' => 'Oops! Something went wrong. Try again.',
+        ]);
+    }
   }
 
 

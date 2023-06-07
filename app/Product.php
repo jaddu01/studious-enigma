@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Dimsav\Translatable\Translatable;
 use Illuminate\Support\Facades\Request;
+use Log;
 
 class Product extends BaseModel
 {
@@ -16,18 +17,26 @@ class Product extends BaseModel
     public $translationModel = 'App\ProductTranslation';
     use SoftDeletes;
     protected $fillable = [
+        'vendor_id',
         'sku_code',
         'hsn_code',
         'barcode',
         'category_id',
         'brand_id',
         'gst',
-        'measurement_class', 'measurement_value',
+        'measurement_class', 
+        'measurement_value',
         'related_products',
         'status',
         'expire_date',
         'show_in_cart_page',
-        'returnable'
+        'returnable',
+        'price',
+        'qty',
+        'offer_id',
+        'per_order',
+        'best_price',
+        'memebership_p_price',
     ];
     public $translatedAttributes = ['name', 'description','disclaimer','keywords','self_life','manufacture_details','marketed_by','print_name'];
 
@@ -160,6 +169,7 @@ class Product extends BaseModel
 
     public function setRelatedProductsAttribute($value)
     {
+        // Log::info("setRelatedProductsAttribute ".$value);
         $value = implode(',',$value);
 
         $this->attributes['related_products'] = $value;
@@ -167,7 +177,7 @@ class Product extends BaseModel
 
     public function getRelatedProductsAttribute($value)
     {
-
+        // Log::info("getRelatedProductsAttribute ".$value);
         $value = explode(',',$value);
 
         return $value;

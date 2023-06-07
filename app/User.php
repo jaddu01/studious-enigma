@@ -164,6 +164,10 @@ class User extends Authenticatable
         return $this->hasMany('App\DeliveryLocation');
     }
 
+    public function products(){
+        return $this->hasMany('App\Product', 'vendor_id')->select('*', 'per_order AS max_per_order_qty');
+    }
+
     public function vendorProduct()
     {
         return $this->hasMany('App\VendorProduct')->select(array('*', 'per_order AS max_per_order_qty'));
