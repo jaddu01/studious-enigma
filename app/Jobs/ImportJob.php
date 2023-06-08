@@ -88,6 +88,7 @@ class ImportJob implements ShouldQueue
             $input['per_order'] = $data['per_order'];
             $input['best_price'] = $data['best_price'];
             $input['memebership_p_price'] = $data['memebership_p_price'];
+            $input['purchase_price'] = $data['purchase_price'];
             // dd($input);
             
             $product = Product::where('sku_code', $input['sku_code'])->first();

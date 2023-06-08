@@ -18,6 +18,8 @@ use App\MeasurementClassTranslation;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Jobs\ImportJob;
+use App\Offer;
+use Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Validator;
@@ -38,7 +40,8 @@ class ProductController extends Controller
     protected $user;
     protected $measurementClass;
     protected $method;
-    function __construct(Request $request,Product $model,MeasurementClass $measurementClass,User $user,VendorProduct $VendorProduct, Variant $Variant, ProductTranslation $ProductTranslation)
+    protected $offer;
+    function __construct(Request $request,Product $model,MeasurementClass $measurementClass,User $user,VendorProduct $VendorProduct, Variant $Variant, ProductTranslation $ProductTranslation, Offer $offer)
     {
         parent::__construct();
         $this->model=$model;
@@ -49,6 +52,7 @@ class ProductController extends Controller
         $this->measurementClass=$measurementClass;
         $this->method=$request->method();
         $this->gst = ['0'=>'0%','5'=>'5%','12'=>'12%','18'=>'18%'];
+        $this->offer=$offer;
     }
 
     /**
@@ -85,7 +89,8 @@ class ProductController extends Controller
         $categories=Category::all();
         $brands=Brand::where('status','=','1')->listsTranslations('name','id')->pluck('name','id')->all();
         $gst = $this->gst;
-        return view('admin/pages/product/add')->with('categories',$categories)->with('validator',$validator)->with('related_products',$related_products)->with('measurementClass',$measurementClass)->with('brands',$brands)->with('gst',$gst);
+        $offers = $this->offer->whereRaw('to_time >= CAST( "'.now()->toDateString().'" AS DATE )')->listsTranslations('name','id')->pluck('name','id')->all();
+        return view('admin/pages/product/add')->with('categories',$categories)->with('validator',$validator)->with('related_products',$related_products)->with('measurementClass',$measurementClass)->with('brands',$brands)->with('gst',$gst)->with('offers', $offers);
     }
 
     /**
@@ -108,7 +113,7 @@ class ProductController extends Controller
 
             DB::beginTransaction();
             try {
-
+                $input['vendor_id'] = Auth::guard('admin')->user()->id;
                 $input['sku_code'] = $this->getSku();
                 $input['disclaimer:en'] = 'While we work to ensure that product information is correct, on occasion manufacturers may alter their ingredient lists. Actual product packaging and materials may contain more and/or different information than that shown on our web site. We recommend that you do not solely rely on the information presented and that you always read labels, warnings, and directions before using or consuming a product. For additional information about a product, please contact the manufacturer.';
                 $product = $this->model->create($input);
@@ -121,6 +126,7 @@ class ProductController extends Controller
 
                 Session::flash('success','product create successful');
             } catch (\Exception $e) {
+                dd($e);
                 Session::flash('danger',$e->getMessage());
                 DB::rollBack();
 
@@ -159,9 +165,10 @@ class ProductController extends Controller
         $categories=Category::all();
         $brands=Brand::where('status','=','1')->listsTranslations('name','id')->pluck('name','id')->all();
         $gst = $this->gst;
+        $offers = $this->offer->whereRaw('to_time >= CAST( "'.now()->toDateString().'" AS DATE )')->listsTranslations('name','id')->pluck('name','id')->all();
 
 
-        return view('admin/pages/product/edit')->with('product',$product)->with('categories',$categories)->with('validator',$validator)->with('related_products',$related_products)->with('measurementClass',$measurementClass)->with('brands',$brands)->with('gst',$gst);
+        return view('admin/pages/product/edit')->with('product',$product)->with('categories',$categories)->with('validator',$validator)->with('related_products',$related_products)->with('measurementClass',$measurementClass)->with('brands',$brands)->with('gst',$gst)->with('offers', $offers);
     }
 
     /**
@@ -175,13 +182,14 @@ class ProductController extends Controller
     {
 
         $input = $request->all();
+        $input['vendor_id'] = Auth::guard('admin')->user()->id;
         $input['disclaimer:en'] = 'While we work to ensure that product information is correct, on occasion manufacturers may alter their ingredient lists. Actual product packaging and materials may contain more and/or different information than that shown on our web site. We recommend that you do not solely rely on the information presented and that you always read labels, warnings, and directions before using or consuming a product. For additional information about a product, please contact the manufacturer.';
        //echo "<pre>"; print_r($input); die;
         $product=$this->model->with(['images'])->findOrFail($id);
         //return $product->images;
-        if(empty($product->images)){
-            return 'hi';
-        }
+        // if(empty($product->images)){
+        //     return 'hi';
+        // }
 
         $validator = Validator::make($request->all(),$this->model->rules($this->method),$this->model->messages($this->method));
 

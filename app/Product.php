@@ -37,6 +37,7 @@ class Product extends BaseModel
         'per_order',
         'best_price',
         'memebership_p_price',
+        'purchase_price'
     ];
     public $translatedAttributes = ['name', 'description','disclaimer','keywords','self_life','manufacture_details','marketed_by','print_name'];
 

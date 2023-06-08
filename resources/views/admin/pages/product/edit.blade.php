@@ -201,6 +201,67 @@
                                     @endif
                                 </div>
                             </div>
+                            <div class="item form-group {{ $errors->has('offer_id') ? ' has-error' : '' }}">
+                                <label class="control-label col-md-3 col-sm-3 col-xs-12" for="email"> Offer
+                                    <span class="required">*</span>
+                                </label>
+                                <div class="col-md-6 col-sm-6 col-xs-12">
+                                    <input type="hidden" name="offer_type" id="offer_type" value="<?php if(isset($product->offer->offer_type)){ echo $product->offer->offer_type; } ?>">
+                                    <input type="hidden" name="offer_value" id="offer_value" value="">
+                                    {!!  Form::select('offer_id', $offers,null, array('class' => 'form-control col-md-7 col-xs-12 select2-multiple','placeholder'=>'Offer','id'=>'offer_id' )) !!}
+                                    {{ Form::filedError('offer_id') }}
+                                </div>
+                            </div>
+
+                             <div class="item form-group {{ $errors->has('best_price') ? ' has-error' : '' }}">
+                                <label class="control-label col-md-3 col-sm-3 col-xs-12" for="email">MRP <span class="required">*</span>
+                                </label>
+                                <div class="col-md-6 col-sm-6 col-xs-12">
+                                    {!!  Form::text('best_price',null, array('class' => 'form-control col-md-7 col-xs-12','id'=>'priceAmt')) !!}
+                                    {{ Form::filedError('best_price') }}
+                                </div>
+                            </div>
+
+                            <div class="item form-group {{ $errors->has('price') ? ' has-error' : '' }}">
+                                <label class="control-label col-md-3 col-sm-3 col-xs-12" for="email">Best Price <span
+                                            class="required">*</span>
+                                </label>
+                                <div class="col-md-6 col-sm-6 col-xs-12">
+
+                                    {!!  Form::text('price',null, array('class' => 'form-control col-md-7 col-xs-12','id'=>'priceAmt')) !!}
+                                    {{ Form::filedError('price') }}
+                                </div>
+                            </div>
+
+                            <div class="item form-group{{ $errors->has('qty') ? ' has-error' : '' }}">
+                                <label class="control-label col-md-3 col-sm-3 col-xs-12" for="name">Qty
+                                    <span class="required">*</span>
+                                </label>
+                                <div class="col-md-6 col-sm-6 col-xs-12">
+
+                                    {!!  Form::text('qty', null, array('placeholder' => 'Qty','class' => 'form-control col-md-7 col-xs-12' )) !!}
+                                    @if ($errors->has('qty'))
+                                        <span class="help-block">
+                                                <strong>{{ $errors->first('qty') }}</strong>
+                                            </span>
+                                    @endif
+                                </div>
+                            </div>
+
+							      <div class="item form-group{{ $errors->has('per_order') ? ' has-error' : '' }}">
+                                <label class="control-label col-md-3 col-sm-3 col-xs-12" for="name">Max. per order
+                                    <span class="required">*</span>
+                                </label>
+                                <div class="col-md-6 col-sm-6 col-xs-12">
+
+                                    {!!  Form::text('per_order', null, array('placeholder' => 'max. per order','class' => 'form-control col-md-7 col-xs-12' )) !!}
+                                    @if ($errors->has('per_order'))
+                                        <span class="help-block">
+                                                <strong>{{ $errors->first('per_order') }}</strong>
+                                            </span>
+                                    @endif
+                                </div>
+                            </div>
 
                             @foreach(config('translatable.locales') as $locale)
                                 <div class="item form-group{{ $errors->has('name:'.$locale) ? ' has-error' : '' }}">
