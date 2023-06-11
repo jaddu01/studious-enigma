@@ -82,7 +82,9 @@ class ImportJob implements ShouldQueue
                     $input['max_order'] = $data['max_order'];
                     $input['measurement_class'] = $data['measurement_class'];
                     $input['measurement_value'] = $data['measurement_value'];
-
+                    Log::info("measurement_class => ". $input['measurement_class']);
+                    Log::info("measurement_value => ". $input['measurement_value']);
+                    Log::info("sku_code => ". $input['sku_code']);
                     $input['price'] = $data['price'];
                     $input['qty'] = $data['qty'];
                     $input['offer_id'] = $data['offer_id'];
@@ -102,9 +104,16 @@ class ImportJob implements ShouldQueue
                 }
             }
             
-        }catch(Exception $e){
+        }catch(\Maatwebsite\Excel\Validators\ValidationException $e){
             Log::info($e->getMessage());
-            return $e->getMessage();
+            $failures = $e->failures();
+            foreach ($failures as $failure) {
+                $failure->row(); // row that went wrong
+                $failure->attribute(); // either heading key (if using heading row concern) or column index
+                $failure->errors(); // Actual error messages from Laravel validator
+                $failure->values(); // The values of the row that has failed.
+                dd($failure);
+            }
         }
        
     }
