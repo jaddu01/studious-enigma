@@ -270,48 +270,60 @@ class ProductController extends Controller
         print_r($product);
         echo '</pre>';*/
 
-        $user = auth('admin')->user();
-        // dd($user);
-        $products = Product::with(['MeasurementClass','brand'])->where('vendor_id', $user->id)->get();
-
-            return Datatables::of($products)
-            ->editColumn('category_name',function ($product){
-                $name='';
-                 $categories  = Category::whereIn('id',$product->category_id)->get();
-                 foreach ($categories as $key=>$category){
-                     $name.=++$key.') '.$category->name;
-                     $name.= PHP_EOL;
-                }
-                return $name;
-            })->editColumn('brand', function($product) {
-                $brand_name = '';
-                if($product->brand_id!='' &&  $product->brand_id!=null){
-                    $brand = BrandTranslation::where('brand_id',$product->brand_id)->first();
-                    //if($brand->isNotEmpty()) {
-                        $brand_name = $brand->name;
-                    //}
-                }
-                return $brand_name;
-            })
-             ->addColumn('barcode',function ($product){
-                return $product->barcode;
-            })
-             ->editColumn('gst',function ($product){
-                return ($product->gst!=null && $product->gst!='null') ? $product->gst.' %' : '';
-            })
-            ->editColumn('measurement_class',function ($product){
-                $measurement_class = MeasurementClassTranslation::where('measurement_class_id',$product->measurement_class)->where('locale','en')->first();
-                return $measurement_class->name;
-            })
-            /* ->addColumn('created_at',function ($user){
-                return date('d/m/Y',strtotime($user->created_at));
-            })*/
-            ->addColumn('action',function ($product){
-                return '<a href="'.route("product.show",$product->id).'" class="btn btn-success">Show</a><a href="'.route("product.edit",$product->id).'" class="btn btn-success">Edit</a></br><button type="button" onclick="deleteRow('.$product->id.')" class="btn btn-danger">Delete</button><input class="data-toggle-coustom"  data-toggle="toggle" type="checkbox" product-id="'.$product->id.'" '.(($product->status==1) ? "checked" : "") . ' value="'.$product->status.'" >';
-                //return '<a href="'.route("product.show",$product->id).'" class="btn btn-success">Show</a><a href="'.route("product.edit",$product->id).'" class="btn btn-success">Edit</a></br><button type="button" onclick="deleteRow('.$product->id.')" class="btn btn-danger">Delete</button>';
-            })
-            ->rawColumns(['category_id','action'])
-            ->make(true);
+        try{
+            $user = auth('admin')->user();
+            // dd($user);
+            // DB::enableQueryLog();
+            $products = Product::with(['MeasurementClass','brand', 'translations'])->whereHas('translations')->where('vendor_id', $user->id);
+// dd(DB::getQueryLog());
+                return Datatables::of($products)
+                ->editColumn('category_name',function ($product){
+                    $name='';
+                     $categories  = Category::whereIn('id',$product->category_id)->get();
+                     foreach ($categories as $key=>$category){
+                         $name.=++$key.') '.$category->name ?? '';
+                         $name.= PHP_EOL;
+                    }
+                    return $name;
+                })->editColumn('brand', function($product) {
+                    $brand_name = '';
+                    if($product->brand_id!='' &&  $product->brand_id!=null){
+                        $brand = BrandTranslation::where('brand_id',$product->brand_id)->first();
+                        //if($brand->isNotEmpty()) {
+                            $brand_name = $brand->name ?? '';
+                        //}
+                    }
+                    return $brand_name;
+                })
+                ->addColumn('name', function($product){
+                    $name = '';
+                    if($product->name!='' &&  $product->name!=null) {
+                        $name = $product->name ?? '';
+                    }
+                    return $name;
+                })
+                 ->addColumn('barcode',function ($product){
+                    return $product->barcode;
+                })
+                 ->editColumn('gst',function ($product){
+                    return ($product->gst!=null && $product->gst!='null') ? $product->gst.' %' : '0%';
+                })
+                ->editColumn('measurement_class',function ($product){
+                    $measurement_class = MeasurementClassTranslation::where('measurement_class_id',$product->measurement_class)->where('locale','en')->first();
+                    return $measurement_class->name ?? '';
+                })
+                /* ->addColumn('created_at',function ($user){
+                    return date('d/m/Y',strtotime($user->created_at));
+                })*/
+                ->addColumn('action',function ($product){
+                    return '<a href="'.route("product.show",$product->id).'" class="btn btn-success">Show</a><a href="'.route("product.edit",$product->id).'" class="btn btn-success">Edit</a></br><button type="button" onclick="deleteRow('.$product->id.')" class="btn btn-danger">Delete</button><input class="data-toggle-coustom"  data-toggle="toggle" type="checkbox" product-id="'.$product->id.'" '.(($product->status==1) ? "checked" : "") . ' value="'.$product->status.'" >';
+                    //return '<a href="'.route("product.show",$product->id).'" class="btn btn-success">Show</a><a href="'.route("product.edit",$product->id).'" class="btn btn-success">Edit</a></br><button type="button" onclick="deleteRow('.$product->id.')" class="btn btn-danger">Delete</button>';
+                })
+                ->rawColumns(['category_id','action'])
+                ->make(true);
+        }catch(\Exception $e){
+            Log::error($e);
+        }
 
     }
 
