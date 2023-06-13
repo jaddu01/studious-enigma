@@ -83,11 +83,6 @@
                                         class="required">*</span>
                                 </label>
                                 <div class="col-md-6 col-sm-6 col-xs-12">
-
-                                    <!-- <select name="category_id[]" multiple class="form-control col-md-7 col-xs-12">
-                                                                <option value="">Select</option>
-                                                                {{ Helper::cat_list($categories, '', '', $product->category_id) }}
-                                                            </select> -->
                                     @php
                                         $cat_array = Helper::categoryArray($categories);
                                         if (isset($cat_array) && !empty($cat_array)) {
@@ -99,7 +94,7 @@
                                                 } else {
                                                     $is_checked = '';
                                                 }
-                                                echo '<input name="category_id[]" type="checkbox" value="' . $value['id'] . '" class="check-' . $value['slug'] . '"><span class="' . $value['slug'] . ' main-' . $value['slug'] . '" onclick="toggleCat(\'' . $value['slug'] . '\')" ' . $is_checked . ' > ' . $value['name'] . '</span></li>';
+                                                echo '<input name="category_id[]" type="checkbox" value="' . $value['id'] . '" class="check-' . $value['slug'] . '" '. $is_checked .'><span class="' . $value['slug'] . ' main-' . $value['slug'] . '" onclick="toggleCat(\'' . $value['slug'] . '\')"> ' . $value['name'] . '</span></li>';
                                                 if (isset($value['sub_category']) && !empty($value['sub_category'])) {
                                                     echo '<ul class="sub-category-checkbox-list ' . $value['slug'] . ' sub-' . $value['slug'] . '">';
                                                     foreach ($value['sub_category'] as $key1 => $value1) {
@@ -274,18 +269,8 @@
                                 </div>
                             </div>
 
-                            <div class="item form-group {{ $errors->has('best_price') ? ' has-error' : '' }}">
-                                <label class="control-label col-md-3 col-sm-3 col-xs-12" for="email">MRP <span
-                                        class="required">*</span>
-                                </label>
-                                <div class="col-md-6 col-sm-6 col-xs-12">
-                                    {!! Form::text('best_price', null, ['class' => 'form-control col-md-7 col-xs-12', 'id' => 'priceAmt']) !!}
-                                    {{ Form::filedError('best_price') }}
-                                </div>
-                            </div>
-
                             <div class="item form-group {{ $errors->has('price') ? ' has-error' : '' }}">
-                                <label class="control-label col-md-3 col-sm-3 col-xs-12" for="email">Best Price <span
+                                <label class="control-label col-md-3 col-sm-3 col-xs-12" for="email">MRP <span
                                         class="required">*</span>
                                 </label>
                                 <div class="col-md-6 col-sm-6 col-xs-12">
@@ -294,6 +279,16 @@
                                     {{ Form::filedError('price') }}
                                 </div>
                             </div>
+                            <div class="item form-group {{ $errors->has('best_price') ? ' has-error' : '' }}">
+                                <label class="control-label col-md-3 col-sm-3 col-xs-12" for="email">Best Price <span
+                                        class="required">*</span>
+                                </label>
+                                <div class="col-md-6 col-sm-6 col-xs-12">
+                                    {!! Form::text('best_price', null, ['class' => 'form-control col-md-7 col-xs-12', 'id' => 'priceAmt']) !!}
+                                    {{ Form::filedError('best_price') }}
+                                </div>
+                            </div>
+
                             <div class="item form-group {{ $errors->has('purchase_price') ? ' has-error' : '' }}">
                                 <label class="control-label col-md-3 col-sm-3 col-xs-12" for="purchase_price">Purchase
                                     Price
@@ -302,6 +297,15 @@
                                 <div class="col-md-6 col-sm-6 col-xs-12">
                                     {!! Form::text('purchase_price', null, ['class' => 'form-control col-md-7 col-xs-12', 'id' => 'priceAmt']) !!}
                                     {{ Form::filedError('purchase_price') }}
+                                </div>
+                            </div>
+                            <div class="item form-group {{ $errors->has('memebership_p_price') ? ' has-error' : '' }}">
+                                <label class="control-label col-md-3 col-sm-3 col-xs-12"
+                                    for="memebership_p_price">Membership Price <span class="required">*</span>
+                                </label>
+                                <div class="col-md-6 col-sm-6 col-xs-12">
+                                    {!! Form::text('memebership_p_price', null, ['class' => 'form-control col-md-7 col-xs-12', 'id' => 'priceAmt']) !!}
+                                    {{ Form::filedError('memebership_p_price') }}
                                 </div>
                             </div>
                             <div class="item form-group{{ $errors->has('qty') ? ' has-error' : '' }}">

@@ -40,40 +40,45 @@
                             <div class="clearfix"></div>
                         </div>
                         <div class="x_content">
-<a href ="<?php echo route("admin.product.import"); ?>" class="btn btn-xs btn-success">import</a>
-                            <table class="table table-striped table-bordered" id="users-table">
-                                <thead>
-                                <tr>
-                                    <th>Id</th>
-                                    <th>Name</th>
-                                     <th>Categories / Sub Categories</th>
-                                    <th>Measurement Details</th>
-                                    <th>Measurement Value</th>
-                                    <th>Brand</th>
-                                    <th>GST</th>
-                                    <th>Barcode</th>
-                                    <!-- <th>Created At</th> -->
-                                    <th>Action</th>
-                                </tr>
-                                </thead>
-                                <!-- <tbody>
-                                    <?php if(isset($products) && !empty($products)) {
-                                        foreach ($products as $key => $value) {?>
-                                    <tr>
-                                    <td><?php echo $value['id']; ?></td>
-                                    <td><?php echo $value['name']; ?></td>
-                                     <td><?php echo $value['category_name']; ?></td>
-                                    <td><?php echo $value['measurement_class']; ?></td>
-                                    <td><?php echo $value['measurement_value']; ?></td>
-                                    <td><?php echo $value['brand_name']; ?></td>
-                                    <td><?php echo $value['gst']; ?></td>
-                                    <td><?php echo $value['barcode']; ?></td>
-                                    <td><?php echo $value['created_at']; ?></td>
-                                    <td><?php echo '<a href="'.route("product.show",$value['id']).'" class="btn btn-success">Show</a><a href="'.route("product.edit",$value['id']).'" class="btn btn-success">Edit</a></br><button type="button" onclick="deleteRow('.$value['id'].')" class="btn btn-danger">Delete</button>'; ?></td>
-                                <?php }} ?>
-                                </tr>
-                                </tbody> -->
-                            </table>
+                            <div class="row">
+                                <div class="col-md-12">
+
+                                    <a href ="<?php echo route("admin.product.import"); ?>" class="btn btn-xs btn-success">import</a>
+                                    <table class="table table-striped table-bordered" id="users-table">
+                                        <thead>
+                                        <tr>
+                                            <th>Id</th>
+                                            <th>Name</th>
+                                             <th>Categories / Sub Categories</th>
+                                            <th>Measurement Details</th>
+                                            <th>Measurement Value</th>
+                                            <th>Brand</th>
+                                            <th>GST</th>
+                                            <th>Barcode</th>
+                                            <!-- <th>Created At</th> -->
+                                            <th>Action</th>
+                                        </tr>
+                                        </thead>
+                                        <!-- <tbody>
+                                            <?php if(isset($products) && !empty($products)) {
+                                                foreach ($products as $key => $value) {?>
+                                            <tr>
+                                            <td><?php echo $value['id']; ?></td>
+                                            <td><?php echo $value['name']; ?></td>
+                                             <td><?php echo $value['category_name']; ?></td>
+                                            <td><?php echo $value['measurement_class']; ?></td>
+                                            <td><?php echo $value['measurement_value']; ?></td>
+                                            <td><?php echo $value['brand_name']; ?></td>
+                                            <td><?php echo $value['gst']; ?></td>
+                                            <td><?php echo $value['barcode']; ?></td>
+                                            <td><?php echo $value['created_at']; ?></td>
+                                            <td><?php echo '<a href="'.route("product.show",$value['id']).'" class="btn btn-success">Show</a><a href="'.route("product.edit",$value['id']).'" class="btn btn-success">Edit</a></br><button type="button" onclick="deleteRow('.$value['id'].')" class="btn btn-danger">Delete</button>'; ?></td>
+                                        <?php }} ?>
+                                        </tr>
+                                        </tbody> -->
+                                    </table>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -166,11 +171,11 @@ $(function() {
         },
         columns: [
             { data: 'id', name: 'id' },
-            { data: 'name', name: 'name' },
-            { data: 'category_name', name: 'category_id' },
-            { data: 'measurement_class', name: 'measurement_class' },
-            { data: 'measurement_value', name: 'measurement_value' },
-            { data: 'brand', name: 'brand' },
+            { data: 'name', name: 'translations.name' },
+            { data: 'category_name', name: 'products.category_id' },
+            { data: 'measurement_class', name: 'products.measurement_class' },
+            { data: 'measurement_value', name: 'products.measurement_value' },
+            { data: 'brand', name: 'products.brand_id' },
             { data: 'gst', name: 'gst' },
             { data: 'barcode', name: 'barcode' },
             /*{ data: 'created_at', name: 'created_at' },*/
@@ -183,7 +188,6 @@ $(function() {
       }
     });
 });
-
 function editTable() {
     $('#users-table').Tabledit({
         eventType: 'dblclick',

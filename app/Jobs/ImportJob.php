@@ -82,10 +82,8 @@ class ImportJob implements ShouldQueue
                     $input['max_order'] = $data['max_order'];
                     $input['measurement_class'] = $data['measurement_class'];
                     $input['measurement_value'] = $data['measurement_value'];
-                    Log::info("measurement_class => ". $input['measurement_class']);
-                    Log::info("measurement_value => ". $input['measurement_value']);
-                    Log::info("sku_code => ". $input['sku_code']);
                     $input['price'] = $data['price'];
+                    $input['gst'] = $data['gst'];
                     $input['qty'] = $data['qty'];
                     $input['offer_id'] = $data['offer_id'];
                     $input['per_order'] = $data['per_order'];

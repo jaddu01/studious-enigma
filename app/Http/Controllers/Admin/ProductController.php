@@ -274,9 +274,9 @@ class ProductController extends Controller
             $user = auth('admin')->user();
             // dd($user);
             // DB::enableQueryLog();
-            $products = Product::with(['MeasurementClass','brand', 'translations'])->whereHas('translations')->where('vendor_id', $user->id);
+            $products = Product::with(['MeasurementClass','brand', 'translations'])->whereHas('translations')->where('vendor_id', $user->id)->select('*');
 // dd(DB::getQueryLog());
-                return Datatables::of($products)
+                return Datatables::eloquent($products)
                 ->editColumn('category_name',function ($product){
                     $name='';
                      $categories  = Category::whereIn('id',$product->category_id)->get();
@@ -320,7 +320,7 @@ class ProductController extends Controller
                     //return '<a href="'.route("product.show",$product->id).'" class="btn btn-success">Show</a><a href="'.route("product.edit",$product->id).'" class="btn btn-success">Edit</a></br><button type="button" onclick="deleteRow('.$product->id.')" class="btn btn-danger">Delete</button>';
                 })
                 ->rawColumns(['category_id','action'])
-                ->make(true);
+                ->toJson();
         }catch(\Exception $e){
             Log::error($e);
         }
