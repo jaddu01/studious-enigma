@@ -37,7 +37,8 @@ class Product extends BaseModel
         'per_order',
         'best_price',
         'memebership_p_price',
-        'purchase_price'
+        'purchase_price',
+        'variant_products',
     ];
     public $translatedAttributes = ['name', 'description','disclaimer','keywords','self_life','manufacture_details','marketed_by','print_name'];
 
@@ -179,6 +180,20 @@ class Product extends BaseModel
     public function getRelatedProductsAttribute($value)
     {
         // Log::info("getRelatedProductsAttribute ".$value);
+        $value = explode(',',$value);
+
+        return $value;
+    }
+
+    public function setVariantProductsAttribute($value)
+    {
+        $value = implode(',',$value);
+
+        $this->attributes['variant_products'] = $value;
+    }
+
+    public function getVariantProductsAttribute($value)
+    {
         $value = explode(',',$value);
 
         return $value;

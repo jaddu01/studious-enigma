@@ -110,9 +110,9 @@
                                 </li>
                                 @endif
                                 @if (!Auth::guard('admin')->user()->can(['view'], App\Product::class))
-                                <li>
+                                {{-- <li>
                                     <a href="{{url('admin/product/variantview')}}">Product Variant</a>
-                                </li>
+                                </li> --}}
                                 @endif
 
                             </ul>

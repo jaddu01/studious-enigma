@@ -417,6 +417,18 @@
                                                     {{ Form::filedError('related_products') }}
                                                 </div>
                                             </div>
+                                            <div class="item form-group {{ $errors->has('variant_products') ? ' has-error' : '' }}">
+                                                <label class="control-label col-md-3 col-sm-3 col-xs-12" for="email">Variant products
+                                                  
+                                                </label>
+                                                <div class="col-md-6 col-sm-6 col-xs-12">
+                                                    <select class="select2-variant-products form-control col-md-7 col-xs-12" name="variant_products[]" >
+                                                        
+                                                    </select>
+                                                    {{-- {!!  Form::select('related_products[]', $related_products,null, array('class' => 'form-control col-md-7 col-xs-12 select2-multiple','multiple'=>'true')) !!} --}}
+                                                    {{ Form::filedError('variant_products') }}
+                                                </div>
+                                            </div>
         
                                             <div class="item form-group {{ $errors->has('image') ? ' has-error' : '' }}">
                                                 <label class="control-label col-md-3 col-sm-3 col-xs-12" for="email">Image
@@ -459,6 +471,35 @@
     $(document).ready(function() {
         // $('.select2-multiple').select2();
         $(".select2-related-products").select2({
+            tags: true,
+            multiple: true,
+            tokenSeparators: [',', ' '],
+            minimumInputLength: 2,
+            minimumResultsForSearch: 10,
+            ajax: {
+                url: '{!! route('autocomplete.search') !!}',
+                dataType: "json",
+                type: "GET",
+                data: function (params) {
+                    var queryParameters = {
+                        term: params.term
+                    }
+                    return queryParameters;
+                },
+                processResults: function (data) {
+                    return {
+                        results: $.map(data, function (item) {
+                            return {
+                                text: item.name,
+                                id: item.id
+                            }
+                        })
+                    };
+                }
+            }
+        });
+
+        $(".select2-variant-products").select2({
             tags: true,
             multiple: true,
             tokenSeparators: [',', ' '],

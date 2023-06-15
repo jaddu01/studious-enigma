@@ -249,6 +249,7 @@
                                     {{ Form::filedError('barcode') }}
                                 </div>
                             </div>
+                            
                         </div>
                         <div class="col-md-4">
                             <div class="item form-group {{ $errors->has('offer_id') ? ' has-error' : '' }}">
@@ -547,6 +548,21 @@
                                 {{ Form::filedError('related_products') }}
                             </div>
                         </div>
+                        <div class="item form-group {{ $errors->has('variant_products') ? ' has-error' : '' }}">
+                            <label class="control-label col-md-3 col-sm-3 col-xs-12" for="email">Variant products
+                            </label>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <select class="select2-variant-products form-control col-md-7 col-xs-12" name="variant_products[]">
+                                    @if (count($related_products) > 0 && !empty($product->variant_products))
+                                        @foreach ($related_products as $key => $variant_product)
+                                            <option value="{{ $key }}" {{ in_array($key, $product->variant_products) ? 'selected' : '' }}>{{ $variant_product ?? 'na' }}</option>
+                                        @endforeach
+                                        
+                                    @endif
+                                </select>
+                                {{ Form::filedError('variant_products') }}
+                            </div>
+                        </div>
 
                         <div class="item form-group {{ $errors->has('image') ? ' has-error' : '' }}">
                             <label class="control-label col-md-3 col-sm-3 col-xs-12" for="email">Image
@@ -646,6 +662,58 @@
                     });
                     console.log(selectedData);
                     $select.val(selectedData).trigger('change', selectedOptions);
+                });
+            }
+
+
+            //vaariant
+            var selectedVariantData = {!! json_encode($product->variant_products) !!}; 
+            $(".select2-variant-products").select2({
+                tags: true,
+                multiple: true,
+                tokenSeparators: [',', ' '],
+                minimumInputLength: 2,
+                minimumResultsForSearch: 10,
+                ajax: {
+                    url: '{!! route('autocomplete.search') !!}',
+                    dataType: "json",
+                    type: "GET",
+                    data: function (params) {
+                        var queryParameters = {
+                            term: params.term
+                        }
+                        return queryParameters;
+                    },
+                    processResults: function (data) {
+                        return {
+                            results: $.map(data, function (item) {
+                                return {
+                                    text: item.name,
+                                    id: item.id
+                                }
+                            })
+                        };
+                    }
+                }
+            });
+
+            if (selectedVariantData.length > 0) {
+                var $selectVariant = $('.select2-variant-products');
+                $.ajax('{!! route('autocomplete.search') !!}', {
+                    dataType: 'json',
+                    data: {
+                        id: selectedVariantData
+                    }
+                }).done(function (data) {
+                    var selectedOptions = [];
+                    data.forEach(function (item) {
+                        selectedOptions.push({
+                            id: item.id,
+                            text: item.name
+                        });
+                    });
+                    console.log(selectedVariantData);
+                    $selectVariant.val(selectedVariantData).trigger('change', selectedOptions);
                 });
             }
         }); 
