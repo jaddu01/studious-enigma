@@ -15,7 +15,7 @@ class BaseModel extends Model
         parent::__construct($attributes);
         $this->locales = config('translatable.locales');
 
-        $prefix = Request::route()->getPrefix();
+        $prefix = Request::route() ? Request::route()->getPrefix() : '';
 
         if($prefix=='api/v1') {
             $this->hidden = ['deleted_at', 'created_at', 'updated_at','translations', 'status'];

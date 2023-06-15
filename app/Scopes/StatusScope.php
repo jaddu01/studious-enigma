@@ -18,7 +18,7 @@ class StatusScope implements Scope
      */
     public function apply(Builder $builder, Model $model)
     {
-        $prefix = Request::route()->getPrefix();
+        $prefix = Request::route() ? Request::route()->getPrefix() : '';
         if($prefix==='/admin'){
 
         }else{
