@@ -410,8 +410,10 @@
                                                   
                                                 </label>
                                                 <div class="col-md-6 col-sm-6 col-xs-12">
-        
-                                                    {!!  Form::select('related_products[]', $related_products,null, array('class' => 'form-control col-md-7 col-xs-12 select2-multiple','multiple'=>'true')) !!}
+                                                    <select class="select2-related-products form-control col-md-7 col-xs-12" name="related_products[]" >
+                                                        
+                                                    </select>
+                                                    {{-- {!!  Form::select('related_products[]', $related_products,null, array('class' => 'form-control col-md-7 col-xs-12 select2-multiple','multiple'=>'true')) !!} --}}
                                                     {{ Form::filedError('related_products') }}
                                                 </div>
                                             </div>
@@ -455,8 +457,36 @@
     <script src="{{asset('public/js/select2.min.js')}}"></script>
 <script>
     $(document).ready(function() {
-        $('.select2-multiple').select2();
-    });
+        // $('.select2-multiple').select2();
+        $(".select2-related-products").select2({
+            tags: true,
+            multiple: true,
+            tokenSeparators: [',', ' '],
+            minimumInputLength: 2,
+            minimumResultsForSearch: 10,
+            ajax: {
+                url: '{!! route('autocomplete.search') !!}',
+                dataType: "json",
+                type: "GET",
+                data: function (params) {
+                    var queryParameters = {
+                        term: params.term
+                    }
+                    return queryParameters;
+                },
+                processResults: function (data) {
+                    return {
+                        results: $.map(data, function (item) {
+                            return {
+                                text: item.name,
+                                id: item.id
+                            }
+                        })
+                    };
+                }
+            }
+        });
+    });    
     function toggleCat(className) {
         $('.sub-'+className).toggle();
     }

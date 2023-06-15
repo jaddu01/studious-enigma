@@ -275,10 +275,15 @@ class VendorProductController extends Controller
     public function search(Request $request)
     {
         $searchTerm = $request->input('term');
-        $products = $this->product->whereHas('translations', function($q) use ($searchTerm) {
-            $q->where('name', 'like', $searchTerm.'%')
-            ->orWhere('keywords', 'like', $searchTerm.'%');
-            })->limit(5)->get();
+        if(!empty($searchTerm)){
+            $products = $this->product->whereHas('translations', function($q) use ($searchTerm) {
+                $q->where('name', 'like', $searchTerm.'%')
+                ->orWhere('keywords', 'like', $searchTerm.'%');
+                })->limit(10)->get();
+        }else if(count($request->id) > 0){
+            $products = $this->product->whereHas('translations')->whereIn('id', $request->id)->limit(10)->get();
+        }
+        
 
         $result = $products->map(function ($product) {
             return [

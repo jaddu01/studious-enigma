@@ -532,10 +532,18 @@
                             </label>
                             <div class="col-md-6 col-sm-6 col-xs-12">
 
-                                {!! Form::select('related_products[]', $related_products, null, [
+                                {{-- {!! Form::select('related_products[]', $related_products, null, [
                                     'class' => 'form-control col-md-7 col-xs-12 select2-multiple',
                                     'multiple' => 'true',
-                                ]) !!}
+                                ]) !!} --}}
+                                <select class="select2-related-products form-control col-md-7 col-xs-12" name="related_products[]">
+                                    @if (count($related_products) > 0)
+                                        @foreach ($related_products as $key => $related_product)
+                                            <option value="{{ $key }}" {{ in_array($key, $product->related_products) ? 'selected' : '' }}>{{ $related_product ?? 'na' }}</option>
+                                        @endforeach
+                                        
+                                    @endif
+                                </select>
                                 {{ Form::filedError('related_products') }}
                             </div>
                         </div>
@@ -585,9 +593,62 @@
     <script src="{{ asset('public/assets/pnotify/dist/pnotify.buttons.js') }}"></script>
     <script src="{{ asset('public/assets/pnotify/dist/pnotify.nonblock.js') }}"></script>
     <script>
+        // $(document).ready(function() {
+        //     $('.select2-multiple').select2();
+        // });
+        // $(".select2-related-products").val([2245,2286]).trigger('change');
         $(document).ready(function() {
-            $('.select2-multiple').select2();
-        });
+            // $('.select2-multiple').select2();
+            var selectedData = {!! json_encode($product->related_products) !!}; 
+            $(".select2-related-products").select2({
+                tags: true,
+                multiple: true,
+                tokenSeparators: [',', ' '],
+                minimumInputLength: 2,
+                minimumResultsForSearch: 10,
+                ajax: {
+                    url: '{!! route('autocomplete.search') !!}',
+                    dataType: "json",
+                    type: "GET",
+                    data: function (params) {
+                        var queryParameters = {
+                            term: params.term
+                        }
+                        return queryParameters;
+                    },
+                    processResults: function (data) {
+                        return {
+                            results: $.map(data, function (item) {
+                                return {
+                                    text: item.name,
+                                    id: item.id
+                                }
+                            })
+                        };
+                    }
+                }
+            });
+
+            if (selectedData.length > 0) {
+                var $select = $('.select2-related-products');
+                $.ajax('{!! route('autocomplete.search') !!}', {
+                    dataType: 'json',
+                    data: {
+                        id: selectedData
+                    }
+                }).done(function (data) {
+                    var selectedOptions = [];
+                    data.forEach(function (item) {
+                        selectedOptions.push({
+                            id: item.id,
+                            text: item.name
+                        });
+                    });
+                    console.log(selectedData);
+                    $select.val(selectedData).trigger('change', selectedOptions);
+                });
+            }
+        }); 
 
         function deleteImage(imageId, productId) {
             var r = confirm("Are you want to delete this image?");
