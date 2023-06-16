@@ -13,6 +13,15 @@
 
 // Route::get('/', 'Admin\Auth\LoginController@showLoginForm');
 // Route::get('/login', 'Admin\Auth\LoginController@showLoginForm');
+Route::get('/test-connection', function () {
+    try {
+        DB::connection()->getPdo();
+        return "Database connection is successful!";
+    } catch (\Exception $e) {
+        return "Database connection failed: " . $e->getMessage();
+    }
+});
+
 Route::get('/', 'FrontController@index');
 Route::get('/search-product', 'SearchController@searchProduct');
 Route::post('/login', 'Auth\LoginController@login')->name('login');

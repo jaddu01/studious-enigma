@@ -40,6 +40,13 @@ class CustomCommand extends Command
      */
     public function handle()
     {
+        try {
+            DB::connection('mysql');
+            DB::connection()->getPdo();
+            $this->info("Database connection is successful!");
+        } catch (\Exception $e) {
+            $this->info("Database connection failed: " . $e->getMessage());
+        }
         try{
             Product::query()->chunk(100, function($products){
                 foreach($products as $product){
