@@ -21,7 +21,7 @@ class ProductResource extends JsonResource
             "barcode" => $this->barcode,
             "gst" => $this->gst,
             "category_id" => $this->category_id,
-            "measurement_class" => $this->measurement_class,
+            "measurement_class" => $this->MeasurementClass,
             "measurement_value" => $this->measurement_value,
             "self_life" => $this->self_life,
             "manufacture_details" => $this->manufacture_details,
@@ -33,7 +33,7 @@ class ProductResource extends JsonResource
             "name" => $this->name,
             "print_name" => $this->print_name,
             "image" => $this->image,
-            "variants" => $this->varients,
+            // "variants" => $this->variant_products,
         ];
     }
 }

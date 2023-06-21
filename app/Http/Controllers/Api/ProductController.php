@@ -352,14 +352,14 @@ class ProductController extends Controller
     {
         try {
             $user = Auth::guard('api')->user();
-           
-            $vendorProduct = $this->vendorProduct->whereHas('product')->with(['product.MeasurementClass','product.images','cart'=>function($q) use($user){
+        //    DB::enableQueryLog();
+            $vendorProduct = $this->vendorProduct->whereHas('product')->with(['product','product.MeasurementClass','product.images','cart'=>function($q) use($user){
                 $q->where(['user_id'=>$user->id,'zone_id'=>$user->zone_id]);
             },'wishList'=>function($q) use($user){
                 $q->where(['user_id'=>$user->id]);
             }])->find($id);
             
-            //dd(DB::getQueryLog());
+            // dd(DB::getQueryLog());
             if(!$vendorProduct){
                 return ResponseBuilder::error("Vendor Product not found", 404);
             }
@@ -367,6 +367,7 @@ class ProductController extends Controller
             $this->response->vendorProduct = new VendorProductDetailedResource($vendorProduct);
             // dd($vendorProduct->user->zone_id);
             $this->response->related_products = Helper::relatedProducts($vendorProduct->product->related_products,$vendorProduct->user_id,true,$vendorProduct->user->zone_id);
+            $this->response->variant_products = Helper::relatedProducts($vendorProduct->product->variant_products,$vendorProduct->user_id,true,$vendorProduct->user->zone_id);
             $this->response->similar_products = Helper::similarProducts($vendorProduct->product->category_id,$vendorProduct->user->zone_id);
             return ResponseBuilder::success($this->response);
         } catch (\Exception $e) {
@@ -913,6 +914,7 @@ class ProductController extends Controller
 
 
     public function offerdataHOme($zone_id){
+        
         $user_id_array = User::whereRaw('FIND_IN_SET(' . $zone_id . ', zone_id) ')->where(['user_type' => 'vendor'])->get()->pluck('id')->toArray();
         $vendorProduct =  $this->vendorProduct->with(['product.MeasurementClass','product.image',
             'cart'=>function($q) use($zone_id){
@@ -920,30 +922,25 @@ class ProductController extends Controller
             }
         ])
         ->whereHas('product',function($q){ $q->where('status','1'); })->whereIn('user_id',$user_id_array)->whereHas('Offer')->limit(20)->get();
+        
 
         return VendorProductResource::collection($vendorProduct);
     }
     public function topsellingproducts($zone_id){
         $user_id_array = User::whereRaw('FIND_IN_SET(' . $zone_id . ', zone_id) ')->where(['user_type' => 'vendor'])->get()->pluck('id')->toArray();
         //print_r($user_id_array); die();
-
+        // DB::enableQueryLog();
         $vendoreProductIds = ProductOrderItem::select(DB::raw( "vendor_product_id,COUNT(id) as cnt"))->groupBy('vendor_product_id')->orderBy('cnt', 'DESC')->get()->pluck('vendor_product_id')->toArray();
-        //dd($results);
-        if(Auth::guard()->user()){
-            $vendorProduct =  $this->vendorProduct->with(['product.MeasurementClass','product.image',
-                'cart'=>function($q) use($zone_id){
-                    $q->where(['zone_id'=>$zone_id]);
-                }
-            ])
-            ->whereHas('product',function($q){ $q->where('status','1'); }  )
-            ->whereIn('user_id',$user_id_array)->whereIn('id',$vendoreProductIds)->limit(20)->get();
-        }else{
-                $vendorProduct = $this->vendorProduct->with(['product.MeasurementClass','product.image'])
-                ->whereHas('product',function($q){ $q->where('status','1'); })
-                ->whereIn('id',$vendoreProductIds)
-                ->whereIn('user_id',$user_id_array)
-                ->limit(20)->get();
-        }
+        // dd($vendoreProductIds);
+        $vendorProduct =  $this->vendorProduct->with(['product.MeasurementClass','product.image',
+            'cart'=>function($q) use($zone_id){
+                $q->where(['zone_id'=>$zone_id]);
+            }
+        ])
+        ->whereHas('product')
+        ->whereIn('user_id',$user_id_array)->whereIn('id',$vendoreProductIds)->limit(20)->get();
+        
+        // dd(DB::getQueryLog());
 
         return VendorProductResource::collection($vendorProduct);
     }

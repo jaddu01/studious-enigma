@@ -21,7 +21,7 @@ class VendorProductResource extends JsonResource
             "offer" => $this->Offer,
             "per_order" => $this->per_order,
             "best_price" => $this->best_price,
-            "mrp" => !empty($this->best_price) ? round($this->best_price,2) : round($this->price,2),
+            "mrp" => !empty($this->price) ? round($this->price,2) : round($this->best_price,2),
             "memebership_p_price" => $this->memebership_p_price,
             "is_offer" => $this->is_offer,
             "offer_price"  => $this->offer_price,
