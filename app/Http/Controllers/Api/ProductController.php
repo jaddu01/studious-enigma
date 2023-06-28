@@ -775,9 +775,12 @@ class ProductController extends Controller
 
     public function getHomedata(Request $request)
     {
-        $lat = $request->lat;
-        $lng = $request->lng;
-        $latlngData = $this->getZoneData($lat, $lng);
+        //get lat lng from header
+        $lat = request()->header('lat');
+        $lng = request()->header('lng');
+
+        // $lat = $request->lat;
+        // $lng = $request->lng;
         $category =  $this->category->join('categories','categories.id','=','category_translations.category_id')->select('categories.id','image','name','category_translations.slug')->where(['locale' => 'en'])->where(['categories.parent_id' => '0'])->where(['categories.status' => '1'])->whereNull('categories.deleted_at')->orderBy('sort_no', 'ASC')->get();
             
         $slider = Slider::with('category','sub_category','product');
@@ -906,7 +909,7 @@ class ProductController extends Controller
 
         //return ResponseBuilder::success($this->response);
         //$ldata = array($categorys,$sliders,$adss,$offerProducts,$zonss,$appdatas,$offer_sliderss,$topsellingproductss,$super_dealss,$brands);
-        $ldata = [$sliders,$homeStrip,$offerProducts,$categorys,$adss,$topsellingproductss,$offer_sliderss,$super_dealss,$brands];
+        $ldata = ['data' => ['data' => [$sliders,$homeStrip,$offerProducts,$categorys,$adss,$topsellingproductss,$offer_sliderss,$super_dealss,$brands], 'match_in_zone' => $match_in_zone]];
         return response()->json($ldata);
      } 
 
@@ -914,6 +917,7 @@ class ProductController extends Controller
 
 
     public function offerdataHOme($zone_id){
+       
         
         $user_id_array = User::whereRaw('FIND_IN_SET(' . $zone_id . ', zone_id) ')->where(['user_type' => 'vendor'])->get()->pluck('id')->toArray();
         $vendorProduct =  $this->vendorProduct->with(['product.MeasurementClass','product.image',
@@ -1122,7 +1126,11 @@ class ProductController extends Controller
             $lat = request()->header('lat');
             $lng = request()->header('lng');
             $zone = $this->getZoneData($lat, $lng);
+            // dd($zone);
             $zone_id = $zone['zone_id'];
+            $user_id_array = User::whereRaw('FIND_IN_SET(' . $zone_id . ', zone_id) ')->where(['user_type' => 'vendor'])->get()->pluck('id')->toArray();
+
+
             $vendorProduct = $this->vendorProduct->with(['product.MeasurementClass','product.image',
                 'cart'=>function($q) use($zone_id){
                     $q->where(['zone_id'=>$zone_id]);
@@ -1130,12 +1138,13 @@ class ProductController extends Controller
             ])
             ->whereHas('product',function($q){ $q->where('status','1'); })->whereHas('product.category',function($q) use($category_id){
                 $q->whereRaw('FIND_IN_SET('.$category_id.', category_id) ');
-            })->paginate(20);
+            })->whereIn('user_id',$user_id_array)->paginate(20);
 
             //get category details
             $category = Category::query()->with('translations')->where('id',$category_id)->first();
             $this->response->vendorProduct = VendorProductResource::collection($vendorProduct);
             $this->response->category = new CategoryResource($category);
+            $this->response->match_in_zone = $zone['match_in_zone'];
             return ResponseBuilder::successWithPagination($vendorProduct, $this->response);
         }catch(\Exception $e){
             return $e;

@@ -39,6 +39,7 @@ class ProductDetailedResource extends JsonResource
             "disclaimer" => $this->disclaimer,
             "keywords" => $this->keywords,
             "slug" => $this->slug,
+            "has_variant" => !empty($this->variant_products) ? true : false,
             // "related_products" => $this->related_products,
             // "variants" => $this->variant_products,
         ];

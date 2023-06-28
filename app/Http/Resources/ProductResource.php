@@ -33,6 +33,8 @@ class ProductResource extends JsonResource
             "name" => $this->name,
             "print_name" => $this->print_name,
             "image" => $this->image,
+            "images" => $this->images,
+            "has_variant" => !empty($this->variant_products) ? true : false,
             // "variants" => $this->variant_products,
         ];
     }
