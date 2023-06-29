@@ -82,12 +82,12 @@ class ImportJob implements ShouldQueue
                     $input['max_order'] = $data['max_order'];
                     $input['measurement_class'] = $data['measurement_class'];
                     $input['measurement_value'] = $data['measurement_value'];
-                    $input['price'] = $data['price'];
+                    $input['price'] = $data['best_price'];
                     $input['gst'] = $data['gst'];
                     $input['qty'] = $data['qty'];
                     $input['offer_id'] = $data['offer_id'];
                     $input['per_order'] = $data['per_order'];
-                    $input['best_price'] = $data['best_price'];
+                    $input['best_price'] = $data['price'];
                     $input['memebership_p_price'] = $data['memebership_p_price'];
                     $input['purchase_price'] = $data['purchase_price'];
                     // dd($input);
@@ -96,8 +96,19 @@ class ImportJob implements ShouldQueue
                     // dd($product);
                     if ($product) {
                         $product->update($input);
+
+                        //update vendor product
+                        $vendor_product = DB::table('vendor_products')->where('product_id', $product->id)->first();
+                        if ($vendor_product) {
+                            DB::table('vendor_products')->where('product_id', $product->id)->update(['price' => $input['best_price'], 'memebership_p_price' => $input['memebership_p_price'], 'qty' => $input['qty'], 'offer_id' => $input['offer_id'], 'per_order' => $input['per_order'],'best_price' => $input['price']]);
+                        } else {
+                            DB::table('vendor_products')->insert(['vendor_id' => $input['vendor_id'], 'product_id' => $product->id, 'price' => $input['best_price'], 'memebership_p_price' => $input['memebership_p_price'], 'qty' => $input['qty'], 'offer_id' => $input['offer_id'], 'per_order' => $input['per_order'],'best_price' => $input['price']]);
+                        }
                     } else {
                         $product = Product::create($input);
+
+                        //create vendor product
+                        DB::table('vendor_products')->insert(['vendor_id' => $input['vendor_id'], 'product_id' => $product->id, 'price' => $input['best_price'], 'memebership_p_price' => $input['memebership_p_price'], 'qty' => $input['qty'], 'offer_id' => $input['offer_id'], 'per_order' => $input['per_order'],'best_price' => $input['price']]);
                     }
                 }
             }

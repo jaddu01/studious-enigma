@@ -122,6 +122,9 @@ class ProductController extends Controller
                     $product->images()->createMany($imageName);
                 }
 
+                //add vendor product
+                $vendorProduct = $product->VendorProduct->create(['vendor_id'=>Auth::guard('admin')->user()->id,'price'=>$input['best_price'],'qty'=>$input['qty'],'status'=>1, 'offer_id'=>$input['offer_id'], 'per_order'=>$input['per_order'], 'best_price' => $input['price'], 'memebership_p_price' => $input['memebership_p_price']]);
+
                 DB::commit();
 
                 Session::flash('success','product create successful');
@@ -209,6 +212,10 @@ class ProductController extends Controller
 
                     $product->images()->createMany($imageName);
                 }
+
+                //update vendor product
+                $vendorProduct = $product->VendorProduct->where('product_id',$id)->first();
+                $vendorProduct->update(['vendor_id'=>Auth::guard('admin')->user()->id,'price'=>$input['best_price'],'qty'=>$input['qty'],'status'=>1, 'offer_id'=>$input['offer_id'], 'per_order'=>$input['per_order'], 'best_price' => $input['price'], 'memebership_p_price' => $input['memebership_p_price']]);
 
                 DB::commit();
                  Session::flash('success','Product updated successfully');
