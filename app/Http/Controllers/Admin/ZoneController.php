@@ -8,6 +8,7 @@ use App\User;
 use App\Zone;
 use App\ZoneTranslation;
 use App;
+use App\City;
 Use DB;
 use App\DeliveryLocation;
 use Illuminate\Http\Request;
@@ -41,7 +42,8 @@ class ZoneController extends Controller
         if ($this->user->can('view', Zone::class)) {
             return abort(403,'not able to access');
         }
-        $zones=$this->model->selectRaw(' AsText(point) as points')->withoutGlobalScope(StatusScope::class)->get();
+        
+        $zones=$this->model->selectRaw(' ST_AsText(point) as points')->withoutGlobalScope(StatusScope::class)->get();
         return view('admin/pages/zone/index')->with('zones',$zones);
     }
 
@@ -55,11 +57,12 @@ class ZoneController extends Controller
         if ($this->user->can('create', Zone::class)) {
             return abort(403,'not able to access');
         }
+        $cities = City::where('status','1')->get()->pluck('name','id');
         $zones = [];
-        $zones =$this->model->selectRaw(' AsText(point) as points')->withoutGlobalScope(StatusScope::class)->get();
+        $zones =$this->model->selectRaw(' ST_AsText(point) as points')->withoutGlobalScope(StatusScope::class)->get();
 
         $validator = JsValidatorFacade::make($this->model->rules('POST'));
-        return view('admin/pages/zone/add')->with('validator',$validator)->with('zones',$zones);
+        return view('admin/pages/zone/add')->with('validator',$validator)->with('zones',$zones)->with('cities',$cities);
     }
 
     /**
@@ -115,13 +118,13 @@ class ZoneController extends Controller
     public function edit($id)
     {
         $validator = JsValidatorFacade::make($this->model->rules('PUT'));
-        $zone=$this->model->selectRaw('*, AsText(point) as points')->withoutGlobalScope(StatusScope::class)->findOrFail($id);
+        $zone=$this->model->selectRaw('*, ST_AsText(point) as points')->withoutGlobalScope(StatusScope::class)->findOrFail($id);
        //print_r($zone);die;
-       
+       $cities = City::where('status','1')->get()->pluck('name','id');
 
-        $zones=$this->model->selectRaw(' AsText(point) as points')->withoutGlobalScope(StatusScope::class)->where('id','!=',$id)->get();
+        $zones=$this->model->selectRaw(' ST_AsText(point) as points')->withoutGlobalScope(StatusScope::class)->where('id','!=',$id)->get();
         //dd($zones->toJson());
-        return view('admin/pages/zone/edit')->with('zone',$zone)->with('validator',$validator)->with('zones',$zones);
+        return view('admin/pages/zone/edit')->with('zone',$zone)->with('validator',$validator)->with('zones',$zones)->with('cities',$cities);
     }
 
     /**
@@ -203,6 +206,9 @@ class ZoneController extends Controller
         return Datatables::of($zone)
           ->addColumn('created_at',function ($user){
                 return date('d/m/Y',strtotime($user->created_at));
+            })
+            ->addColumn('city_name',function ($zone){
+                return $zone->city->name ?? "";
             })
             ->addColumn('action',function ($zone){
                 return '<a href="'.route("zone.edit",$zone->id).'" class="btn btn-success">Edit</a><button type="button" onclick="deleteRow('.$zone->id.')" class="btn btn-danger">Delete</button><input class="data-toggle-coustom"  data-toggle="toggle" type="checkbox" zone-id="'.$zone->id.'" '.(($zone->status==1) ? "checked" : "") . ' value="'.$zone->status.'" ><button type="button" onclick="makeDefault('.$zone->id.')" class="btn btn-info">'.($zone->is_default==1 ? 'Defaulted':'Default').'</button>';

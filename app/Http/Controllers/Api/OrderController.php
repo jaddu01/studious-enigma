@@ -494,18 +494,14 @@ $input['online_payment'] = $request->online_payment;
      * @return \Illuminate\Http\JsonResponse
      */
     public function checkout(Request $request){
-
-
         if(is_array($request->cart_id)){
             $request_cart_ids = $request->cart_id;
         }else{
             $request_cart_ids = json_decode($request->cart_id);
         }
-        $cartRec = $this->cart->has('vendorProduct.Product')->with(
-            [
-                'vendorProduct',
-            ])->whereIn('id',$request_cart_ids)->get();
-
+        
+        $cartRec = $this->cart->has('vendorProduct.Product')->with(['vendorProduct'])->whereIn('id',$request_cart_ids)->get();
+        // dd($cartRec);
         $cart_ids =  collect($request_cart_ids);
         $cartRecIds = $cartRec->pluck('id');
 

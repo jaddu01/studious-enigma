@@ -44,6 +44,7 @@
                                 <thead>
                                 <tr>
                                     <th>Id</th>
+                                    <th>City</th>
                                     <th>Name</th>
                                     <th>Code</th>
                                     <th>Description</th>
@@ -149,6 +150,7 @@ $(function() {
         },
         columns: [
             { data: 'id', name: 'id' },
+            { data: 'city_name', name: 'city_name' },
             { data: 'name', name: 'name' },
             { data: 'code', name: 'code' },
             { data: 'description', name: 'description' },

@@ -16,7 +16,7 @@ class VendorProductResource extends JsonResource
     {
         return [
             "id" => $this->id,
-            "price" => round($this->price,2),
+            // "price" => round($this->price,2),
             "qty" => $this->qty,
             "offer" => $this->Offer,
             "per_order" => $this->per_order,

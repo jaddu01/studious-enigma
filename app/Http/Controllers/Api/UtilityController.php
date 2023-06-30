@@ -545,18 +545,19 @@ public function isPointInPolygon($latitude, $longitude, $latitude_array, $longit
         $dataArray = [];
         $time = time();
         $today_date = now();
-        $to_day = $today_date->format('l');
+        $to_day = strtolower($today_date->format('l'));
         //return trans('site.'. lcfirst($to_day));
         $tomorrow_date = now()->addDay();
-        $tomorrow_day = $tomorrow_date->format('l');
+        $tomorrow_day = strtolower($tomorrow_date->format('l'));
         $next_tomorrow_date = now()->addDays(2);
-        $next_tomorrow_day = $next_tomorrow_date->format('l');
+        $next_tomorrow_day = strtolower($next_tomorrow_date->format('l'));
         $zone_id = Auth::guard('api')->user()->zone_id;
         $zone = $this->zone->findorfail($zone_id);
 
         if($zone==null){
             return $this->notFoundResult(trans('order.zone_deleted'));
         }
+        // dd($zone->weekPackage);
         //return $zone->weekPackage->$to_day->listsTranslations('name','id')->get();
         $today_data = $zone->weekPackage->$to_day->getSlotTimes()->map(function ($today_data)use($today_date) {
                  $today_data['no_of_order']=ProductOrder::where(['delivery_time_id'=>$today_data->id,'delivery_date'=>$today_date->format('Y-m-d')])->count();

@@ -15,7 +15,7 @@ class Zone extends BaseModel
     public $translationModel = 'App\ZoneTranslation';
     use SoftDeletes;
     protected $fillable = [
-        'name','code','point','delivery_charges','minimum_order_amount','package_id','description','status','is_default'
+        'name','code','point','delivery_charges','minimum_order_amount','package_id','description','status','is_default','city_id'
     ];
 
     public $translatedAttributes = ['name', 'description'];
@@ -132,7 +132,7 @@ class Zone extends BaseModel
     public function setPointAttribute($value)
     {
         $points = json_decode($value,true);
-        $polygon="PolygonFromText('POLYGON((";
+        $polygon="ST_PolygonFromText('POLYGON((";
         foreach ($points as $key=>$point){
             if($key==0){
                 $first_point = $point['lat']." ".$point['lng'];
@@ -149,6 +149,10 @@ class Zone extends BaseModel
         return $this->belongsTo('App\WeekPackage','package_id');
     }
 
+    public function city()
+    {
+        return $this->belongsTo('App\City','city_id');
+    }
 
 
     protected static function boot()

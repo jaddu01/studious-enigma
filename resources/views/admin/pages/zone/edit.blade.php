@@ -29,6 +29,15 @@
                                 <span class="section">Edit Zone</span>
                             <div id="map" style="height: 300px;"></div>
                             <br>
+                            <div class="item form-group {{ $errors->has('city_id') ? ' has-error' : '' }}">
+                                <label class="control-label col-md-3 col-sm-3 col-xs-12" for="email">City<span class="required">*</span>
+                                </label>
+                                <div class="col-md-6 col-sm-6 col-xs-12">
+
+                                    {!!  Form::select('city_id', $cities,null, array('class' => 'form-control col-md-7 col-xs-12')) !!}
+                                    {{ Form::filedError('city_id') }}
+                                </div>
+                            </div>
                             @foreach(config('translatable.locales') as $locale)
                                 <div class="item form-group{{ $errors->has('name:'.$locale) ? ' has-error' : '' }}">
                                     <label class="control-label col-md-3 col-sm-3 col-xs-12" for="name">Name In {{$locale}}<span class="required">*</span>
