@@ -541,7 +541,7 @@ $input['online_payment'] = $request->online_payment;
             return $this->outOfStockResponse(collect($result)->where('status','=',0)->first());
         }else{
             try {
-                $shipping_id = Auth::guard('api')->user()->deliveryLocation();
+                $shipping_id = Auth::guard('api')->user()->deliveryLocation()->get();
             } catch (\Exception $e) {
                 $shipping_id=[];
             }

@@ -538,12 +538,13 @@ public static function hasImage($imageName) {
 	}
 
 	public static function orderCode($delivery_date, $zone_id,$time,$curr=null) {
-		$date = Carbon::createFromFormat('Y-m-d', $delivery_date)->format('ymd');
+		// $date = Carbon::createFromFormat('Y-m-d', $delivery_date)->format('ymd');
+		$date = Carbon::parse($delivery_date)->format('ymd');
 		$zone_name = Zone::findOrFail($zone_id)->name;
 		if(empty($curr) && !empty($time)){
-		$time=SlotTime::findOrFail($time);
-		$time->from_time;
-		$hourTime = date("H:i", strtotime($time->from_time));
+			$time = SlotTime::findOrFail($time);
+			// $time->from_time;
+			$hourTime = date("H:i", strtotime($time->from_time));
         }else{
         	$hourTime = date("H:i", strtotime($curr));
         }
@@ -556,7 +557,7 @@ public static function hasImage($imageName) {
 		//new
 		//if($order_count_dy_date > 0){
 			$order_desc = ProductOrder::orderBy('id','desc')->first();
-			$numg = $order_desc->id;
+			$numg = $order_desc->id ?? '01';
 		// }else{
 		// 	$numg = '01';
 		// }
