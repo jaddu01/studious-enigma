@@ -473,7 +473,7 @@
         $(".select2-related-products").select2({
             tags: true,
             multiple: true,
-            tokenSeparators: [',', ' '],
+            tokenSeparators: [','],
             minimumInputLength: 2,
             minimumResultsForSearch: 10,
             ajax: {
@@ -502,7 +502,7 @@
         $(".select2-variant-products").select2({
             tags: true,
             multiple: true,
-            tokenSeparators: [',', ' '],
+            tokenSeparators: [','],
             minimumInputLength: 2,
             minimumResultsForSearch: 10,
             ajax: {
