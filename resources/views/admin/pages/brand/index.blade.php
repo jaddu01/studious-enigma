@@ -116,7 +116,7 @@
                 oLanguage: {
                 sProcessing: "<img style='width:50%;height:auto' src='{{asset('public/upload/loader.gif')}}'>"
                 },
-                serverSide: false,
+                serverSide: true,
                 ajax: '{!! route('brand.datatable') !!}',
                 fnDrawCallback :function() {
                     $('.data-toggle-coustom').bootstrapToggle();

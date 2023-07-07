@@ -372,7 +372,7 @@
                     
                             <!-- Region -->
                              @if (!Auth::guard('admin')->user()->can(['index','create','view','delete','update'], App\Region::class))
-                                <li><a><i class="fa fa-globe"></i>Region <span class="fa fa-chevron-down"></span></a>
+                                <li class="hidden"><a><i class="fa fa-globe"></i>Region <span class="fa fa-chevron-down"></span></a>
                                     <ul class="nav child_menu">
                                         @if (!Auth::guard('admin')->user()->can(['create'], App\Region::class))
                                         <li>

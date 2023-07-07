@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Validator;
 use Proengsoft\JsValidation\Facades\JsValidatorFacade;
 use DataTables;
-
+use DB;
 
 class UserController extends Controller
 {
@@ -216,15 +216,14 @@ class UserController extends Controller
      */
     public function destroy($id)
     {
-       
         if ($this->user->can('delete', User::class)) {
             return abort(403,'not able to access');
         }
        /*print_r((new Helper())->delete_cat($this->user->all(),$id,'',''));*/
-       $cat_id=Helper::delete_cat($this->user->all(),$id,'','');
+       //$cat_id=Helper::delete_cat($this->user->all(),$id,'','');
 
-        $flight = $this->user->whereIn('id',$cat_id)->delete();
-
+        $flight = $this->user->where('id',$id)->delete();
+// dd($flight);
         if($flight){
             return response()->json([
                 'status' => true,
@@ -336,8 +335,7 @@ class UserController extends Controller
                 }
             })
             ->addColumn('action',function ($user){
-                return '<a href="'.route("user.edit",$user->id).'" class="btn btn-success btn-xs">Edit</a>'.(($user->user_type=='vendor' and $user->role=='user') ? '<a href="'.url("admin/user/product",$user->id).'" class="btn btn-success btn-xs">Product</a>' : '').'<input class="data-toggle-coustom " data-size="mini"  data-toggle="toggle" type="checkbox" user-id="'.$user->id.'" '.(($user->status==1) ? "checked" : "") . ' value="'.$user->status.'" ><a href="'.route("user.change-password",$user->id).'" class="btn btn-success btn-xs">Change Password</a>';
-                //<button type="button" onclick="deleteRow('.$user->id.')" class="btn btn-danger btn-xs">Delete</button>
+                return '<a href="'.route("user.edit",$user->id).'" class="btn btn-success btn-xs">Edit</a>'.(($user->user_type=='vendor' and $user->role=='user') ? '<a href="'.url("admin/user/product",$user->id).'" class="btn btn-success btn-xs">Product</a>' : '').'<input class="data-toggle-coustom " data-size="mini"  data-toggle="toggle" type="checkbox" user-id="'.$user->id.'" '.(($user->status==1) ? "checked" : "") . ' value="'.$user->status.'" ><a href="'.route("user.change-password",$user->id).'" class="btn btn-success btn-xs">Change Password</a><button type="button" onclick="deleteRow('.$user->id.')" class="btn btn-danger btn-xs">Delete</button>';
             })
             ->rawColumns(['image','action'])
             ->make(true);
