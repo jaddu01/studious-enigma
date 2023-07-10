@@ -57,6 +57,10 @@ class CartController extends Controller
      */
     public function index(Request $request)
     {
+        $lat = $request->header('lat');
+        $lng = $request->header('lng');
+        $zonedata = $this->getZoneData($lat, $lng);
+        $match_in_zone = $zonedata['match_in_zone'];
         $user = Auth::guard('api')->user();
         $AppSetting =AppSetting::select('mim_amount_for_order','mim_amount_for_order_prime','mim_amount_for_free_delivery','mim_amount_for_free_delivery_prime')->first();      
         if(!$user){
@@ -129,7 +133,8 @@ class CartController extends Controller
             'mim_amount_for_free_delivery_prime' => $AppSetting->mim_amount_for_free_delivery_prime
             
         ];
-        $response['can_order'] = true ;
+        $response['can_order'] = $match_in_zone;
+        $response['match_in_zone'] = $match_in_zone;
         $response['wallet_balence'] = number_format(Auth::guard('api')->user()->wallet_amount,2,'.','');
         return response()->json($response, 200);
     }
