@@ -301,7 +301,7 @@ class OrderController extends Controller
                 });
 
                 /*added by sonu*/
-                if ($request->delivery_time_id == 'fast_delivery') {
+                if ($request->delivery_time_id == 'fast_delivery' || $request->delivery_time_id == 'in_store_pickup') {
                     $input['delivery_time'] = null;
                 } else {
                     $input['delivery_time'] = json_encode($today_data, true);

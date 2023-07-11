@@ -199,6 +199,11 @@ class User extends Authenticatable
     public function wishlist(){
         return $this->hasMany(WishLish::class,'user_id','id');
     }
+
+    //membership
+    public function membership(){
+        return $this->belongsTo('App\Membership','membership');
+    }
     protected static function boot()
     {
         parent::boot();

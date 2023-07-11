@@ -134,6 +134,12 @@ class Membership extends BaseModel
             ->whereRaw('from_time <= CAST( "'.$current_time.'" AS DATE ) and to_time >= CAST( "'.$current_time.'" AS DATE ) ');
     }
 
+    //user
+    public function user()
+    {
+        return $this->hasOne('App\User','membership');
+    }
+
  
 
    

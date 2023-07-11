@@ -32,6 +32,7 @@ class UserResource extends JsonResource
             "device_type" => $this->device_type,
             "device_token" => $this->device_token,
             "addresses" => UserAddressResource::collection($this->deliveryLocation),
+            "membership" => $this->membership,
         ];
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App;
 use App\Cart;
 use App\Coupon;
 use App\Http\Resources\CartResource;
@@ -16,6 +17,8 @@ use App\Traits\ResponceTrait;
 use App\Traits\RestControllerTrait;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Zone;
+use App\ZoneTranslation;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
@@ -315,6 +318,93 @@ class CartController extends Controller
            
         }
         return $this->showResponse(trans('order.updated_cart'));
+    }
+
+    public function getZoneData($lat, $lng)
+    {
+        $zone_id = '';
+        $zoneArray = [];
+        $zArray = [];
+        $fArray = [];
+        $finalArray = [];
+      
+        $zonedata = DB::table('zones')->select('id',DB::raw("ST_AsGeoJSON(point) as json") )->where('deleted_at',null)->where('status','=','1')->get();
+      
+            $json_arr = json_decode($zonedata, true);
+            foreach ($json_arr as $zvalue) {
+                $zone_id=$zvalue['id'];
+                $json=json_decode($zvalue['json']);
+                $coordinates=$json->coordinates;
+                $new_coordinates=$coordinates[0];
+                $lat_array=array();
+                $lng_array=array();
+                foreach($new_coordinates as $new_coordinates_value){
+                    $lat_array[]=$new_coordinates_value[0];
+                    $lng_array[]=$new_coordinates_value[1];
+
+
+                }
+           
+            $is_exist = $this->isPointInPolygon($lat, $lng,$lat_array,$lng_array);
+           
+            if($is_exist){
+                $zData = ZoneTranslation::where('zone_id', $zone_id)->where('locale', App::getLocale())->first();
+                $data['match_in_zone'] = true;
+                $data['zone_id'] = $zone_id;
+                $data['zone_name'] = $zData->name;
+                return $data;
+            }
+
+            }
+            $zone = Zone::where('status','=','1')->where('is_default','=','1')->withoutGlobalScope(StatusScope::class)->first();
+            $zone_id_default = $zone ? $zone->id : 1;
+            $zData = ZoneTranslation::where('zone_id', $zone_id_default)->where('locale', App::getLocale())->first();
+            $data['match_in_zone'] = false;
+            $data['zone_id'] = $zone_id_default;
+            $data['zone_name'] = $zData->name;
+            return $data;
+       
+       
+
+       
+    }
+
+    public function isPointInPolygon($latitude, $longitude, $latitude_array, $longitude_array) {
+        $size = count($longitude_array);
+        $flag1 = false;
+        $k = $size - 1;
+        $j = 0;
+        while ($j < $size) {
+            $flag = false;
+            $flag2 = false;
+            $flag3 = false;
+            if ($latitude_array[$j] > $latitude) {
+                $flag2 = true;
+            } else {
+                $flag2 = false;
+            }
+            if ($latitude_array[$k] > $latitude) {
+                $flag3 = true;
+            } else {
+                $flag3 = false;
+            }
+            $flag = $flag1;
+            if ($flag2 != $flag3) {
+                $flag = $flag1;
+                if ($longitude < (($longitude_array[$k] - $longitude_array[$j]) * ($latitude - $latitude_array[$j])) / ($latitude_array[$k] - $latitude_array[$j]) +
+                    $longitude_array[$j]) {
+                    if (!$flag1) {
+                        $flag = true;
+                    } else {
+                        $flag = false;
+                    }
+                }
+            }
+            $k = $j;
+            $j++;
+            $flag1 = $flag;
+        }
+        return $flag1;
     }
 
 
