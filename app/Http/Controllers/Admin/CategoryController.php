@@ -226,7 +226,7 @@ class CategoryController extends Controller
     }
     public function anyData(Request $request)
     {
-        $category =$this->model->select('*');
+        $category =$this->model->with(['translations'])->select('*');
         if($request->has('cat_id') && !empty($request->cat_id)){
             $category->where('parent_id','=',$request->cat_id);
 

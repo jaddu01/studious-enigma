@@ -118,7 +118,7 @@
                 oLanguage: {
                 sProcessing: "<img style='width:50%;height:auto' src='{{asset('public/upload/loader.gif')}}'>"
                 },
-                serverSide: false,
+                serverSide: true,
                 ajax: '{!! route('category.datatable') !!}?cat_id={{$cat_td}}',
                 fnDrawCallback :function() {
                     $('.data-toggle-coustom').bootstrapToggle();
@@ -129,7 +129,7 @@
                 },
                 columns: [
                     { data: 'id', name: 'id' },
-                    { data: 'name', name: 'name' },
+                    { data: 'name', name: 'translations.name' },
                     { data: 'image', name: 'image',orderable: false, searchable: false },
                     { data: 'sort_no', name: 'sort_no' },
                     { data: 'is_show', name: 'is_show' },
