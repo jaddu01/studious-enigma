@@ -63,6 +63,7 @@ class CartController extends Controller
         $lat = $request->header('lat');
         $lng = $request->header('lng');
         $zonedata = $this->getZoneData($lat, $lng);
+        // dd($zonedata);
         $match_in_zone = $zonedata['match_in_zone'];
         $user = Auth::guard('api')->user();
         $AppSetting =AppSetting::select('mim_amount_for_order','mim_amount_for_order_prime','mim_amount_for_free_delivery','mim_amount_for_free_delivery_prime')->first();      
@@ -127,6 +128,7 @@ class CartController extends Controller
             'total_saving_percentage' => $cartTotalArray['total_saving_percentage'],
             'product_price' => $cartTotalArray['offer_price_total'],
             'delivery_charge' => $cartTotalArray['delivery_charge'],
+            'applicable_delivery_charge' => $zonedata['delivery_charges'],
             'delivery_charges_msg' => $delivery_charges_msg,
             'total_mrp' => $cartTotalArray['total'],
             'total_price' => $cartTotalArray['offer_price_total']+$cartTotalArray['delivery_charge'],
@@ -328,7 +330,7 @@ class CartController extends Controller
         $fArray = [];
         $finalArray = [];
       
-        $zonedata = DB::table('zones')->select('id',DB::raw("ST_AsGeoJSON(point) as json") )->where('deleted_at',null)->where('status','=','1')->get();
+        $zonedata = DB::table('zones')->select('id','delivery_charges', DB::raw("ST_AsGeoJSON(point) as json") )->where('deleted_at',null)->where('status','=','1')->get();
       
             $json_arr = json_decode($zonedata, true);
             foreach ($json_arr as $zvalue) {
@@ -346,12 +348,14 @@ class CartController extends Controller
                 }
            
             $is_exist = $this->isPointInPolygon($lat, $lng,$lat_array,$lng_array);
+            $z = Zone::where('id', $zone_id)->first();
            
             if($is_exist){
                 $zData = ZoneTranslation::where('zone_id', $zone_id)->where('locale', App::getLocale())->first();
                 $data['match_in_zone'] = true;
                 $data['zone_id'] = $zone_id;
                 $data['zone_name'] = $zData->name;
+                $data['delivery_charges'] = $z->delivery_charges;
                 return $data;
             }
 
@@ -362,6 +366,7 @@ class CartController extends Controller
             $data['match_in_zone'] = false;
             $data['zone_id'] = $zone_id_default;
             $data['zone_name'] = $zData->name;
+            $data['delivery_charges'] = $z->delivery_charges;
             return $data;
        
        

@@ -552,9 +552,8 @@ class ProductController extends Controller
         try{
             $keyword = $request->keyword;
             $products = $this->vendorProduct->with(['product','product.MeasurementClass','product.image'])->whereHas('Product.translations',function($q) use($keyword){
-                $q->where('name','like', $keyword.'%');
-                $q->orWhere('keywords','like',$keyword.'%');
-                $q->orWhere('description','like', $keyword.'%');
+                $q->where('name','like', '%'.$keyword.'%');
+                $q->orWhere('keywords','like', '%'.$keyword.'%');
             });
 
             if($request->has('category_id')){
@@ -582,9 +581,8 @@ class ProductController extends Controller
         try{
             $keyword = \request()->keyword;
             $products = $this->vendorProduct->with(['product','product.MeasurementClass','product.image'])->whereHas('Product.translations',function($q) use($keyword){
-                $q->where('name','like','%'.$keyword);
-                $q->orWhere('keywords','like','%'.$keyword);
-                $q->orWhere('description','like','%'.$keyword);
+                $q->where('name','like', '%'.$keyword.'%');
+                $q->orWhere('keywords','like', '%'.$keyword.'%');
             })->limit(10)->get();
             $suggestions = [];
             foreach($products as $product){
