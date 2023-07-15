@@ -154,12 +154,12 @@ class OrderController extends Controller
         //return $request->delivery_time_id;
         if ($request->payment_mode_id == 1) {
             $order_count = $this->productOrder->where('user_id', Auth::guard('api')->user()->id)->where('payment_mode_id', 1)->whereIn('order_status', ['N', 'O', 'S', 'A', 'U', 'UP'])->count();
-            if ($order_count > 2) {
-                $res['error'] = true;
-                $res['code'] = 1;
-                $res['message'] = "You alerady have 3 orders pending With COD";
-                return response()->json($res);
-            }
+            // if ($order_count > 2) {
+            //     $res['error'] = true;
+            //     $res['code'] = 1;
+            //     $res['message'] = "You alerady have 3 orders pending With COD";
+            //     return response()->json($res);
+            // }
         }
         $AppSetting = AppSetting::select('mim_amount_for_order', 'mim_amount_for_free_delivery', 'mim_amount_for_free_delivery_prime')->firstOrfail();
         $cartRec = $this->cart->has('vendorProduct.Product')->with(
@@ -277,7 +277,9 @@ class OrderController extends Controller
                     $time = date('h');
                     $fast_delivery = date('+3h', strtotime($time));
                     $order_code =  Helper::orderCode($request->delivery_date, Auth::guard('api')->user()->zone_id, '', $fast_delivery);
-                } else {
+                } elseif($request->delivery_time_id == 'in_store_pickup' || $request->delivery_time_id == 'standard_delivery'){
+                    $order_code =  Helper::orderCode($request->delivery_date, Auth::guard('api')->user()->zone_id, null);
+                }else {
                     $order_code =  Helper::orderCode($request->delivery_date, Auth::guard('api')->user()->zone_id, $request->delivery_time_id);
                 }
                 $input['order_code'] = str_replace(" ", "", $order_code);
@@ -301,14 +303,22 @@ class OrderController extends Controller
                 });
 
                 /*added by sonu*/
-                if ($request->delivery_time_id == 'fast_delivery' || $request->delivery_time_id == 'in_store_pickup') {
+                if ($request->delivery_time_id == 'fast_delivery' || $request->delivery_time_id == 'in_store_pickup' || $request->delivery_time_id == 'standard_delivery') {
                     $input['delivery_time'] = null;
                 } else {
                     $input['delivery_time'] = json_encode($today_data, true);
                 }
                 /*added by sonu*/
 
-                $input['delivery_time'] = json_encode($today_data, true);
+                //delivery date 
+                if($request->delivery_time_id == 'fast_delivery'){
+                    $input['delivery_date'] = Carbon::now()->format('Y-m-d');
+                }else if($request->delivery_time_id == 'in_store_pickup' || $request->delivery_time_id == 'standard_delivery'){
+                    $input['delivery_date'] = Carbon::tomorrow()->format('Y-m-d');
+                }else{
+                    $input['delivery_date'] = $request->delivery_date;
+                }
+                // $input['delivery_time'] = json_encode($today_data, true);
                 $input['delivery_charge'] = $delivery_charge;
                 $input['tax'] = $tax;
                 $input['total_amount'] = $sub_total + $delivery_charge;
@@ -316,8 +326,11 @@ class OrderController extends Controller
                 //$input['offer_total'] = $offer_total;
                 $input['offer_total'] = $offer_total + $delivery_charge;
                 $input['delivery_time_id'] = $request->delivery_time_id;
-                $input['delivery_date'] = $request->delivery_date;
+                // $input['delivery_date'] = $request->delivery_date;
                 $input['payment_mode_id'] = $request->payment_mode_id;
+                $input['delivery_boy_tip'] = $request->delivery_boy_tip ?? 0;
+                $input['delivery_instruction'] = $request->delivery_instruction ?? "";
+                $input['delivery_type'] = gettype($request->delivery_time_id) == 'integer' ? 'normal' : $request->delivery_time_id;
 
 
                 $carttototal =   Helper::cartTotal(Auth::guard('api')->user()->id, Auth::guard('api')->user()->zone_id);
@@ -378,6 +391,7 @@ class OrderController extends Controller
                         }
                     }
                 }  //echo "<pre>"; print_r($input); die;
+                // dd($input);
                 $order = $this->productOrder->create($input);
                 $order->ProductOrderItem()->createMany($result);
                 $data  = $this->orderDetails($order->id);
@@ -432,34 +446,36 @@ class OrderController extends Controller
                 /*send notification to shopper and driver*/
 
                 $shopperData = User::whereIn('id', [$shopper_id, $driver_id])->select('id', 'device_type', 'device_token')->get();
-
-                $shopper_id_array = collect($shopperData)->where('id', $shopper_id)->pluck('device_token');
-                $driver_id_array = collect($shopperData)->where('id', $driver_id)->pluck('device_token');
-                $shopperArray = [];
-                $shopperArray['type'] = 'Order';
-                $shopperArray['product_type'] = 'New';
-                $shopperArray['title'] = 'New order placed';
-                $shopperArray['body'] = trans('order.create_success_ordercode') . $order->order_code;
-                $shopper_device_type_array = $shopperData->where('id', $shopper_id)->pluck('device_type');
-                $shopper_device_type = $shopper_device_type_array[0];
-
-                $driver_device_type_array = $shopperData->where('id', $driver_id)->pluck('device_type');
-                $driver_device_type = $driver_device_type_array[0];
-                //echo "<pre>"; print_r($dataArray);
-                // echo "<pre>"; print_r($shopperArray); //die;
-                //return $shopper_device_type;
-                //customer notification
-                Helper::sendNotification($user_id_array, $dataArray, $device_type);
-                //shopper notifiction
-                Helper::sendNotification($shopper_id_array, $shopperArray, $shopper_device_type);
-                //driver notifiction
-                Helper::sendNotification($driver_id_array, $shopperArray, $driver_device_type);
-                /*send notification to shopper and driver*/
-                /*admin notification start*/
-                // send notification using the "user" model, when the user receives new message
+                // dd($shopperData, $shopper_id, $driver_id);
+                if($shopperData){
+                    $shopper_id_array = collect($shopperData)->where('id', $shopper_id)->pluck('device_token');
+                    $driver_id_array = collect($shopperData)->where('id', $driver_id)->pluck('device_token');
+                    $shopperArray = [];
+                    $shopperArray['type'] = 'Order';
+                    $shopperArray['product_type'] = 'New';
+                    $shopperArray['title'] = 'New order placed';
+                    $shopperArray['body'] = trans('order.create_success_ordercode') . $order->order_code;
+                    $shopper_device_type_array = $shopperData->where('id', $shopper_id)->pluck('device_type');
+                    $shopper_device_type = $shopper_device_type_array[0];
+    
+                    $driver_device_type_array = $shopperData->where('id', $driver_id)->pluck('device_type');
+                    $driver_device_type = $driver_device_type_array[0];
+                    //echo "<pre>"; print_r($dataArray);
+                    // echo "<pre>"; print_r($shopperArray); //die;
+                    //return $shopper_device_type;
+                    //customer notification
+                    //Helper::sendNotification($user_id_array, $dataArray, $device_type);
+                    //shopper notifiction
+                   // Helper::sendNotification($shopper_id_array, $shopperArray, $shopper_device_type);
+                    //driver notifiction
+                  //  Helper::sendNotification($driver_id_array, $shopperArray, $driver_device_type);
+                    /*send notification to shopper and driver*/
+                    /*admin notification start*/
+                    // send notification using the "user" model, when the user receives new message
+                }
                 $senderName = $user_id_array1[0]->name;
 
-                if ($request->delivery_time_id == 'fast_delivery') {
+                if ($request->delivery_time_id == 'fast_delivery' || $request->delivery_time_id == 'in_store_pickup' || $request->delivery_time_id == 'standard_delivery') {
                 } else {
                     $deliveryTime = Helper::getDeliveryTimeById($request->delivery_time_id);
                 }

@@ -11,7 +11,8 @@ class ProductOrder extends BaseModel
 
     use SoftDeletes;
     protected $fillable = [
-        'order_code', 'user_id', 'vendor_product_id', 'order_status', 'shipping_location', 'delivery_time','delivery_time_id','delivery_date', 'payment_mode_id', 'delivery_charge', 'tax', 'total_amount','offer_total', 'transaction_id', 'transaction_status','cart_id','zone_id','vendor_id','shopper_id','driver_id','admin_discount','promo_discount','coupon_code','coupon_amount','online_payment','wallet_payment','coin_payment','is_membership','order_type_id','delivery_boy_tip'
+        'order_code', 'user_id', 'vendor_product_id', 'order_status', 'shipping_location', 'delivery_time','delivery_time_id','delivery_date', 'payment_mode_id', 'delivery_charge', 'tax', 'total_amount','offer_total', 'transaction_id', 'transaction_status','cart_id','zone_id','vendor_id','shopper_id','driver_id','admin_discount','promo_discount','coupon_code','coupon_amount','online_payment','wallet_payment','coin_payment','is_membership','order_type_id','delivery_boy_tip','delivery_instruction',
+        'delivery_type'
     ];
 
     public function __construct(array $attributes = [])
