@@ -239,7 +239,7 @@ class OrderController extends Controller
         } else {
             DB::beginTransaction();
             try {
-                $delivery_charge = Auth::guard('api')->user()->zone->delivery_charges;
+                $delivery_charge = Auth::guard('api')->user()->zone->delivery_charges ?? 0;
                 $tax = 0;
                 /*actual total price  without offer value*/
                 $sub_total = collect($result)->sum('price');

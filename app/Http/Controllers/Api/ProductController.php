@@ -784,7 +784,7 @@ class ProductController extends Controller
         $slider = Slider::with('category','sub_category','product');
         $offer_sliders = OfferSlider::with('category','sub_category','product');
         $ads = Ads::with('category','sub_category','product');
-        $user = Auth::user();
+        $user = Auth::guard('api')->user();
         $zonedata = $this->getZoneData($lat, $lng);
         $zone_id =  $zonedata['zone_id'];
         $zone_name =  $zonedata['zone_name'];
@@ -799,6 +799,9 @@ class ProductController extends Controller
             $zone_id = $first_zone[0]->id;
             $request->session()->put('zone_id',$zone_id);
         }
+        $user->zone_id = $zone_id;
+        $user->save();
+
         $vendor  = User::select('*');
         $vendor->whereRaw('FIND_IN_SET('.$zone_id.', zone_id) ')->where(['user_type'=>'vendor']);
         $slider = $slider->whereRaw('FIND_IN_SET('.$zone_id.', zone_id) ')->get();
