@@ -571,9 +571,16 @@
 
                                 @foreach ($product->images as $image)
                                     <div class="img-wrap">
-                                        <span class="close" data-id="{{ $image->id }}"
-                                            onclick="deleteImage({{ $image->id }},{{ $product->id }})">&times;</span>
-                                        <img src="{{ $image->name }}" height="100" width="100" />
+                                       <div class="">
+                                            <span class="close" data-id="{{ $image->id }}"
+                                                onclick="deleteImage({{ $image->id }},{{ $product->id }})">&times;</span>    
+                                            <img src="{{ $image->name }}" height="100" width="100" /> 
+                                        </div>
+                                        @if ($image->is_default == 1)
+                                            <span class="btn btn-success">Default</span>
+                                        @else
+                                            <span class="make-default btn btn-primary" style="margin-top: 9px;" data-id="{{$image->id}}" onclick="makeDefault({{$image->id}}, {{$product->id}})">Set AS Default</span>
+                                        @endif
                                     </div>
                                 @endforeach
 
@@ -746,6 +753,48 @@
                         });
                         $("span[data-id='" + id + "']").parent().remove();
                         //object.parent().remove();
+                    },
+                    error: function(data) {
+                        console.log(data);
+                        new PNotify({
+                            title: 'Error',
+                            text: data.responseJSON.message,
+                            type: "error",
+                            styling: 'bootstrap3'
+                        });
+
+                    }
+                });
+            }
+        }
+
+        function makeDefault(imageId, productId) {
+            var r = confirm("Are you sure, you want to make this image as default?");
+            if (r == true) {
+                //var object=$(data);
+                //var id=object.data('id');  
+                var id = imageId;
+                var productId = productId;
+                $.ajax({
+                    data: {
+                        id: id,
+                        product_id: productId,
+                        _method: 'PATCH'
+                    },
+                    type: "PATCH",
+                    url: "{!! route('admin.product.image.make.default') !!}",
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    },
+                    success: function(data) {
+                        console.log(data);
+                        new PNotify({
+                            title: 'Success',
+                            text: data.message,
+                            type: 'success',
+                            styling: 'bootstrap3'
+                        });
+                        window.location.reload();
                     },
                     error: function(data) {
                         console.log(data);

@@ -419,6 +419,7 @@ Route::group(['prefix' => 'admin', 'namespace' => 'Admin'], function () {
         //
         Route::any('product/status', 'ProductController@changeStatus')->name('admin.product.status');
         Route::any('product/image', 'ProductController@deleteImage')->name('admin.product.image');
+        Route::any('product/image/default', 'ProductController@makeDefaultImage')->name('admin.product.image.make.default');
         Route::resource('product', 'ProductController');
 
         // TODO admin vendor-product section

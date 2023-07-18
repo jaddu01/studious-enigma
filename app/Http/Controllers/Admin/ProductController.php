@@ -395,6 +395,37 @@ class ProductController extends Controller
         }
     }
 
+    
+    /**
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function makeDefaultImage(Request $request){
+        try{
+            $image = Image::where('id', $request->id)->first();
+            if(!$image){
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Image not found'
+                ],400);
+            }
+    
+            $image->is_default = '1';
+            $image->save();
+    
+            return response()->json([
+                'status' => true,
+                'message' => 'updated Succefully'
+            ],200);
+        }catch(\Exception $e){
+            Log::error($e);
+            return response()->json([
+                'status' => false,
+                'message' => $e->getMessage()
+            ],500);
+        }
+    }
+
     public function import(){ return view('admin/pages/product/import');}
 
     public function importExcel(Request $request){

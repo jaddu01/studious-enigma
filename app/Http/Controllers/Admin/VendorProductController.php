@@ -277,8 +277,8 @@ class VendorProductController extends Controller
         $searchTerm = $request->input('term');
         if(!empty($searchTerm)){
             $products = $this->product->whereHas('translations', function($q) use ($searchTerm) {
-                $q->where('name', 'like', $searchTerm.'%')
-                ->orWhere('keywords', 'like', $searchTerm.'%');
+                $q->where('name', 'like', '%'.$searchTerm.'%')
+                ->orWhere('keywords', 'like', '%'.$searchTerm.'%');
                 })->limit(10)->get();
         }else if(count($request->id) > 0){
             $products = $this->product->whereHas('translations')->whereIn('id', $request->id)->limit(10)->get();
