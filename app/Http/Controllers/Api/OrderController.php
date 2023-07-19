@@ -845,11 +845,11 @@ class OrderController extends Controller
 
                 // print_r($driver_device_type); die();
                 //shopper notifiction
-                Helper::sendNotification($shopper_id_array, $shopperArray, $shopper_device_type);
+                //Helper::sendNotification($shopper_id_array, $shopperArray, $shopper_device_type);
                 //driver notifiction
-                Helper::sendNotification($driver_id_array, $shopperArray, $driver_device_type);
+                //Helper::sendNotification($driver_id_array, $shopperArray, $driver_device_type);
                 //customer notifiction 
-                Helper::sendNotification($user_id_array, $dataArray, $device_type);
+                //Helper::sendNotification($user_id_array, $dataArray, $device_type);
                 /*send notification code to customer*/
 
                 return $this->showResponse(trans('order.order_cancel'));

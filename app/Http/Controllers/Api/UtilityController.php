@@ -895,7 +895,7 @@ $next_tomorrow_day_name = $next_tomorrow_date->format('D');
 
  public function brands(){
     try{
-        $brands = Brand::with('barndTraslation')->paginate(20);
+        $brands = Brand::with('barndTraslation')->paginate(40);
         $this->response->brands = BrandsResource::collection($brands);
         return ResponseBuilder::successWithPagination($brands,$this->response);
 
