@@ -207,7 +207,7 @@ class ProductOrder extends BaseModel
 
     public function VendorProduct()
     {
-        return $this->belongsTo('App\VendorProduct', 'payment_mode_id', 'id');
+        return $this->belongsTo('App\VendorProduct', 'vendor_product_id', 'id');
     }
     public function Product()
     {
@@ -223,7 +223,12 @@ class ProductOrder extends BaseModel
     }
     public function PaymentMode()
     {
-        return $this->belongsTo('App\PaymentMode', 'payment_mode_id', 'id');
+        return $this->belongsTo('App\PaymentMode', 'payment_mode_id');
+    }
+
+    public function paymentModeTranslation()
+    {
+        return $this->belongsTo('App\PaymentModeTranslation', 'payment_mode_id', 'payment_mode_id');
     }
 
     public function ProductOrderItem()

@@ -16,6 +16,7 @@ use App\Product;
 use App\WishLish;
 use App\FirstOrder;
 use App\AppSetting;
+use App\Helpers\ResponseBuilder;
 use App\MeasurementClass;
 use App\ProductOrder;
 use App\ProductVarient;
@@ -24,6 +25,7 @@ use App\Traits\RestControllerTrait;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Http\Resources\OrderShortResource;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -89,7 +91,7 @@ class OrderController extends Controller
     {
 
         if (Auth::guard('api')->user()) {
-            $orders =  $this->productOrder->select(['id', 'order_status', 'order_code', 'delivery_date', 'delivery_time', 'shipping_location', 'total_amount', 'offer_total', 'delivery_charge', 'created_at'])->where(['user_id' => Auth::guard('api')->user()->id])->orderBy('created_at', 'DESC');
+            $orders =  $this->productOrder->select(['id', 'order_status', 'order_code', 'delivery_date', 'delivery_time', 'shipping_location', 'total_amount', 'offer_total', 'delivery_charge', 'created_at', 'payment_mode_id'])->where(['user_id' => Auth::guard('api')->user()->id])->orderBy('created_at', 'DESC');
             if ($request->has('type') and $request->type != '') {
                 if ($request->type == 'current') {
                     $orders->where('order_status', '!=', 'D')->where('order_status', '!=', 'C')->where('order_status', '!=', 'R');
@@ -99,38 +101,39 @@ class OrderController extends Controller
                     $orders->whereIN('order_status', ['D', 'C', 'R']);
                 }
             }
-            $orders = $orders->get();
+            $orders = $orders->paginate(20);
             //return $orders;
-            foreach ($orders as $order) {
-                if (isset($order->delivery_time)) {
-                    $order->time_slot = $order->delivery_time->from_time . '-' . $order->delivery_time->to_time;
-                } else {
-                    $order->time_slot = '';
-                }
-                // dd($order->created_at);
-                if (isset($order->shipping_location->region_id) && !empty($order->shipping_location->region_id)) {
-                    $order->address =  $order->shipping_location->region->name;
-                } else {
+            // foreach ($orders as $order) {
+            //     if (isset($order->delivery_time)) {
+            //         $order->time_slot = $order->delivery_time->from_time . '-' . $order->delivery_time->to_time;
+            //     } else {
+            //         $order->time_slot = '';
+            //     }
+            //     // dd($order->created_at);
+            //     if (isset($order->shipping_location->region_id) && !empty($order->shipping_location->region_id)) {
+            //         $order->address =  $order->shipping_location->region->name;
+            //     } else {
 
-                    if (isset($order->shipping_location->address) && !empty($order->shipping_location->address)) {
+            //         if (isset($order->shipping_location->address) && !empty($order->shipping_location->address)) {
 
-                        $order->address =  $order->shipping_location->address;
-                    } else {
-                        $order->address = "";
-                    }
-                }
-                $order->coupon =  $order->coupon;
-                $order->coupon_amount =  $order->coupon_amount;
-                $order->total_saving = number_format((($order->total_amount - $order->offer_total - $order->coupon_amount) / 100), 2, '.', '');
-                $order->total = $order->offer_total;
-                $order->items_price = $order->offer_total - $order->delivery_charge;
-                $order->discount =  number_format($order->offer_total - $order->total_amount, 2, '.', '');
-                $order->date = Carbon::parse($order['created_at'])->format('d/m/Y, H:i');
-                unset($order->delivery_time, $order->shipping_location, $order->offer_total, $order->total_amount);
-            }
+            //             $order->address =  $order->shipping_location->address;
+            //         } else {
+            //             $order->address = "";
+            //         }
+            //     }
+            //     $order->coupon =  $order->coupon;
+            //     $order->coupon_amount =  $order->coupon_amount;
+            //     $order->total_saving = number_format((($order->total_amount - $order->offer_total - $order->coupon_amount) / 100), 2, '.', '');
+            //     $order->total = $order->offer_total;
+            //     $order->items_price = $order->offer_total - $order->delivery_charge;
+            //     $order->discount =  number_format($order->offer_total - $order->total_amount, 2, '.', '');
+            //     $order->date = Carbon::parse($order['created_at'])->format('d/m/Y, H:i');
+            //     unset($order->delivery_time, $order->shipping_location, $order->offer_total, $order->total_amount);
+            // }
 
-
-            return $this->listResponse($orders);
+            $this->response->orders = OrderShortResource::collection($orders);
+            return ResponseBuilder::successWithPagination($orders, $this->response);
+            // return $this->listResponse($orders);
         } else {
             $response = [
                 'error' => false,
