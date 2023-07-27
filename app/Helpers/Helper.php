@@ -497,7 +497,7 @@ public static function hasImage($imageName) {
 			$total = $total + ( $Rec['vendorProduct']['price'] * $Rec['qty'] );
 			// code change by Abhishek Bhatt for check the minimum amount for free delivery zone wise //
 			//$dc = $Rec['Zone']['delivery_charges'];
-			$offer_price_total = $offer_price_total + ( $Rec['vendorProduct']['offer_price'] * $Rec['qty'] );
+			$offer_price_total = $offer_price_total + ( $Rec['vendorProduct']['best_price'] * $Rec['qty'] );
 			if($offer_price_total >= $Rec['Zone']['minimum_order_amount']) {
 				$dc = 0;
 			} else {
