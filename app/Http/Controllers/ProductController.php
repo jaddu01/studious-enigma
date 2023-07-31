@@ -35,6 +35,8 @@ use Illuminate\Http\Request;
 use App\CategoryAdsImage;
 use App\CategoryTranslation;
 
+
+
 class ProductController extends Controller
 {
   /*
