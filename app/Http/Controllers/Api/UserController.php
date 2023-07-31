@@ -39,9 +39,11 @@ use App\Helpers\Helper;
 use App\Helpers\ResponseBuilder;
 use App\Http\Resources\UserAddressResource;
 use App\Rules\UnixTimeStamp;
+use Composer\DependencyResolver\Transaction;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use DB;
+use Exception;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -49,6 +51,7 @@ use Illuminate\Pagination\LengthAwarePaginator;
 use GuzzleHttp\Client;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rule;
+use App\Http\Resources\TransactionsResource;
 
 class UserController extends Controller
 {
@@ -2708,6 +2711,32 @@ public function orderStatusChange(Request $request){
       }
 
     public function getwalletHistories(Request $request) {
+        try{
+            $user = $request->user('api');
+            $user_wallets = $user->walletHistory()->latest();
+            switch ($request->type) {
+                case 'wallet':
+                    $user_wallets = $user_wallets->where('wallet_type', 'amount');
+                    break;
+                case 'coin':
+                    $user_wallets = $user_wallets->where('wallet_type', 'coin');
+                    break;
+                default:
+                    break;
+            }
+            $user_wallets = $user_wallets->paginate(20);
+            $this->response->wallet_balance = $user->wallet_amount;
+            $this->response->coin_amount = $user->coin_amount;
+            $this->response->transactions = TransactionsResource::collection($user_wallets);
+
+            return ResponseBuilder::successWithPagination($user_wallets, $this->response, $this->successStatus);
+        }catch(Exception $e){
+            Log::error($e->getMessage());
+            return ResponseBuilder::error("Oops! Something went wrong. Please try again later.", $this->errorStatus);
+        }
+    }
+
+    public function getwalletHistoriesbk(Request $request) {
         $validator = Validator::make($request->all(), [
             'user_id'=>'required',
         ]);
@@ -2740,7 +2769,7 @@ public function orderStatusChange(Request $request){
                 return $this->userNotExistResponse(trans('user.no_record'));
           }
         }
-  }
+    }
 
 
 

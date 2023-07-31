@@ -123,7 +123,7 @@ class ProductController extends Controller
                 }
 
                 //add vendor product
-                $vendorProduct = $product->VendorProduct->create(['vendor_id'=>Auth::guard('admin')->user()->id,'price'=>$input['best_price'],'qty'=>$input['qty'],'status'=>1, 'offer_id'=>$input['offer_id'], 'per_order'=>$input['per_order'], 'best_price' => $input['price'], 'memebership_p_price' => $input['memebership_p_price']]);
+                $vendorProduct = $product->VendorProduct->create(['vendor_id'=>Auth::guard('admin')->user()->id,'price'=>$input['price'],'qty'=>$input['qty'],'status'=>1, 'offer_id'=>$input['offer_id'], 'per_order'=>$input['per_order'], 'best_price' => $input['best_price'], 'memebership_p_price' => $input['memebership_p_price']]);
 
                 DB::commit();
 
@@ -215,7 +215,7 @@ class ProductController extends Controller
 
                 //update vendor product
                 $vendorProduct = $product->VendorProduct->where('product_id',$id)->first();
-                $vendorProduct->update(['vendor_id'=>Auth::guard('admin')->user()->id,'price'=>$input['best_price'],'qty'=>$input['qty'],'status'=>1, 'offer_id'=>$input['offer_id'], 'per_order'=>$input['per_order'], 'best_price' => $input['price'], 'memebership_p_price' => $input['memebership_p_price']]);
+                $vendorProduct->update(['vendor_id'=>Auth::guard('admin')->user()->id,'price'=>$input['price'],'qty'=>$input['qty'],'status'=>1, 'offer_id'=>$input['offer_id'], 'per_order'=>$input['per_order'], 'best_price' => $input['best_price'], 'memebership_p_price' => $input['memebership_p_price']]);
 
                 DB::commit();
                  Session::flash('success','Product updated successfully');

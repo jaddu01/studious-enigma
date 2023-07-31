@@ -209,6 +209,11 @@ class User extends Authenticatable
         parent::boot();
         static::addGlobalScope(new OrderByScope());
     }
+
+    //wallet history
+    public function walletHistory(){
+        return $this->hasMany('App\UserWallet');
+    }
    
     /* public function sendPasswordResetNotification($token)
     {
