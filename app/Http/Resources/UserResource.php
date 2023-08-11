@@ -23,6 +23,7 @@ class UserResource extends JsonResource
             "phone_number"=>$this->phone_number,
             "image"=>$this->image,
             "user_type"=>$this->user_type,
+            "formatted_dob" => Carbon::parse($this->dob)->format('d-m-Y') ?? null,
             "dob" => Carbon::parse($this->dob)->timestamp ?? null,
             "gender" => $this->gender,
             "role" => $this->role,
@@ -33,6 +34,9 @@ class UserResource extends JsonResource
             "device_token" => $this->device_token,
             "addresses" => UserAddressResource::collection($this->deliveryLocation),
             "membership" => $this->membership,
+            "referral_code" => $this->referral_code,
+            "referral_by" => $this->referral_by,
+            "referral" => $this->referral,
         ];
     }
 }

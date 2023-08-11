@@ -14,7 +14,7 @@ class Coupon extends BaseModel
     public $translationModel = 'App\CouponTranslation';
     use SoftDeletes;
     protected $fillable = [
-        'code','coupon_type','coupon_value','to_time','from_time','status','number_of_use','user_id'
+        'code','coupon_type','coupon_value','to_time','from_time','status','number_of_use','type'
     ];
 
     public $translatedAttributes = ['name'];
@@ -141,6 +141,11 @@ class Coupon extends BaseModel
     public function images()
     {
         return $this->morphMany('App\Image', 'image');
+    }
+
+    public function users()
+    {
+        return $this->belongsToMany('App\User','coupon_users','coupon_id','user_id');
     }
 
     protected static function boot()

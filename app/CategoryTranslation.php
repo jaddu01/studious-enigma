@@ -17,6 +17,10 @@ class CategoryTranslation extends Model
     {
         return Helper::hasImage($value);
     }
+    public function getBannerImageAttribute($value)
+    {
+        return Helper::hasImage($value);
+    }
     public function category()
     {
        return $this->belongsTo(Category::class);

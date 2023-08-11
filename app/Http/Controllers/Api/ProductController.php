@@ -779,7 +779,7 @@ class ProductController extends Controller
 
         // $lat = $request->lat;
         // $lng = $request->lng;
-        $category =  $this->category->join('categories','categories.id','=','category_translations.category_id')->select('categories.id','image','name','category_translations.slug')->where(['locale' => 'en'])->where(['categories.parent_id' => '0'])->where(['categories.status' => '1'])->whereNull('categories.deleted_at')->orderBy('sort_no', 'ASC')->get();
+        $category =  $this->category->join('categories','categories.id','=','category_translations.category_id')->select('categories.id','image','name','category_translations.slug','banner_image')->where(['locale' => 'en'])->where(['categories.parent_id' => '0'])->where(['categories.status' => '1'])->whereNull('categories.deleted_at')->orderBy('sort_no', 'ASC')->get();
             
         $slider = Slider::with('category','sub_category','product');
         $offer_sliders = OfferSlider::with('category','sub_category','product');

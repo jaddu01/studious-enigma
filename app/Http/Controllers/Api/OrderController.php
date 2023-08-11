@@ -154,15 +154,18 @@ class OrderController extends Controller
      */
     public function store(Request $request)
     {
+        $lat = $request->lat;
+        $lng = $request->lng;
+        $zone = Helper::getZoneData($lat, $lng);
         //return $request->delivery_time_id;
         if ($request->payment_mode_id == 1) {
             $order_count = $this->productOrder->where('user_id', Auth::guard('api')->user()->id)->where('payment_mode_id', 1)->whereIn('order_status', ['N', 'O', 'S', 'A', 'U', 'UP'])->count();
-            // if ($order_count > 2) {
-            //     $res['error'] = true;
-            //     $res['code'] = 1;
-            //     $res['message'] = "You alerady have 3 orders pending With COD";
-            //     return response()->json($res);
-            // }
+            if ($order_count > 3) {
+                $res['error'] = true;
+                $res['code'] = 1;
+                $res['message'] = "You alerady have 3 orders pending With COD";
+                return response()->json($res);
+            }
         }
         $AppSetting = AppSetting::select('mim_amount_for_order', 'mim_amount_for_free_delivery', 'mim_amount_for_free_delivery_prime')->firstOrfail();
         $cartRec = $this->cart->has('vendorProduct.Product')->with(
@@ -248,6 +251,13 @@ class OrderController extends Controller
                 $sub_total = collect($result)->sum('price');
                 /*actual total  without offer value*/
                 $offer_total = collect($result)->sum('offer_total');
+                //check if minimum order amount in a zone is less than sub total
+                if ($sub_total < Auth::guard('api')->user()->zone->minimum_order_amount) {
+                    $res['error'] = true;
+                    $res['code'] = 1;
+                    $res['message'] = "Minimum order amount for this zone is " . Auth::guard('api')->user()->zone->minimum_order_amount;
+                    return response()->json($res);
+                }
 
                 $input = [];
                 $input['is_membership'] = 'N';
