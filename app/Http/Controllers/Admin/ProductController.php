@@ -311,10 +311,28 @@ class ProductController extends Controller
                     return $name;
                 })
                  ->addColumn('barcode',function ($product){
-                    return $product->barcode;
+                    return $product->barcode ?? '-';
                 })
-                 ->editColumn('gst',function ($product){
-                    return ($product->gst!=null && $product->gst!='null') ? $product->gst.' %' : '0%';
+                 ->editColumn('price',function ($product){
+                    $vproduct = VendorProduct::where('product_id',$product->id)->first();
+                    return $vproduct->price ?? '0.00';
+                   
+                })
+                ->editColumn('best_price',function ($product){
+                    $vproduct = VendorProduct::where('product_id',$product->id)->first();
+                    return $vproduct->best_price ?? '0.00';
+                   
+                })
+                ->editColumn('qty',function ($product){
+                    $vproduct = VendorProduct::where('product_id',$product->id)->first();
+                    return $vproduct->qty ?? '0';
+                   
+                })
+                ->editColumn('status',function ($product){
+                    $vproduct = VendorProduct::where('product_id',$product->id)->first();
+                    return $vproduct->status ?? '0';
+                    
+                   
                 })
                 ->editColumn('measurement_class',function ($product){
                     $measurement_class = MeasurementClassTranslation::where('measurement_class_id',$product->measurement_class)->where('locale','en')->first();

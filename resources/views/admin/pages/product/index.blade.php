@@ -47,15 +47,17 @@
                                     <table class="table table-striped table-bordered" id="users-table">
                                         <thead>
                                         <tr>
-                                            <th>Id</th>
-                                            <th>Name</th>
-                                             <th>Categories / Sub Categories</th>
-                                            <th>Measurement Details</th>
+                                            <th>SKU. No. </th>
+                                            <th>Product Name  </th>
+                                            <th>Measurement Class</th>
                                             <th>Measurement Value</th>
-                                            <th>Brand</th>
-                                            <th>GST</th>
                                             <th>Barcode</th>
-                                            <!-- <th>Created At</th> -->
+                                            <th>Category</th>
+                                            <th>Brand</th>
+                                            <th>Price</th>
+                                            <th>Selling Price</th>
+                                            <th>Qty/Stock</th>
+                                            <th>Status</th>
                                             <th>Action</th>
                                         </tr>
                                         </thead>
@@ -63,15 +65,17 @@
                                             <?php if(isset($products) && !empty($products)) {
                                                 foreach ($products as $key => $value) {?>
                                             <tr>
-                                            <td><?php echo $value['id']; ?></td>
+                                            <td><?php echo $value['sku_code']; ?></td>
                                             <td><?php echo $value['name']; ?></td>
-                                             <td><?php echo $value['category_name']; ?></td>
                                             <td><?php echo $value['measurement_class']; ?></td>
                                             <td><?php echo $value['measurement_value']; ?></td>
-                                            <td><?php echo $value['brand_name']; ?></td>
-                                            <td><?php echo $value['gst']; ?></td>
                                             <td><?php echo $value['barcode']; ?></td>
-                                            <td><?php echo $value['created_at']; ?></td>
+                                            <td><?php echo $value['category_name']; ?></td>
+                                            <td><?php echo $value['brand_name']; ?></td>
+                                            <td><?php echo $value['price']; ?></td>
+                                            <td><?php echo $value['best_price']; ?></td>
+                                            <td><?php echo $value['qty']; ?></td>
+                                            <td><?php echo $value['status']; ?></td>
                                             <td><?php echo '<a href="'.route("product.show",$value['id']).'" class="btn btn-success">Show</a><a href="'.route("product.edit",$value['id']).'" class="btn btn-success">Edit</a></br><button type="button" onclick="deleteRow('.$value['id'].')" class="btn btn-danger">Delete</button>'; ?></td>
                                         <?php }} ?>
                                         </tr>
@@ -170,15 +174,17 @@ $(function() {
             editTable();
         },
         columns: [
-            { data: 'id', name: 'id' },
+            { data: 'sku_code', name: 'products.sku_code' },
             { data: 'name', name: 'translations.name' },
-            { data: 'category_name', name: 'products.category_id' },
             { data: 'measurement_class', name: 'products.measurement_class' },
             { data: 'measurement_value', name: 'products.measurement_value' },
-            { data: 'brand', name: 'products.brand_id' },
-            { data: 'gst', name: 'gst' },
             { data: 'barcode', name: 'barcode' },
-            /*{ data: 'created_at', name: 'created_at' },*/
+            { data: 'category_name', name: 'products.category_id' },
+            { data: 'brand', name: 'products.brand_id' },
+            { data: 'price', name: 'price' },
+            { data: 'best_price', name: 'best_price' },
+            { data: 'qty', name: 'qty' },
+            { data: 'status', name: 'status' },
             { data: 'action', name: 'action',orderable: false, searchable: false }
         ]
     });
