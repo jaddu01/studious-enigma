@@ -14,7 +14,7 @@ class Category extends BaseModel
     public $translationModel = 'App\CategoryTranslation';
     use SoftDeletes;
     protected $fillable = [
-        'parent_id','sort_no','status','is_show','slug'
+        'parent_id','sort_no','status','is_show','slug','is_home','is_checkout'
     ];
 
     public $translatedAttributes = ['name', 'image','banner_image','slug'];

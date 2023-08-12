@@ -31,6 +31,7 @@ use App\Http\Resources\CategoryResource;
 use DB;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Http\Resources\CategoryProductsResource;
 use App\Http\Resources\CouponResource;
 use App\Http\Resources\OfferResource;
 use App\Http\Resources\OrderProductResource;
@@ -879,6 +880,7 @@ class ProductController extends Controller
         }
         
         $brands = Brand::with('barndTraslation')->limit(6)->get();
+        $homeCategoryProducts = $this->homeCategoryProducts($zone_id);
          
         $offerProduct  =  $this->offerdataHOme($zone_id);
         $topsellingproducts  =  $this->topsellingproducts($zone_id);
@@ -895,6 +897,7 @@ class ProductController extends Controller
         $topsellingproductss = array("data"=>$topsellingproducts, "type"=>"product","heading"=>'Top selling products','api_url'=>'get-all-top-selling-products');
         $super_dealss = array("data"=>$super_deal, "type"=>"product","heading"=>'Super Deals', 'api_url'=>'get-all-super-deal-products');
         $brands = array('brands'=>$brands, "type"=>"brands",'api_url'=>'brands');
+        $homeCategories = array("data"=>$homeCategoryProducts, "type"=>"home_category_products");
 
         // $this->response->sliders = $slider;
         // $this->response->homeStrip = $homeStrip;
@@ -910,11 +913,17 @@ class ProductController extends Controller
 
         //return ResponseBuilder::success($this->response);
         //$ldata = array($categorys,$sliders,$adss,$offerProducts,$zonss,$appdatas,$offer_sliderss,$topsellingproductss,$super_dealss,$brands);
-        $ldata = ['data' => ['data' => [$sliders,$homeStrip,$offerProducts,$categorys,$adss,$topsellingproductss,$offer_sliderss,$super_dealss,$brands], 'match_in_zone' => $match_in_zone]];
+        $ldata = ['data' => ['data' => [$sliders,$homeStrip,$offerProducts,$categorys,$adss,$topsellingproductss,$offer_sliderss,$super_dealss,$brands, $homeCategories], 'match_in_zone' => $match_in_zone]];
         return response()->json($ldata);
      } 
 
 
+     public function homeCategoryProducts($zone_id){
+        $categories = Category::where('is_home', '1')->get();
+
+        return CategoryProductsResource::collection($categories);
+        
+    }
 
 
     public function offerdataHOme($zone_id){

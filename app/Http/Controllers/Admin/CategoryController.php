@@ -105,6 +105,17 @@ class CategoryController extends Controller
             } else {
                 $input['is_show'] = '0';
             }
+
+            if(isset($input['is_home'])) {
+                $input['is_home'] = '1';
+            } else {
+                $input['is_home'] = '0';
+            }
+            if(isset($input['is_checkout'])) {
+                $input['is_checkout'] = '1';
+            } else {
+                $input['is_checkout'] = '0';
+            }
             try {
                 
                 $this->model->create($input);
@@ -190,6 +201,16 @@ class CategoryController extends Controller
                 $input['is_show'] = '1';
             } else {
                 $input['is_show'] = '0';
+            }
+            if(isset($input['is_home'])) {
+                $input['is_home'] = '1';
+            } else {
+                $input['is_home'] = '0';
+            }
+            if(isset($input['is_checkout'])) {
+                $input['is_checkout'] = '1';
+            } else {
+                $input['is_checkout'] = '0';
             }
 
 
