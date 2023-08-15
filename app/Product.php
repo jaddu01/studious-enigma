@@ -220,7 +220,7 @@ class Product extends BaseModel
     }
     public function image()
     {
-        return $this->morphOne('App\Image', 'image');
+        return $this->morphOne('App\Image', 'image')->where('is_default', '1');
     }
 
     public function category()

@@ -420,6 +420,8 @@ class ProductController extends Controller
      */
     public function makeDefaultImage(Request $request){
         try{
+            //set all product images of id is_default to 0
+            Image::where('image_id', $request->product_id)->update(['is_default' => '0']);
             $image = Image::where('id', $request->id)->first();
             if(!$image){
                 return response()->json([
@@ -427,8 +429,13 @@ class ProductController extends Controller
                     'message' => 'Image not found'
                 ],400);
             }
-    
-            $image->is_default = '1';
+            //check if is_default is already 1 then save 0
+            if($image->is_default == '1'){
+                $image->is_default = '0';
+            }else{
+                $image->is_default = '1';
+            }
+
             $image->save();
     
             return response()->json([

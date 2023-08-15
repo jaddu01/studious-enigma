@@ -247,12 +247,17 @@ class OrderController extends Controller
                 return date('d/m/Y',strtotime($user->delivery_date));
             })
             ->addColumn('time_slot',function ($orders){
-				      if(!empty( $orders->delivery_time)){
-                return $orders->delivery_time->from_time.'-'.$orders->delivery_time->to_time;
-        			}else{
-        				
-        			return "Fast Delivery";	
-        			}
+                if(!empty( $orders->delivery_time)){
+                    return $orders->delivery_time->from_time.'-'.$orders->delivery_time->to_time;
+                }else{
+                    if($orders->delivery_type === 'in_store_pickup'){
+                        return 'In Store Pickup';
+                    }else if($orders->delivery_type === 'standard_delivery'){
+                        return 'Standard Delivery';
+                    }else{
+                        return 'Fast Delivery';
+                    }
+                }
             })
 
             ->editColumn('total_amount',function ($orders){

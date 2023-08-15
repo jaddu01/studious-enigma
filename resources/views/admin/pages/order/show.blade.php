@@ -78,7 +78,13 @@
                                 @if($from_time && $to_time)
                                     {{ $from_time . '-'. $to_time }}
                                 @else
-                                    Fast Delivery
+                                    @if($orders_details->delivery_type === 'in_store_pickup')
+                                        In Store Pickup
+                                    @elseif($orders_details->delivery_type === 'standard_delivery')
+                                        Standard Delivery
+                                    @else
+                                        Fast Delivery
+                                    @endif
                                 @endif        
                                 <hr style="clear: both">
                             </div>
