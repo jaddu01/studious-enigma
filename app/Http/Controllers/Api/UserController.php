@@ -230,8 +230,8 @@ class UserController extends Controller
             $input['dob'] = Carbon::createFromTimestamp($request->dob)->toDateString();
         }
         //$otp =   $input['otp'] =  rand(100000,999999);
-        $otp = rand(100000, 999999);
-        $input['otp'] = "123456"; //$otp1.$otp2;
+        $otp = "123456"; //rand(100000, 999999);
+        $input['otp'] =  $otp; //$otp1.$otp2;
 
         $SiteSetting = $this->site_setting->first();
         // $user = $this->user->fill($input)->save();
