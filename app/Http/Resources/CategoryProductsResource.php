@@ -15,11 +15,9 @@ class CategoryProductsResource extends JsonResource
      */
     public function toArray($request)
     {
-        $vendorProducts = VendorProduct::with(['product.MeasurementClass','product.image'])->whereHas('product', function($q){
-			$q->whereHas('category', function($q){
-				$q->where('id', $this->id);
-			});
-		})->limit(20)->get();
+        $vendorProducts = VendorProduct::with(['product.MeasurementClass','product.image'])->whereHas('product.category',function($q){
+            $q->whereRaw('FIND_IN_SET('.$this->id.', category_id) ');
+        })->limit(20)->get();
         return [
             'id' => (int)$this->id,
             'name' => (string)$this->name,

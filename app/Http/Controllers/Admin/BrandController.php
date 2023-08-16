@@ -184,7 +184,7 @@ class BrandController extends Controller
     }
     public function anyData(Request $request)
     {
-        $brand =$this->model->select('*');
+        $brand =$this->model->with(['translations'])->select('*');
         
 
         $brand->get();

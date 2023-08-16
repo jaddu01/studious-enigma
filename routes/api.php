@@ -78,6 +78,7 @@ Route::group(['prefix' => '/v1/'], function () {
 		//update device token
 		Route::post('user/update_device_token', 'Api\UserController@updateDeviceToken');
 		Route::post('homedata', 'Api\ProductController@getHomedata');
+		Route::post('homedata/more', 'Api\ProductController@getMoreHomedata');
 		Route::get('get-all-weekly-Offer-products', 'Api\ProductController@getWeeklyOfferProducts');
 		Route::get('get-all-top-selling-products', 'Api\ProductController@getAllTopSellingProducts');
 		Route::get('get-all-super-deal-products', 'Api\ProductController@getAllSuperDealProducts');

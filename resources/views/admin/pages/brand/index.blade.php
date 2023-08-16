@@ -127,7 +127,7 @@
                 },
                 columns: [
                     { data: 'id', name: 'id' },
-                    { data: 'name', name: 'name' },
+                    { data: 'name', name: 'translations.name' },
                     { data: 'image', name: 'image',orderable: false, searchable: false },
                     { data: 'created_at', name: 'created_at' },
                     { data: 'action', name: 'action',orderable: false, searchable: false }

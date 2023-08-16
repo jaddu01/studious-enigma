@@ -880,7 +880,7 @@ class ProductController extends Controller
         }
         
         $brands = Brand::with('barndTraslation')->limit(6)->get();
-        $homeCategoryProducts = $this->homeCategoryProducts($zone_id);
+        // $homeCategoryProducts = $this->homeCategoryProducts($zone_id);
          
         $offerProduct  =  $this->offerdataHOme($zone_id);
         $topsellingproducts  =  $this->topsellingproducts($zone_id);
@@ -897,7 +897,7 @@ class ProductController extends Controller
         $topsellingproductss = array("data"=>$topsellingproducts, "type"=>"product","heading"=>'Top selling products','api_url'=>'get-all-top-selling-products');
         $super_dealss = array("data"=>$super_deal, "type"=>"product","heading"=>'Super Deals', 'api_url'=>'get-all-super-deal-products');
         $brands = array('brands'=>$brands, "type"=>"brands",'api_url'=>'brands');
-        $homeCategories = array("data"=>$homeCategoryProducts, "type"=>"home_category_products");
+        // $homeCategories = array("data"=>$homeCategoryProducts, "type"=>"home_category_products");
 
         // $this->response->sliders = $slider;
         // $this->response->homeStrip = $homeStrip;
@@ -913,16 +913,15 @@ class ProductController extends Controller
 
         //return ResponseBuilder::success($this->response);
         //$ldata = array($categorys,$sliders,$adss,$offerProducts,$zonss,$appdatas,$offer_sliderss,$topsellingproductss,$super_dealss,$brands);
-        $ldata = ['data' => ['data' => [$sliders,$homeStrip,$offerProducts,$categorys,$adss,$topsellingproductss,$offer_sliderss,$super_dealss,$brands, $homeCategories], 'match_in_zone' => $match_in_zone]];
+        $ldata = ['data' => ['data' => [$sliders,$homeStrip,$offerProducts,$categorys,$adss,$topsellingproductss,$offer_sliderss,$super_dealss,$brands], 'match_in_zone' => $match_in_zone]];
         return response()->json($ldata);
      } 
 
 
-     public function homeCategoryProducts($zone_id){
+    public function getMoreHomedata(){
         $categories = Category::where('is_home', '1')->get();
-
-        return CategoryProductsResource::collection($categories);
-        
+        $this->response->products = CategoryProductsResource::collection($categories);
+        return ResponseBuilder::success($this->response);
     }
 
 
@@ -960,12 +959,13 @@ class ProductController extends Controller
     }
  
     public function superDeal($zone_id) {
+        // DB::enableQueryLog();
+        $category_id = CategoryTranslation::where('name','SUPER DUPER OFFER')->first()->category_id;
 		$user_id_array  = User::whereRaw('FIND_IN_SET('.$zone_id.', zone_id) ')->where(['user_type'=>'vendor'])->get()->pluck('id')->toArray(); 
-		$vendorProduct = VendorProduct::with(['product.MeasurementClass','product.image'])->whereHas('product', function($q){
-			$q->whereHas('category.translations', function($q){
-				$q->where('name', 'SUPER DUPER OFFER');
-			});
-		})->whereIn('user_id',$user_id_array)->limit(10)->get();
+		$vendorProduct = VendorProduct::with(['product.MeasurementClass','product.image'])->whereHas('product.category',function($q) use($category_id){
+            $q->whereRaw('FIND_IN_SET('.$category_id.', category_id) ');
+        })->whereIn('user_id',$user_id_array)->limit(10)->get();
+        // dd(DB::getQueryLog());
 		return VendorProductResource::collection($vendorProduct);
 	}
     public function getAllSuperDealProducts(){
@@ -976,10 +976,9 @@ class ProductController extends Controller
             $zone_id = $zone['zone_id'];
             $user_id_array  = User::whereRaw('FIND_IN_SET('.$zone_id.', zone_id) ')->where(['user_type'=>'vendor'])->get()->pluck('id')->toArray(); 
             // $category_name = 'SUPER DUPER OFFER';
-            $vendorProduct = VendorProduct::with(['product.MeasurementClass','product.image'])->whereHas('product', function($q){
-                $q->whereHas('category.translations', function($q){
-                    $q->where('name', 'SUPER DUPER OFFER');
-                });
+            $category_id = CategoryTranslation::where('name','SUPER DUPER OFFER')->first()->category_id;
+            $vendorProduct = VendorProduct::with(['product.MeasurementClass','product.image'])->whereHas('product.category',function($q) use($category_id){
+                $q->whereRaw('FIND_IN_SET('.$category_id.', category_id) ');
             })->whereIn('user_id',$user_id_array)->paginate(20);
             $this->response->vendorProduct = VendorProductResource::collection($vendorProduct);
             return ResponseBuilder::successWithPagination($vendorProduct, $this->response);
