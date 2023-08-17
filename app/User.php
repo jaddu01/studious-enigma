@@ -223,7 +223,7 @@ class User extends Authenticatable
     //notify me
     public function notifyMe()
     {
-        return $this->hasMany('App\NotifyMe');
+        return $this->belongsToMany('App\VendorProduct','notify_me','user_id','product_id');
     }
 
 }

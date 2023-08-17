@@ -1201,15 +1201,8 @@ class ProductController extends Controller
             }
 
             $user = $request->user('api');
-            $product_id = $request->product_id;
-
-            //save or update to notify me
-            NotifyMe::updateOrCreate(
-                ['user_id' => $user->id, 'product_id' => $product_id],
-                ['user_id' => $user->id, 'product_id' => $product_id]
-            );
-
-            return ResponseBuilder::success(__('api.notification.added_to_notify_me'));
+            $user->notifyMe()->sync($request->product_id, false);
+            return ResponseBuilder::success(__('Added to notify me successfully'));
 
         }catch(\Exception $e){
             return $e;

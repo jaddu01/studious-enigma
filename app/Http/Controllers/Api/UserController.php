@@ -236,6 +236,7 @@ class UserController extends Controller
         $SiteSetting = $this->site_setting->first();
         // $user = $this->user->fill($input)->save();
         $user = User::create($input);
+
         if (!empty($request->referral_code)) {
             $check_user_reffer  = $this->user->withTrashed()->where(['referral_code' => $request->referral_code])->first();
             $refferalCound = $this->user->withTrashed()->where(['referred_by' => $check_user_reffer->id])->count();
@@ -247,7 +248,8 @@ class UserController extends Controller
                 //$check_user_reffer->wallet_amount=  $check_user_reffer->wallet_amount + $SiteSetting->referred_by_amount;
                 //$check_user_reffer->save();
 
-                $input['referred_by'] = $check_user_reffer->id;
+                $user->referred_by = $check_user_reffer->id;
+                $user->save();
                 //$input['wallet_amount'] = $SiteSetting->referral_amount;
 
 

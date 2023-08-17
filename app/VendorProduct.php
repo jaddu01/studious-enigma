@@ -159,8 +159,8 @@ class VendorProduct extends BaseModel
     }
 
     //notify me
-    public function notifyMe(){
-        return $this->hasMany('App\NotifyMe');
+    public function users(){
+        return $this->belongsToMany('App\User','notify_me','product_id','user_id');
     }
 
     protected static function boot()

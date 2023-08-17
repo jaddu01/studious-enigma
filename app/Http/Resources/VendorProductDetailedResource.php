@@ -14,6 +14,7 @@ class VendorProductDetailedResource extends JsonResource
      */
     public function toArray($request)
     {
+        $user = auth('api')->user();
         return [
             "id" => $this->id,
             // "price" => round($this->price,2),
@@ -28,6 +29,7 @@ class VendorProductDetailedResource extends JsonResource
             "product" => new ProductDetailedResource($this->product),
             "match_in_zone" => true,
             "is_wishlist" => (boolean) $this->wishList()->where('user_id',auth('api')->user()->id)->first(),
+            "notify_me" => (boolean) $user->notifyMe->contains('id',$this->id),
         ];
     }
 }
