@@ -347,7 +347,8 @@
                                 </label>
                                 <div class="col-md-6 col-sm-6 col-xs-12">
 
-                                    {!! Form::date('expire_date', null, ['class' => 'form-control col-md-7 col-xs-12']) !!}
+                                    {{-- {!! Form::date('expire_date', null, ['class' => 'form-control col-md-7 col-xs-12']) !!} --}}
+                                    <input type="date" name="expire_date" class="form-control col-md-7 col-xs-12" value="{{ Carbon\Carbon::parse($product->expire_date)->format('Y-m-d') }}">
                                     {{ Form::filedError('expire_date') }}
                                 </div>
                             </div>

@@ -27,7 +27,7 @@ class ProductResource extends JsonResource
             "manufacture_details" => $this->manufacture_details,
             "marketed_by" => $this->marketed_by,
             "product_status" => $this->product_status,
-            "expire_date" => $this->expire_date,
+            "expire_date" => $this->expire_date ?? "",
             "show_in_cart_page" => $this->show_in_cart_page,
             "returnable" => $this->returnable,
             "name" => $this->name,

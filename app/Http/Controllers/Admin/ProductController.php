@@ -328,12 +328,10 @@ class ProductController extends Controller
                     return $vproduct->qty ?? '0';
                    
                 })
-                ->editColumn('status',function ($product){
-                    $vproduct = VendorProduct::where('product_id',$product->id)->first();
-                    return $vproduct->status ?? '0';
-                    
-                   
-                })
+                // ->editColumn('status',function ($product){
+                //     $vproduct = VendorProduct::where('product_id',$product->id)->first();
+                //     return $vproduct->status == '1' ? 'verified' : 'not verified';                   
+                // })
                 ->editColumn('measurement_class',function ($product){
                     $measurement_class = MeasurementClassTranslation::where('measurement_class_id',$product->measurement_class)->where('locale','en')->first();
                     return $measurement_class->name ?? '';

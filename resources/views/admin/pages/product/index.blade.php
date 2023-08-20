@@ -57,10 +57,13 @@
                                             <th>Price</th>
                                             <th>Selling Price</th>
                                             <th>Qty/Stock</th>
-                                            <th>Status</th>
+                                            {{-- <th>Status</th> --}}
                                             <th>Action</th>
                                         </tr>
                                         </thead>
+                                        <tbody>
+
+                                        </tbody>
                                         <!-- <tbody>
                                             <?php if(isset($products) && !empty($products)) {
                                                 foreach ($products as $key => $value) {?>
@@ -125,7 +128,7 @@ $(function() {
 
     window.table=$('#users-table').DataTable({
         autoWidth:false,
-        scrollX:        true,
+        // scrollX:        true,
         scrollCollapse: true,
         fixedColumns: true,
         dom: 'lBfrtip',
@@ -184,7 +187,7 @@ $(function() {
             { data: 'price', name: 'price' },
             { data: 'best_price', name: 'best_price' },
             { data: 'qty', name: 'qty' },
-            { data: 'status', name: 'status' },
+            // { data: 'status', name: 'status' },
             { data: 'action', name: 'action',orderable: false, searchable: false }
         ]
     });
