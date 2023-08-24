@@ -285,14 +285,13 @@ public function topsellingproducts($zone_id){
           $vendorProduct= $vendorProduct->first();
         }
       }else{
-        $vendorProduct = $this->vendorProduct->with(['product.MeasurementClass','product.image'])->where('id',$pid)->first();
+        $vendorProduct = $this->vendorProduct->with(['product.MeasurementClass','product.image'])->whereHas('product',function($q){ $q->where('status','1'); }  )->where('id',$pid)->first();
       }
-      /*if(!empty($vendorProduct)){
-        echo $vendorProduct->price;
-      }*/
-      $response_array[] = $vendorProduct;
-
+      if(!empty($vendorProduct)){
+        $response_array[] = $vendorProduct;
+      }
     }
+    // dd($response_array);
    // die();
     $data=[];
     if(!empty($response_array)){
@@ -331,6 +330,7 @@ public function topsellingproducts($zone_id){
 
     $data=[];
     if(!empty($response_array)){
+      // dd($response_array);
       foreach ($response_array as $rec){
         $rec['match_in_zone']=true;
         $rec['product']['image'] = isset($rec['product']['image']['name']) ? $rec['product']['image']['name'] : '';
