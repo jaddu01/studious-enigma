@@ -233,7 +233,7 @@ class Product extends BaseModel
     }
      public function VendorProduct()
     {
-         return $this->hasMany('App\VendorProduct');
+         return $this->hasOne('App\VendorProduct');
     }
     public function varients(){
         return $this->hasMany(Variant::class,'product_id');

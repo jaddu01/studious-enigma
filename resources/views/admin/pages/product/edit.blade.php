@@ -314,8 +314,8 @@
                                     <span class="required">*</span>
                                 </label>
                                 <div class="col-md-6 col-sm-6 col-xs-12">
-
-                                    {!! Form::text('qty', null, ['placeholder' => 'Qty', 'class' => 'form-control col-md-7 col-xs-12']) !!}
+                                    <input type="text" name="qty" class="form-control col-md-7 col-xs-12" placeholder="Qty" value="{{ $product->VendorProduct->qty }}"> 
+                                    {{-- {!! Form::text('qty', null, ['placeholder' => 'Qty', 'class' => 'form-control col-md-7 col-xs-12']) !!} --}}
                                     @if ($errors->has('qty'))
                                         <span class="help-block">
                                             <strong>{{ $errors->first('qty') }}</strong>
