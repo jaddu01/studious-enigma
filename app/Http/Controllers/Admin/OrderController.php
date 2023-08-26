@@ -29,6 +29,7 @@ use DataTables;
 use PDF;
 use Illuminate\Support\Facades\View;
 use Anam\PhantomMagick\Converter;
+use App\SiteSetting;
 use Imagick;
 use Storage;
 use redirect;
@@ -37,8 +38,7 @@ use Auth;
 
 
 use GuzzleHttp\Client;
-
-
+use Log;
 
 class OrderController extends Controller
 {
@@ -915,7 +915,48 @@ class OrderController extends Controller
                         }
 
                         $user = User::find($order->user_id);
+                        $SiteSetting = SiteSetting::first();
+                        try{
+                            if (!empty($user->referral_code) && $user->referral_used != 1) {
+                                $check_user_reffer  = $this->user->withTrashed()->where(['referral_code' => $user->referral_code])->first();
+                                $refferalCound = $this->user->withTrashed()->where(['referred_by' => $check_user_reffer->id])->count();
+                                if (!empty($refferalCound) && $refferalCound >= 3) {
+                                    Log::error('Refferal code limit used');
+                                }
+                    
+                                if (!empty($check_user_reffer)) {
+                                    /*===This is for old user which is reffering==*/
+                                    $amount =  $SiteSetting->referred_by_amount;
+                                    $transaction_type = "CREDIT";
+                                    $type = "Referral Amount";
+                                    $transaction_id = rand(100000, 999999);
+                                    $description = "Your referral amount Wallet Recharge";
+                                    $json_data = json_encode(['refuser' => $check_user_reffer->id]);
+                                    Helper::updateCustomerCoins($check_user_reffer->id, $amount, $transaction_type, $type, $transaction_id, $description, $json_data);
+                                    /*===This is for old user which is reffering==*/
+                                } else {
+                                    Log::error('Worng Refferal code used');
+                                }
 
+                                $referral_amount =  $SiteSetting->referral_amount;
+                                $transaction_type = "CREDIT";
+                                $type = "Referral Amount";
+                                $transaction_id = rand(100000, 999999);
+                                $description = "Your referral amount Wallet Recharge";
+                                $json_data = json_encode(['refuser' => $user->id]);
+                                Helper::updateCustomerCoins($user->id, $referral_amount, $transaction_type, $type, $transaction_id, $description, $json_data);
+                                
+                                
+                                $user->referral_used = 1;
+                                $user->save();
+                            }
+
+                            
+
+                            
+                        }catch(\Exception $e){
+                            Log::error($e->getMessage());
+                        }
                         $client = new Client();
                         $authkey = env('AUTHKEY');
                         $phone_number = $user->phone_number;

@@ -260,7 +260,7 @@ class UserController extends Controller
                 $transaction_id = rand(100000, 999999);
                 $description = "Your referral amount Wallet Recharge";
                 $json_data = json_encode(['refuser' => $check_user_reffer->id]);
-                $user_wallet = Helper::updateCustomerWallet($check_user_reffer->id, $amount, $transaction_type, $type, $transaction_id, $description, $json_data);
+                //$user_wallet = Helper::updateCustomerWallet($check_user_reffer->id, $amount, $transaction_type, $type, $transaction_id, $description, $json_data);
                 /*===This is for old user which is reffering==*/
 
                 //echo "<pre>"; print_r($user_wallet); die;
@@ -290,7 +290,7 @@ class UserController extends Controller
             $transaction_id = rand(100000, 999999);
             $description = "Your referral amount Wallet Recharge";
             $json_data = json_encode(['refuser' => $user->id]);
-            $user_wallet = Helper::updateCustomerWallet($user->id, $amount, $transaction_type, $type, $transaction_id, $description, $json_data);
+            //$user_wallet = Helper::updateCustomerWallet($user->id, $amount, $transaction_type, $type, $transaction_id, $description, $json_data);
             /*===This is for new user which is reffered==*/
         }
 
