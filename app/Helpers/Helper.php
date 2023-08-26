@@ -274,16 +274,23 @@ class Helper
 	public static function sendOtp($phone_number, $otp)
 	{
 		try {
-			$client = new Client();
+			// $client = new Client();
 			$authkey = env('AUTHKEY');
 			$senderid = env('SENDERID');
 			$hash = env('SMSHASH');
-			//$message="Your OTP for Darbaar Mart is ".$otp;
+			// //$message="Your OTP for Darbaar Mart is ".$otp;
 
-			$message = urlencode("Dear Customer, use OTP ($otp) to log in to your DARBAAR MART account and get your grocery essentials safely delivered at your home.\n\r \n\rStay Home, Stay Safe.\n\rTeam Darbaar Mart, Beawar $hash");
-
-			$response = $client->request('GET', "http://login.yourbulksms.com/api/sendhttp.php?authkey=" . $authkey . "&mobiles=" . $phone_number . "&message=" . $message . "&sender=" . $senderid . "&route=4&country=91&DLT_TE_ID=1207162028126071690");
-			$statusCode = $response->getStatusCode();
+			$message = urlencode("Dear Customer, use OTP ($otp) to log in to your DARBAAR MART account and get your grocery essentials safely delivered at your home.\n\r \n\rStay Home, Stay Safe.\n\rTeam Darbaar Mart, Beawar e8Pwa8UjCOy");
+			$url = "http://control.yourbulksms.com/api/sendhttp.php?authkey=36346e6768313136333766&mobiles=".$phone_number."&sender=DMAART&route=2&country=91&DLT_TE_ID=1207162028126071690&message=".$message;
+			$ch = curl_init($url);
+			curl_setopt($ch, CURLOPT_POST, 1);
+			curl_setopt($ch, CURLOPT_POSTFIELDS, $url);
+			curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+			$response = curl_exec($ch);
+			curl_close($ch);
+			// $response = $client->request('GET', "http://control.yourbulksms.com/api/sendhttp.php?authkey=" . $authkey . "&mobiles=" . $phone_number . "&message=" . $message . "&sender=" . $senderid . "&route=6&country=91&DLT_TE_ID=1207162028126071690&response=json");
+			// $statusCode = $response->getStatusCode();
+			// dd($response);
 			return true;
 		} catch (\Exception $e) {
 			Log::error($e->getMessage());

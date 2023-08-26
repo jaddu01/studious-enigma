@@ -20,7 +20,7 @@ class User extends Authenticatable
      * @var array
      */
     protected $fillable = [
-        'user_type', 'zone_id','name','image', 'email', 'phone_code','phone_number', 'gender',  'address', 'password', 'remember_token', 'device_id','device_token', 'device_type', 'language', 'user_type', 'role', 'status','lng','lat','dob','access_user_id','otp','membership','membership_to','referral','referred_by','referral_code','wallet_amount','coin_amount','referred_by_amount','referral_amount'];
+        'user_type', 'zone_id','name','image', 'email', 'phone_code','phone_number', 'gender',  'address', 'password', 'remember_token', 'device_id','device_token', 'device_type', 'language', 'user_type', 'role', 'status','lng','lat','dob','access_user_id','otp','membership','membership_to','referral','referred_by','referral_code','wallet_amount','coin_amount','referred_by_amount','referral_amount','referral_used'];
 
     /**
      * The attributes that should be hidden for arrays.

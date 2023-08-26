@@ -51,7 +51,12 @@ class AuthController extends Controller
                     'otp' => $otp,
                 ]);
                 //send otp
-                //Helper::sendOtp($request->phone_number, $otp);
+                $phone_number = $request->phone_code . $request->phone_number;
+                try{
+                   Helper::sendOtp($phone_number, $otp);
+                }catch(\Exception $e){
+                   Log::error($e);
+                }
 
                 $this->response->new_user = false;
                 return ResponseBuilder::success($this->response, 'OTP sent successfully',$this->successStatus);
