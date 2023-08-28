@@ -127,6 +127,15 @@
                                 }else{'';} ?>
                             </div>
                             <hr>
+                            <div class="item form-group clearfix">
+                                <label class="control-label col-md-2 " > Delivery Instruction </label>
+                                @if (!empty($orders_details->delivery_instruction))
+                                    {{ $orders_details->delivery_instruction }}
+                                @else
+                                    N/A    
+                                @endif
+                            </div>
+                            <hr>
                            
                             <div class="item form-group clearfix">
                                 <label class="control-label col-md-2 " >Zone: </label>

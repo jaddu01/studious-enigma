@@ -15,6 +15,7 @@ class UserResource extends JsonResource
      */
     public function toArray($request)
     {
+        // dd($this->membership_to);
         return [
             "user_id"=>$this->id,
             "name"=>$this->name,
@@ -33,7 +34,7 @@ class UserResource extends JsonResource
             "device_type" => $this->device_type,
             "device_token" => $this->device_token,
             "addresses" => UserAddressResource::collection($this->deliveryLocation),
-            "membership" => $this->membership,
+            "membership" => Carbon::parse($this->membership_to)->gte(today()) ? $this->membership : null,
             "referral_code" => $this->referral_code,
             "referral_by" => $this->referral_by,
             "referral" => $this->referral,

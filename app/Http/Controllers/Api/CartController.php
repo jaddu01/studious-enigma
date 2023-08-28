@@ -10,6 +10,7 @@ use App\ProductOrder;
 use App\ProductOrderItem;
 use App\Helpers\Helper;
 use App\AppSetting;
+use App\CoinSettings;
 use App\FirstOrder;
 use App\Helpers\ResponseBuilder;
 use App\VendorProduct;
@@ -17,6 +18,7 @@ use App\Traits\ResponceTrait;
 use App\Traits\RestControllerTrait;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Http\Resources\VendorProductResource;
 use App\Zone;
 use App\ZoneTranslation;
 use Illuminate\Support\Facades\Auth;
@@ -121,6 +123,13 @@ class CartController extends Controller
         }else{
             $delivery_charges_msg="Yay! Free Delivery";
         }
+        //coin redeem
+        $coin_redeem = 0;
+        $coin_settings = CoinSettings::where('from_amount', '<=', $cartTotalArray['offer_price_total'])
+        ->where('to_amount', '>=', $cartTotalArray['offer_price_total'])->first();
+        if($coin_settings){
+            $coin_redeem = $coin_settings->coin ?? 0;
+        }
         $response = [
             'cart_list' => CartResource::collection($data),
             'cart_count' => count($data),
@@ -135,12 +144,20 @@ class CartController extends Controller
             'mim_amount_for_order' => $AppSetting->mim_amount_for_order,
             'mim_amount_for_order_prime' => $AppSetting->mim_amount_for_order_prime,
             'mim_amount_for_free_delivery' => $AppSetting->mim_amount_for_free_delivery,
-            'mim_amount_for_free_delivery_prime' => $AppSetting->mim_amount_for_free_delivery_prime
+            'mim_amount_for_free_delivery_prime' => $AppSetting->mim_amount_for_free_delivery_prime,
+            'coin_redeem' => $coin_redeem,
             
         ];
         $response['can_order'] = $match_in_zone;
         $response['match_in_zone'] = $match_in_zone;
         $response['wallet_balence'] = number_format(Auth::guard('api')->user()->wallet_amount,2,'.','');
+
+        //before you checkout category wise product
+        $vendorProduct = VendorProduct::with(['product.MeasurementClass','product.image'])->whereHas('product',function($q){ $q->where('status','1'); })->whereHas('product.category',function($q){
+            $q->where('is_checkout','1')->where('status', '1');
+        })->limit(15)->get();
+
+		$response['before_you_checkout'] = VendorProductResource::collection($vendorProduct);
         return response()->json($response, 200);
     }
 
