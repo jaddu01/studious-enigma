@@ -531,7 +531,12 @@ class Helper
 			$total = $total + ($Rec['vendorProduct']['price'] * $Rec['qty']);
 			// code change by Abhishek Bhatt for check the minimum amount for free delivery zone wise //
 			//$dc = $Rec['Zone']['delivery_charges'];
-			$offer_price_total = $offer_price_total + ($Rec['vendorProduct']['best_price'] * $Rec['qty']);
+			if(!empty($Rec['vendorProduct']['offer_price'])){
+				//$Rec['vendorProduct']['offer_price']
+				$offer_price_total = $offer_price_total + ($Rec['vendorProduct']['offer_price'] * $Rec['qty']);
+			}else{
+				$offer_price_total = $offer_price_total + ($Rec['vendorProduct']['best_price'] * $Rec['qty']);
+			}
 			if ($offer_price_total >= $Rec['Zone']['minimum_order_amount']) {
 				$dc = 0;
 			} else {
@@ -1267,10 +1272,10 @@ class Helper
 		return DB::table('product_translations')->where('product_id', $id)->first();
 	}
 
-	function sendOnesignalNotification($to, $title, $message)
+	public static function sendOnesignalNotification($to, $title, $message)
 	{
-		$app_id = env('ONESIGNAL_APP_ID');
-		$rest_api_key = env('ONESIGNAL_REST_API_KEY');
+		$app_id = config('services.onesignal.ONESIGNAL_APP_ID');
+		$rest_api_key = config('services.onesignal.ONESIGNAL_REST_API_KEY');
 		$content = array(
 			"en" => $message
 		);
@@ -1278,7 +1283,7 @@ class Helper
 			"en" => $title
 		);
 		$fields = array(
-			'app_id' => $app_id,
+			'app_id' => "9c09a409-7856-48da-a14e-19d0c39311c4",
 			"headings" => $headings,
 			'include_player_ids' => $to,
 			'contents' => $content,
@@ -1286,7 +1291,7 @@ class Helper
 		);
 
 		$headers = array(
-			'Authorization: key=' . $rest_api_key,
+			'Authorization: key=YWUzYzIwOGEtYmVhNy00MzNlLWI0YjktOTA5ZmI3ZGYyMTQy',
 			'Content-Type: application/json; charset=utf-8'
 		);
 		$ch = curl_init();

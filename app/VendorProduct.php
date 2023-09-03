@@ -123,7 +123,7 @@ class VendorProduct extends BaseModel
                return $this->price-(($this->offer->offer_value*$this->price)/100);
            }
         }
-        return $this->price;
+        return $this->best_price;
     }
 
 

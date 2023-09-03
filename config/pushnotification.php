@@ -16,5 +16,9 @@ return [
       'passPhrase' => '1234', //Optional
       'passFile' => __DIR__ . '/iosCertificates/yourKey.pem', //Optional
       'dry_run' => true
+  ],
+  'onesignal' => [
+    'ONESIGNAL_REST_API_KEY' => env('ONESIGNAL_REST_API_KEY'),
+    'ONESIGNAL_APP_ID' => env('ONESIGNAL_APP_ID')
   ]
 ];

@@ -34,7 +34,7 @@ use Illuminate\Support\Str;
 use App\ProductOrderItem;
 
 use App\UserWallet;
-
+use Exception;
 use Illuminate\Foundation\Auth\SendsPasswordResetEmails;
 
 
@@ -45,6 +45,7 @@ use Illuminate\Notifications\Messages\MailMessage;
 
 
 use GuzzleHttp\Client;
+use Log;
 
 class OrderController extends Controller
 {
@@ -446,14 +447,22 @@ class OrderController extends Controller
                 /*send notification to customer*/
                 $user_id_array1 = User::where('id', Auth::guard('api')->user()->id)->select('id', 'device_type', 'device_token', 'name')->get();
                 $userData = User::where('id', '=', Auth::guard('api')->user()->id)->select('device_token')->get();
-                $user_id_array = collect($userData)->pluck('device_token');
+                $user_id_array = collect($userData)->pluck('device_token')->toArray();
                 //echo "<pre>"; print_r($shopperArray); die;
                 $dataArray = [];
                 $dataArray['type'] = 'Order';
                 $dataArray['product_type'] = 'New';
                 $dataArray['title'] = 'New Order';
                 $dataArray['body'] = trans('order.order_confirmed') . $order->order_code;
+                $message = trans('order.order_confirmed') . $order->order_code;
                 $device_type = $user_id_array1[0]->device_type;
+
+
+                try{
+                    Helper::sendOnesignalNotification($user_id_array, 'New Order', $message);
+                }catch(Exception $e){
+                    Log::error($e);
+                }
 
                 /*notification to customer code end*/
                 /*send notification to shopper and driver*/
@@ -461,15 +470,28 @@ class OrderController extends Controller
                 $shopperData = User::whereIn('id', [$shopper_id, $driver_id])->select('id', 'device_type', 'device_token')->get();
                 // dd($shopperData, $shopper_id, $driver_id);
                 if($shopperData){
-                    $shopper_id_array = collect($shopperData)->where('id', $shopper_id)->pluck('device_token');
-                    $driver_id_array = collect($shopperData)->where('id', $driver_id)->pluck('device_token');
+                    $shopper_id_array = collect($shopperData)->where('id', $shopper_id)->pluck('device_token')->toArray();
+                    $driver_id_array = collect($shopperData)->where('id', $driver_id)->pluck('device_token')->toArray();
                     $shopperArray = [];
                     $shopperArray['type'] = 'Order';
                     $shopperArray['product_type'] = 'New';
                     $shopperArray['title'] = 'New order placed';
                     $shopperArray['body'] = trans('order.create_success_ordercode') . $order->order_code;
+                    $shopper_message = trans('order.create_success_ordercode') . $order->order_code;
                     $shopper_device_type_array = $shopperData->where('id', $shopper_id)->pluck('device_type');
                     $shopper_device_type = $shopper_device_type_array[0];
+
+                    try{
+                        Helper::sendOnesignalNotification($shopper_id_array, 'New Order placed', $shopper_message);
+                    }catch(Exception $e){
+                        Log::error($e);
+                    }
+
+                    try{
+                        Helper::sendOnesignalNotification($driver_id_array, 'New Order placed', $shopper_message);
+                    }catch(Exception $e){
+                        Log::error($e);
+                    }
     
                     $driver_device_type_array = $shopperData->where('id', $driver_id)->pluck('device_type');
                     $driver_device_type = $driver_device_type_array[0];
