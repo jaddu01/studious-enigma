@@ -282,7 +282,7 @@ class OrderController extends Controller
 
                 $input['user_id'] = Auth::guard('api')->user()->id;
                 $input['zone_id'] = Auth::guard('api')->user()->zone_id;
-                $input['vendor_id'] = null;
+                $input['vendor_id'] = 1;
                 $input['shopper_id'] = null;
                 $input['driver_id'] = null;
                 $input['order_status'] = 'N';
@@ -454,8 +454,8 @@ class OrderController extends Controller
                 $dataArray['product_type'] = 'New';
                 $dataArray['title'] = 'New Order';
                 $dataArray['body'] = trans('order.order_confirmed') . $order->order_code;
-                $message = trans('order.order_confirmed') . $order->order_code;
-                $device_type = $user_id_array1[0]->device_type;
+                $message = trans('order.order_confirmed') . ' '.$order->order_code;
+               // $device_type = $user_id_array1[0]->device_type;
 
 
                 try{
@@ -476,10 +476,10 @@ class OrderController extends Controller
                     $shopperArray['type'] = 'Order';
                     $shopperArray['product_type'] = 'New';
                     $shopperArray['title'] = 'New order placed';
-                    $shopperArray['body'] = trans('order.create_success_ordercode') . $order->order_code;
-                    $shopper_message = trans('order.create_success_ordercode') . $order->order_code;
-                    $shopper_device_type_array = $shopperData->where('id', $shopper_id)->pluck('device_type');
-                    $shopper_device_type = $shopper_device_type_array[0];
+                    $shopperArray['body'] = trans('order.create_success_ordercode') . ' ' .$order->order_code;
+                    $shopper_message = trans('order.create_success_ordercode') . ' '.$order->order_code;
+                   // $shopper_device_type_array = $shopperData->where('id', $shopper_id)->pluck('device_type');
+                   // $shopper_device_type = $shopper_device_type_array[0];
 
                     try{
                         Helper::sendOnesignalNotification($shopper_id_array, 'New Order placed', $shopper_message);
@@ -493,8 +493,8 @@ class OrderController extends Controller
                         Log::error($e);
                     }
     
-                    $driver_device_type_array = $shopperData->where('id', $driver_id)->pluck('device_type');
-                    $driver_device_type = $driver_device_type_array[0];
+                    //$driver_device_type_array = $shopperData->where('id', $driver_id)->pluck('device_type');
+                   // $driver_device_type = $driver_device_type_array[0];
                     //echo "<pre>"; print_r($dataArray);
                     // echo "<pre>"; print_r($shopperArray); //die;
                     //return $shopper_device_type;

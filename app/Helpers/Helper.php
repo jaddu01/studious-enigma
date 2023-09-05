@@ -1284,10 +1284,15 @@ class Helper
 		);
 		$fields = array(
 			'app_id' => "9c09a409-7856-48da-a14e-19d0c39311c4",
+			'android_channel_id' => '587a8ded-27d4-4482-b184-7f1cd98a062a',
 			"headings" => $headings,
 			'include_player_ids' => $to,
 			'contents' => $content,
-			'content_available' => true,
+			'content_available' => true, 
+			'ios_badgeType'=> 'Increase',
+			'ios_badgeCount' => 1,
+			'isIos' => true,
+			//'data' => [],
 		);
 
 		$headers = array(
