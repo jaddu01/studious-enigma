@@ -893,6 +893,8 @@ class OrderController extends Controller
                           $json_data = json_encode(['order_id'=>$order->id]); 
                           $order_id = $order->id; 
                           $user_wallet = Helper::updateCustomerWallet($order->user_id,$amount,$transaction_type,$type,$transaction_id,$description,$json_data,$order_id); 
+                          $player_ids = array($user->device_token);
+                          Helper::sendOnesignalNotification(array_values($player_ids), 'Order Cancelled Cashback', 'Order cancelled cashback refunded to wallet',array('type' => 'order', 'id' => $order->id));
                         }
 
                         $updatestock = $this->productOrderItem->where("order_id", $request->id)->get();
@@ -962,11 +964,14 @@ class OrderController extends Controller
                         $phone_number = $user->phone_number;
                         $senderid = env('SENDERID');
                         $message = "Dear Customer, Your order#".$order->order_code." has been Delivered. Thanks for the order.";
-                        $message = urlencode($message);
+                        // $message = urlencode($message);
                           
                         $response = $client->request('GET',"http://login.yourbulksms.com/api/sendhttp.php?authkey=".$authkey."&mobiles=".$phone_number."&message=".$message."&sender=".$senderid."&route=4&country=91");
 
                         $statusCode = $response->getStatusCode();
+                        $player_ids = array($user->device_token);
+                        Helper::sendOnesignalNotification(array_values($player_ids), 'Order update', $message,array('type' => 'order', 'id' => $order->id));
+
                     }
                     return response()->json([
                         'status' => true,

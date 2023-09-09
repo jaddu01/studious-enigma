@@ -459,7 +459,8 @@ class OrderController extends Controller
 
 
                 try{
-                    Helper::sendOnesignalNotification($user_id_array, 'New Order', $message);
+                    $dataArray['id'] = $order->id;
+                    Helper::sendOnesignalNotification($user_id_array, 'New Order', $message, $dataArray);
                 }catch(Exception $e){
                     Log::error($e);
                 }
@@ -482,13 +483,15 @@ class OrderController extends Controller
                    // $shopper_device_type = $shopper_device_type_array[0];
 
                     try{
-                        Helper::sendOnesignalNotification($shopper_id_array, 'New Order placed', $shopper_message);
+                        $shopperArray['id'] = $order->id;
+                        Helper::sendOnesignalNotification($shopper_id_array, 'New Order placed', $shopper_message, $shopperArray);
                     }catch(Exception $e){
                         Log::error($e);
                     }
 
                     try{
-                        Helper::sendOnesignalNotification($driver_id_array, 'New Order placed', $shopper_message);
+                        $shopperArray['id'] = $order->id;
+                        Helper::sendOnesignalNotification($driver_id_array, 'New Order placed', $shopper_message, $shopperArray);
                     }catch(Exception $e){
                         Log::error($e);
                     }

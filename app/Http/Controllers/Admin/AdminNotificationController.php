@@ -17,6 +17,7 @@ use Illuminate\Support\Facades\Validator;
 use Proengsoft\JsValidation\Facades\JsValidatorFacade;
 use DataTables;
 use DB;
+use Log;
 
 class AdminNotificationController extends Controller
 {
@@ -159,8 +160,6 @@ class AdminNotificationController extends Controller
         $userData = User::get();
          
         $input = $request->all();
-        $user_id_array = [];
-        $user_ids = [];
        
         $validator = Validator::make($request->all(),$this->model->rules($this->method),$this->model->messages($this->method));
 
@@ -173,10 +172,10 @@ class AdminNotificationController extends Controller
             if($request->hasFile('image')){
                 $imageName = Helper::fileUpload($request->file('image'));
                 $input['image']= $imageName;
-
+                $base_url = url('/');
+                $input['image_path']= $base_url.'/storage/app/public/upload/'.$imageName;
             }
-            $base_url = url('/');
-            $input['image_path']= $base_url.'/storage/app/public/upload/'.$imageName;
+
             $data_array = $input;
             if($request->has('cat_id')){
                 $input['cat_id'] =  $request->input('cat_id');
@@ -197,26 +196,37 @@ class AdminNotificationController extends Controller
             if($request->filled('user_ids')){
                 $input['user_ids']= implode(',',$request->user_ids);
                 $user_ids = $request->user_ids;
-                $user_id_array_iphone = $userData->where('device_type','I')->whereIn('id',$request->user_ids);
-                $user_id_array_android = $userData->where('device_type','A')->whereIn('id',$request->user_ids);
+                $userData = $userData->whereIn('id',$request->user_ids);
+                // $user_id_array_iphone = $userData->where('device_type','I')->whereIn('id',$request->user_ids);
+                // $user_id_array_android = $userData->where('device_type','A')->whereIn('id',$request->user_ids);
             }
 
             if($request->has('selection')){
                 $input['selection']='all';
-                $user_id_array_android = $userData->where('device_type','=','A');
-                $user_id_array_iphone = $userData->where('device_type','=','I');
+                // $user_id_array_android = $userData->where('device_type','=','A');
+                // $user_id_array_iphone = $userData->where('device_type','=','I');
             }
+            // dd($userData);
             //echo"<pre>";print_r($user_id_array_android);die;
             //echo"<pre>";print_r(collect($user_id_array_iphone)->pluck('device_token'));die();
             try {
                 //echo"<pre>";print_r($user_id_array_android);die;
                 $this->model->create($input);
-                if(count($user_id_array_android) > 0){
-                    $this->sendNotification($user_id_array_android, $data_array, 'A');
-                }
-                if(count($user_id_array_iphone) > 0){
-                    $this->sendNotification($user_id_array_iphone, $data_array,'I');
-                }
+                $playerIds = $userData->pluck('device_token')->toArray();
+                $playerIds = array_filter($playerIds, function ($value) {
+                    return (!empty($value) || $value === 0 || $value==='0');
+                  });
+                Log::info($playerIds);
+                $data_array['type'] = 'admin_notification';
+                Helper::sendOnesignalNotification(array_values($playerIds), $data_array['message_heading'], $data_array['message'], $data_array);
+                
+
+                // if(count($user_id_array_android) > 0){
+                //     $this->sendNotification($user_id_array_android, $data_array, 'A');
+                // }
+                // if(count($user_id_array_iphone) > 0){
+                //     $this->sendNotification($user_id_array_iphone, $data_array,'I');
+                // }
                 Session::flash('success',trans('admin-notification.create_success'));
 
             } catch (\Exception $e) {

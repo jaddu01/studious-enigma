@@ -80,7 +80,7 @@ class CartController extends Controller
 //         $data = $data->get()->toArray();
 //         //return $data;
 // $cartTotalArray= Helper::cartTotal(Auth::guard('api')->user()->id,Auth::guard('api')->user()->zone_id);
-        if($cartTotalArray['offer_price_total'] >= 1000){
+        if(floatval($cartTotalArray['offer_price_total']) >= floatval(1000)){
             $flag = 0;   
         } else{ 
             $flag = 1; 
@@ -107,13 +107,13 @@ class CartController extends Controller
 //  $cartTotalArray= Helper::cartTotal(Auth::guard('api')->user()->id,Auth::guard('api')->user()->zone_id);
         
         if(!empty($user->membership) && $user->membership_to >= now()){
-            if($cartTotalArray['offer_price_total'] >= $AppSetting->mim_amount_for_free_delivery_prime){
+            if(number_format($cartTotalArray['offer_price_total'],2) >= number_format($AppSetting->mim_amount_for_free_delivery_prime,2)){
                 $cartTotalArray['delivery_charge'] = 0;
             }
             $left_amount = $AppSetting->mim_amount_for_free_delivery_prime - $cartTotalArray['offer_price_total'];
   
         }else{
-            if($cartTotalArray['offer_price_total'] >= $AppSetting->mim_amount_for_free_delivery){
+            if(number_format($cartTotalArray['offer_price_total'],2) >= number_format($AppSetting->mim_amount_for_free_delivery, 2)){
                 $cartTotalArray['delivery_charge'] = 0;
             }
             $left_amount = $AppSetting->mim_amount_for_free_delivery - $cartTotalArray['offer_price_total'];

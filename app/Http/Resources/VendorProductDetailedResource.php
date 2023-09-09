@@ -15,6 +15,9 @@ class VendorProductDetailedResource extends JsonResource
     public function toArray($request)
     {
         $user = auth('api')->user();
+        if(!$this->is_offer){
+            $offer_percentage = ($this->price - $this->best_price)/$this->price * 100;
+        }
         return [
             "id" => $this->id,
             // "price" => round($this->price,2),
@@ -30,6 +33,7 @@ class VendorProductDetailedResource extends JsonResource
             "match_in_zone" => true,
             "is_wishlist" => (boolean) $this->wishList()->where('user_id',auth('api')->user()->id)->first(),
             "notify_me" => (boolean) $user->notifyMe->contains('id',$this->id),
+            "offer_percentage" => $offer_percentage ?? 0,
         ];
     }
 }

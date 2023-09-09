@@ -32,7 +32,7 @@ class AdminNotification extends Model
                 {
                     $trans = [
                         'message_heading'=>'required',
-                        'image.*'=>'required|image|mimes:jpeg,png,jpg,gif,webp',
+                        'image.*'=>'nullable|image|mimes:jpeg,png,jpg,gif,webp',
                         'message'=>'required|max:300',
                         'link_type'=>'required',
                         'message_url'=>'required_if:link_type,external',

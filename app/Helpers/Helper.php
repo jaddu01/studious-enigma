@@ -537,28 +537,29 @@ class Helper
 			}else{
 				$offer_price_total = $offer_price_total + ($Rec['vendorProduct']['best_price'] * $Rec['qty']);
 			}
-			if ($offer_price_total >= $Rec['Zone']['minimum_order_amount']) {
-				$dc = 0;
-			} else {
-				$dc = $Rec['Zone']['delivery_charges'];
-			}
 			$result[] = $Rec;
 		}
 		$total_saving = $total - $offer_price_total;
 		$mim_amount_for_free_delivery = 0;
+
+		$dc = $Rec['Zone']['delivery_charges'];
 		//echo "<pre>"; print_r(Auth::guard('api')->user()); die;
 		if (!empty(Auth::guard('api')->user()->membership) && (Auth::guard('api')->user()->membership_to >= date('Y-m-d H:i:s'))) {
-			if ($offer_price_total >= $AppSetting->mim_amount_for_free_delivery_prime) {
+			if (floatval($offer_price_total) >= floatval($AppSetting->mim_amount_for_free_delivery_prime)) {
 				$dc = 0;
 			}
 			$mim_amount_for_free_delivery = $AppSetting->mim_amount_for_free_delivery_prime;
 		} else {
-			$mim_amount_for_free_delivery = (isset($Rec['Zone']['minimum_order_amount']) && $Rec['Zone']['minimum_order_amount'] > 0) ? $Rec['Zone']['minimum_order_amount'] : $AppSetting->mim_amount_for_free_delivery;
-			if ($offer_price_total >= $mim_amount_for_free_delivery) {
+			// $mim_amount_for_free_delivery = (isset($Rec['Zone']['minimum_order_amount']) && $Rec['Zone']['minimum_order_amount'] > 0) ? $Rec['Zone']['minimum_order_amount'] : $AppSetting->mim_amount_for_free_delivery;
+			$mim_amount_for_free_delivery = $AppSetting->mim_amount_for_free_delivery;
+			if (floatval($offer_price_total) >= floatval($mim_amount_for_free_delivery)) {
 				$dc = 0;
 			}
+
+			// dd(floatval($offer_price_total), floatval($mim_amount_for_free_delivery), $dc);
 			//$mim_amount_for_free_delivery = $AppSetting->mim_amount_for_free_delivery;
 		}
+		// dd($dc);
 		return $result = [
 			// 'cartRec' => $parr,
 			'cart_list' => $result,
@@ -1272,7 +1273,7 @@ class Helper
 		return DB::table('product_translations')->where('product_id', $id)->first();
 	}
 
-	public static function sendOnesignalNotification($to, $title, $message)
+	public static function sendOnesignalNotification($to, $title, $message, $data=array())
 	{
 		$app_id = config('services.onesignal.ONESIGNAL_APP_ID');
 		$rest_api_key = config('services.onesignal.ONESIGNAL_REST_API_KEY');
@@ -1292,8 +1293,11 @@ class Helper
 			'ios_badgeType'=> 'Increase',
 			'ios_badgeCount' => 1,
 			'isIos' => true,
-			//'data' => [],
+			'data' => $data,
+			'big_picture' => $data['image_path'] ?? '',
+			'large_icon' => $data['image_path'] ?? '',
 		);
+		
 
 		$headers = array(
 			'Authorization: key=YWUzYzIwOGEtYmVhNy00MzNlLWI0YjktOTA5ZmI3ZGYyMTQy',
@@ -1307,6 +1311,7 @@ class Helper
 		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
 		curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($fields));
 		$result = curl_exec($ch);
+		Log::info($result);
 		curl_close($ch);
 		return $result;
 	}
