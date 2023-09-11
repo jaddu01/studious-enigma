@@ -31,6 +31,7 @@ use App\Http\Resources\CategoryResource;
 use DB;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Http\Resources\AdsResource;
 use App\Http\Resources\CategoryProductsResource;
 use App\Http\Resources\CouponResource;
 use App\Http\Resources\OfferResource;
@@ -45,6 +46,7 @@ use Illuminate\Support\Facades\Validator;
 use App\ProductOrderItem;
 use Illuminate\Validation\Rule;
 use Request as GlobalRequest;
+use Response;
 
 class ProductController extends Controller
 {
@@ -784,7 +786,6 @@ class ProductController extends Controller
             
         $slider = Slider::with('category','sub_category','product');
         $offer_sliders = OfferSlider::with('category','sub_category','product');
-        $ads = Ads::with('category','sub_category','product');
         $user = Auth::guard('api')->user();
         $zonedata = $this->getZoneData($lat, $lng);
         $zone_id =  $zonedata['zone_id'];
@@ -830,30 +831,6 @@ class ProductController extends Controller
                 }
             }
         }
-        $ads = $ads->whereRaw('FIND_IN_SET('.$zone_id.', zone_id) ')->get();
-        foreach( $ads as $ad){
-            if($ad->link_type=='internal'){
-                if($ad->link_url_type=='product'){
-                    $vproduct = $this->vendorProduct->where('id',$ad->vendor_product_id)->first();
-                    if(!empty($vproduct)){
-                        $product = ProductTranslation::where('product_id',$vproduct->product_id)->first();
-                        if(!empty($product)){
-                            $ad->rawslug = $product->slug;
-                        } 
-                    }else{ 
-                        $ad->rawslug = "";
-                    }
-                }else if($ad->link_url_type=='category'){
-                    $subcat = CategoryTranslation::where('category_id',$ad->cat_id)->first();
-                    if(!empty($subcat)){ $ad->rawslug = $subcat->slug; }
-                    else{ $ad->rawslug = "";}
-                }else if($ad->link_url_type=='subcategory'){
-                    $subcat = CategoryTranslation::where('category_id',$ad->sub_cat_id)->first();
-                    if(!empty($subcat)){$ad->rawslug = $subcat->slug; }
-                    else{  $ad->rawslug = "";}
-                }
-            }
-        }
         $offer_sliders =  $offer_sliders->whereRaw('FIND_IN_SET('.$zone_id.', zone_id) ')->get();
         foreach( $offer_sliders as $offer_slider){
             if($offer_slider->link_type=='internal'){
@@ -892,7 +869,7 @@ class ProductController extends Controller
         $homeStrip = array("data"=>$homeStrip, "type"=>"homeStrip");
         $offerProducts = array("data"=>$offerProduct, "type"=>"offerProduct","heading"=>'Weekly Offer Products','api_url'=>'get-all-weekly-Offer-products');
         $categorys = array("data"=>$category, "type"=>"category",'api_url'=>'category');
-        $adss = array("data"=>$ads, "type"=>"ads");
+        $adss = array("data"=>array(), "type"=>"ads");
         $offer_sliderss = array("data"=>$offer_sliders, "type"=>"offer_sliders");
         $topsellingproductss = array("data"=>$topsellingproducts, "type"=>"product","heading"=>'Top selling products','api_url'=>'get-all-top-selling-products');
         $super_dealss = array("data"=>$super_deal, "type"=>"product","heading"=>'Super Deals', 'api_url'=>'get-all-super-deal-products');
@@ -919,9 +896,27 @@ class ProductController extends Controller
 
 
     public function getMoreHomedata(){
-        $categories = Category::where('is_home', '1')->get();
+        $categories = Category::where('is_home', '1')->paginate(3);
         $this->response->products = CategoryProductsResource::collection($categories);
-        return ResponseBuilder::success($this->response);
+        return ResponseBuilder::successWithPagination($categories, $this->response);
+    }
+
+    public function getAds(){
+        try{
+            $lat = request()->header('lat');
+            $lng = request()->header('lng');
+
+            $zonedata = $this->getZoneData($lat, $lng);
+            $zone_id =  $zonedata['zone_id'];
+
+            $ads = Ads::with('category','sub_category','product')->whereRaw('FIND_IN_SET('.$zone_id.', zone_id) ')->get();
+            $this->response->ads = AdsResource::collection($ads);
+
+            return ResponseBuilder::success($this->response);
+            
+        }catch (\Exception $e) {
+            return ResponseBuilder::error($e->getMessage(), 500);
+        }
     }
 
 

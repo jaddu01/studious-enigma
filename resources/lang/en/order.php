@@ -19,6 +19,7 @@
   'deleted_by_admin' => 'some product are deleted by admin please refresh page and try again',
   'no_order' => 'No order',
   'order_confirmed' => 'Your order has been confirmed',
+  'order_placed' => 'Your order has been placed.',
   'error' => 'Please fill all fields.',
   'item_remove_create_success' => 'Added successfully.',
   'add_discount' => 'The Discount added successfully.',

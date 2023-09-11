@@ -234,14 +234,14 @@ class CustomerController extends Controller
         $auth_zone_ids = Auth::guard('admin')->user()->zone_id;
         $auth_zone_ids = explode(',',$auth_zone_ids);
         $user =$this->user->where('user_type', '=', 'user');
-        if(isset($auth_zone_ids) && !empty($auth_zone_ids)) {
-            for ($i=0; $i < count($auth_zone_ids); $i++) { 
-                $user->where('zone_id', 'like', '%' . $auth_zone_ids[$i] . '%');
-                if($i>0) {
-                    $user->orWhere('zone_id', 'like', '%' . $auth_zone_ids[$i] . '%');
-                }
-            }
-          }
+        // if(isset($auth_zone_ids) && !empty($auth_zone_ids)) {
+        //     for ($i=0; $i < count($auth_zone_ids); $i++) { 
+        //         $user->where('zone_id', 'like', '%' . $auth_zone_ids[$i] . '%');
+        //         if($i>0) {
+        //             $user->orWhere('zone_id', 'like', '%' . $auth_zone_ids[$i] . '%');
+        //         }
+        //     }
+        // }
         if($request->has('cust_type') and $request->cust_type=='today'){
               $user->whereDate('created_at','=',date('Y-m-d'));
         }

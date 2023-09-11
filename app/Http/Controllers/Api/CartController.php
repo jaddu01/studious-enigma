@@ -123,13 +123,13 @@ class CartController extends Controller
         }else{
             $delivery_charges_msg="Yay! Free Delivery";
         }
-        //coin redeem
-        $coin_redeem = 0;
-        $coin_settings = CoinSettings::where('from_amount', '<=', $cartTotalArray['offer_price_total'])
-        ->where('to_amount', '>=', $cartTotalArray['offer_price_total'])->first();
-        if($coin_settings){
-            $coin_redeem = $coin_settings->coin ?? 0;
-        }
+        // //coin redeem
+        // $coin_redeem = 0;
+        // $coin_settings = CoinSettings::where('from_amount', '<=', $cartTotalArray['offer_price_total'])
+        // ->where('to_amount', '>=', $cartTotalArray['offer_price_total'])->first();
+        // if($coin_settings){
+        //     $coin_redeem = $coin_settings->coin ?? 0;
+        // }
         $response = [
             'cart_list' => CartResource::collection($data),
             'cart_count' => count($data),
@@ -145,7 +145,7 @@ class CartController extends Controller
             'mim_amount_for_order_prime' => $AppSetting->mim_amount_for_order_prime,
             'mim_amount_for_free_delivery' => $AppSetting->mim_amount_for_free_delivery,
             'mim_amount_for_free_delivery_prime' => $AppSetting->mim_amount_for_free_delivery_prime,
-            'coin_redeem' => $coin_redeem,
+            'coin_redeem' => $cartTotalArray['coin_redeem'],
             
         ];
         $response['can_order'] = $match_in_zone;

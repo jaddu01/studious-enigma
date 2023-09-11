@@ -27,6 +27,7 @@ use App\Offer;
 use App\VendorProduct;
 use App\Setting;
 use App\AppSetting;
+use App\CoinSettings;
 use App\SiteSetting;
 use App\SocialMedia;
 use App\PaymentMode;
@@ -530,7 +531,7 @@ class Helper
 			//echo "<pre>"; print_r($Rec); die;
 			$total = $total + ($Rec['vendorProduct']['price'] * $Rec['qty']);
 			// code change by Abhishek Bhatt for check the minimum amount for free delivery zone wise //
-			//$dc = $Rec['Zone']['delivery_charges'];
+			$dc = $Rec['Zone']['delivery_charges'];
 			if(!empty($Rec['vendorProduct']['offer_price'])){
 				//$Rec['vendorProduct']['offer_price']
 				$offer_price_total = $offer_price_total + ($Rec['vendorProduct']['offer_price'] * $Rec['qty']);
@@ -542,7 +543,7 @@ class Helper
 		$total_saving = $total - $offer_price_total;
 		$mim_amount_for_free_delivery = 0;
 
-		$dc = $Rec['Zone']['delivery_charges'];
+		
 		//echo "<pre>"; print_r(Auth::guard('api')->user()); die;
 		if (!empty(Auth::guard('api')->user()->membership) && (Auth::guard('api')->user()->membership_to >= date('Y-m-d H:i:s'))) {
 			if (floatval($offer_price_total) >= floatval($AppSetting->mim_amount_for_free_delivery_prime)) {
@@ -559,6 +560,14 @@ class Helper
 			// dd(floatval($offer_price_total), floatval($mim_amount_for_free_delivery), $dc);
 			//$mim_amount_for_free_delivery = $AppSetting->mim_amount_for_free_delivery;
 		}
+
+		//coin redeem
+        $coin_redeem = 0;
+        $coin_settings = CoinSettings::where('from_amount', '<=', $offer_price_total)
+        ->where('to_amount', '>=', $offer_price_total)->first();
+        if($coin_settings){
+            $coin_redeem = $coin_settings->coin ?? 0;
+        }
 		// dd($dc);
 		return $result = [
 			// 'cartRec' => $parr,
@@ -568,6 +577,7 @@ class Helper
 			'min_amount_for_free_delivery' => $mim_amount_for_free_delivery,
 			'delivery_charge' => $dc,
 			'currency' => 'Rs',
+			'coin_redeem' => $coin_redeem,
 			'is_free_product' => $is_free_product,
 			'offer_price_total' => number_format($offer_price_total, 2, '.', ''),
 			'total' => number_format($total, 2, '.', ''),

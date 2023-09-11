@@ -651,7 +651,7 @@ $next_tomorrow_day_name = $next_tomorrow_date->format('D');
     public function globalSetting(){
     
         $medias = Medias::where('media_type', 'refer')->first();
-        $data  = SiteSetting::select('free_delivery_charge','phone','whats_up')->firstOrFail();
+        $data  = SiteSetting::firstOrFail();
         $SocialMedia = SocialMedia::firstOrFail();
         $AppSetting = AppSetting::select('mim_amount_for_order','mim_amount_for_free_delivery','ios_app_store','android_play_store','update_shopper_location', 'update_driver_location', 'update_shopper_app', 'update_driver_app')->firstOrFail();
         $data["min_price"] =  $AppSetting->mim_amount_for_order;

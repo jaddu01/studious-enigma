@@ -240,7 +240,7 @@ class UserController extends Controller
         if (!empty($request->referral_code)) {
             $check_user_reffer  = $this->user->withTrashed()->where(['referral_code' => $request->referral_code])->first();
             $refferalCound = $this->user->withTrashed()->where(['referred_by' => $check_user_reffer->id])->count();
-            if (!empty($refferalCound) && $refferalCound >= 3) {
+            if (!empty($refferalCound) && $refferalCound >= $SiteSetting->refer_limit ?? 3) {
                 return ResponseBuilder::error('Refferal code limit used', $this->validationStatus);
             }
 
@@ -2639,7 +2639,7 @@ class UserController extends Controller
             $user = $request->user('api');
             $user_wallets = $user->walletHistory()->latest();
             switch ($request->type) {
-                case 'wallet':
+                case 'amount':
                     $user_wallets = $user_wallets->where('wallet_type', 'amount');
                     break;
                 case 'coin':

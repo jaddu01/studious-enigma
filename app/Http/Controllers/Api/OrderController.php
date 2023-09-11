@@ -264,17 +264,13 @@ class OrderController extends Controller
                 $input['is_membership'] = 'N';
                 //echo Auth::guard('api')->user()->membership." and ";
                 if (!empty(Auth::guard('api')->user()->membership) && (Auth::guard('api')->user()->membership_to >= date('Y-m-d H:i:s'))) {
-                    if ($offer_total >= $AppSetting->mim_amount_for_free_delivery_prime) {
+                    if (floatval($offer_total) >= floatval($AppSetting->mim_amount_for_free_delivery_prime)) {
                         $delivery_charge = 0;
-                    } else {
-                        $delivery_charge = $delivery_charge;
                     }
                     $input['is_membership'] = 'Y';
                 } else {
-                    if ($offer_total >= $AppSetting->mim_amount_for_free_delivery) {
+                    if (floatval($offer_total) >= floatval($AppSetting->mim_amount_for_free_delivery)) {
                         $delivery_charge = 0;
-                    } else {
-                        $delivery_charge = $delivery_charge;
                     }
                     $input['is_membership'] = 'N';
                 }
@@ -453,8 +449,8 @@ class OrderController extends Controller
                 $dataArray['type'] = 'Order';
                 $dataArray['product_type'] = 'New';
                 $dataArray['title'] = 'New Order';
-                $dataArray['body'] = trans('order.order_confirmed') . $order->order_code;
-                $message = trans('order.order_confirmed') . ' '.$order->order_code;
+                $dataArray['body'] = trans('order.order_placed') . ' '.$order->order_code;
+                $message = trans('order.order_placed') . ' '.$order->order_code;
                // $device_type = $user_id_array1[0]->device_type;
 
 

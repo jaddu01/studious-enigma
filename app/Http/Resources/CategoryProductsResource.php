@@ -17,7 +17,7 @@ class CategoryProductsResource extends JsonResource
     {
         $vendorProducts = VendorProduct::with(['product.MeasurementClass','product.image'])->whereHas('product.category',function($q){
             $q->whereRaw('FIND_IN_SET('.$this->id.', category_id) ');
-        })->limit(20)->get();
+        })->limit(10)->get();
         return [
             'id' => (int)$this->id,
             'name' => (string)$this->name,

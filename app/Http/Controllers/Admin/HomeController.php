@@ -43,6 +43,7 @@ class HomeController extends Controller
         $todayOrder = 0;
         $userData = $this->user->whereIN('user_type',['shoper','driver','user'])
         ->where('id','!=','1')->get();
+        
         if(isset($userData)){
             $totalUser = $userData->where('user_type','=','user')->count();
             $totalShopper = $userData->where('user_type','=','shoper')->count();
