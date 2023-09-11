@@ -451,6 +451,7 @@ class Helper
 
 	public static function cartTotal($user_id, $zone_id)
 	{
+		$current_user = User::find($user_id);
 		$AppSetting = AppSetting::select('mim_amount_for_order', 'mim_amount_for_free_delivery', 'mim_amount_for_free_delivery_prime')->firstOrfail();
 		$cartRec = Cart::whereHas('vendorProduct', function ($q) {
 			$q->where('status', '1');
@@ -567,6 +568,9 @@ class Helper
         ->where('to_amount', '>=', $offer_price_total)->first();
         if($coin_settings){
             $coin_redeem = $coin_settings->coin ?? 0;
+			if($current_user->coin_amount < $coin_redeem){
+				$coin_redeem = $current_user->coin_amount;
+			}
         }
 		// dd($dc);
 		return $result = [

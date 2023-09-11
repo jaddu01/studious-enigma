@@ -223,8 +223,9 @@ class UserController extends Controller
             $input['language'] = 'en';
             App::setLocale('en');
         }
+        // dd($request->all());
 
-        $input = $request->all();
+        $input = $request->only('name', 'email', 'phone_code', 'phone_number', 'device_type', 'device_id', 'device_token');
         $input['password'] = bcrypt('');
         if (!empty($request->dob)) {
             $input['dob'] = Carbon::createFromTimestamp($request->dob)->toDateString();
@@ -235,16 +236,16 @@ class UserController extends Controller
 
         $SiteSetting = $this->site_setting->first();
         // $user = $this->user->fill($input)->save();
+        
         $user = User::create($input);
 
         if (!empty($request->referral_code)) {
-            $check_user_reffer  = $this->user->withTrashed()->where(['referral_code' => $request->referral_code])->first();
-            $refferalCound = $this->user->withTrashed()->where(['referred_by' => $check_user_reffer->id])->count();
-            if (!empty($refferalCound) && $refferalCound >= $SiteSetting->refer_limit ?? 3) {
-                return ResponseBuilder::error('Refferal code limit used', $this->validationStatus);
-            }
-
+            $check_user_reffer  = User::where('referral_code',$request->referral_code)->first();
             if (!empty($check_user_reffer)) {
+                $refferalCound = User::where('referred_by', $check_user_reffer->id)->count();
+                if (!empty($refferalCound) && $refferalCound >= $SiteSetting->refer_limit ?? 3) {
+                    return ResponseBuilder::error('Refferal code limit used', $this->validationStatus);
+                }
                 //$check_user_reffer->wallet_amount=  $check_user_reffer->wallet_amount + $SiteSetting->referred_by_amount;
                 //$check_user_reffer->save();
 
@@ -266,7 +267,7 @@ class UserController extends Controller
                 //echo "<pre>"; print_r($user_wallet); die;
             } else {
                 return ResponseBuilder::error('Worng Refferal code used', $this->validationStatus);
-            }
+            }            
         }
         $client = new Client();
         $authkey = env('AUTHKEY');
