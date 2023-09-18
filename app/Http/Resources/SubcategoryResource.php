@@ -25,7 +25,8 @@ class SubcategoryResource extends JsonResource
             'slug' => $this->slug,
             'sort_no' => $this->sort_no,
             'status' => (boolean) $this->status,
-            'is_show' => (boolean) $this->is_show
+            'is_show' => (boolean) $this->is_show,
+            // 'sub_category' => SubcategoryResource::collection($this->children),
         ];
     }
 }

@@ -151,7 +151,7 @@ if(count($subcategories)>0){ $class="  ".$slug; } else{ $class=""; }?>
 <div class="col-sm-8 col-md-9">
     <?php if(isset($category_data->banner_image) && $category_data->banner_image!=''){?>
         <div class="categories-banner">
-            <img src="/storage/app/public/upload/{{$category_data->banner_image}}" style="" />
+            <img src="{{$category_data->banner_image}}" style="" />
         </div>
     <?php } ?>
     <div class="flash-message alert-block"> <button class="close" data-dismiss="alert"></button></div>

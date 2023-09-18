@@ -449,8 +449,8 @@ class OrderController extends Controller
                 $dataArray['type'] = 'Order';
                 $dataArray['product_type'] = 'New';
                 $dataArray['title'] = 'New Order';
-                $dataArray['body'] = trans('order.order_placed') . ' '.$order->order_code;
-                $message = trans('order.order_placed') . ' '.$order->order_code;
+                $dataArray['body'] = "Your Order has been successfully submitted! Order No. :".$order->order_code;
+                $message = "Your Order has been successfully submitted! Order No. :".$order->order_code;
                // $device_type = $user_id_array1[0]->device_type;
 
 
@@ -785,6 +785,7 @@ class OrderController extends Controller
         if (isset($request->id) && !empty($request->id)) {
 
             try {
+                DB::beginTransaction();
                 $cart = $this->productOrder->findOrFail($request->id);
                 $shopper_id = $cart->shopper_id;
                 $driver_id = $cart->driver_id;
@@ -848,46 +849,64 @@ class OrderController extends Controller
 
                 /*send notification code to shopper*/
                 $shopperData = User::whereIn('id', [$shopper_id, $driver_id])->select('id', 'device_type', 'device_token')->get();
+                // dd($shopperData, $shopper_id, $driver_id);
+                if($shopperData){
+                    $shopper_id_array = collect($shopperData)->where('id', $shopper_id)->pluck('device_token')->toArray();
+                    $driver_id_array = collect($shopperData)->where('id', $driver_id)->pluck('device_token')->toArray();
+                    $shopperArray = [];
+                    $shopperArray['id'] = $cart->id;
+                    $shopperArray['type'] = 'Order';
+                    $shopperArray['product_type'] = 'Cancel';
+                    $shopperArray['title'] = 'Cancel Order';
+                    $shopperArray['body'] = trans('order.order_cancel') . ' ' .$cart->order_code;
+                    $shopper_message = trans('order.order_cancel') . ' '.$cart->order_code;
+                   // $shopper_device_type_array = $shopperData->where('id', $shopper_id)->pluck('device_type');
+                   // $shopper_device_type = $shopper_device_type_array[0];
 
-                $shopper_id_array = collect($shopperData)->where('id', $shopper_id)->pluck('device_token');
-                $driver_id_array = collect($shopperData)->where('id', $driver_id)->pluck('device_token');
-                //return $shopper_id_array;
-                $shopperArray = [];
-                $shopperArray['type'] = 'Order';
-                $shopperArray['product_type'] = 'Cancel';
-                $shopperArray['title'] = 'Cancel Order';
-                $shopperArray['body'] = trans('order.order_cancel') . $cart->order_code;
-                $shopper_device_type_array = $shopperData->where('id', $shopper_id)->pluck('device_type');
-                $shopper_device_type = $shopper_device_type_array[0];
+                    try{
+                        $shopperArray['id'] = $cart->id;
+                        Helper::sendOnesignalNotification($shopper_id_array, 'Cancel Order', $shopper_message, $shopperArray);
+                    }catch(Exception $e){
+                        Log::error($e);
+                    }
 
-                $driver_device_type_array = $shopperData->where('id', $driver_id)->pluck('device_type');
-                $driver_device_type = $driver_device_type_array[0];
+                    try{
+                        $shopperArray['id'] = $cart->id;
+                        Helper::sendOnesignalNotification($driver_id_array, 'Cancel Order', $shopper_message, $shopperArray);
+                    }catch(Exception $e){
+                        Log::error($e);
+                    }
+                }
 
                 //Helper::sendNotification($shopper_id_array ,$shopperArray, $shopper_device_type);
                 /*send notification code to shopper*/
                 /*send notification code to customer*/
                 $user_id_array1 = User::where('id', Auth::guard('api')->user()->id)->select('id', 'device_type', 'device_token')->get();
-                $userData = User::where('id', '=', Auth::guard('api')->user()->id)->select('device_token')->get();
-                $user_id_array = collect($userData)->pluck('device_token');
+                $userData = User::where('id', '=', Auth::guard('api')->user()->id)->select('device_token')->get()->pluck('device_token');
+                $user_id_array = collect($userData)->toArray();
+
+                try{
+                    $dataArray = [];
+                    $dataArray['id'] = $cart->id;
+                    $dataArray['type'] = 'Order';
+                    $dataArray['product_type'] = 'Cancel';
+                    $dataArray['title'] = 'Cancel Order';
+                    $dataArray['body'] = trans('order.order_cancel') . $cart->order_code;
+                    $message = trans('order.order_cancel') . $cart->order_code;
+                    Helper::sendOnesignalNotification($user_id_array, 'Cancel Order', $message, $dataArray);
+                }catch(Exception $e){
+                    Log::error($e);
+                }
+                
+
+
                 //echo "<pre>"; print_r($user_id_array); die;
-                $dataArray = [];
-                $dataArray['type'] = 'Order';
-                $dataArray['product_type'] = 'Cancel';
-                $dataArray['title'] = 'Cancel Order';
-                $dataArray['body'] = trans('order.order_cancel') . $cart->order_code;
-                $device_type = $user_id_array1[0]->device_type;
-
-                // print_r($driver_device_type); die();
-                //shopper notifiction
-                //Helper::sendNotification($shopper_id_array, $shopperArray, $shopper_device_type);
-                //driver notifiction
-                //Helper::sendNotification($driver_id_array, $shopperArray, $driver_device_type);
-                //customer notifiction 
-                //Helper::sendNotification($user_id_array, $dataArray, $device_type);
-                /*send notification code to customer*/
-
+                
+                DB::commit();
                 return $this->showResponse(trans('order.order_cancel'));
             } catch (\Exception $e) {
+                DB::rollBack();
+                Log::error($e);
                 return $this->clientErrorResponse($e);
             }
         }

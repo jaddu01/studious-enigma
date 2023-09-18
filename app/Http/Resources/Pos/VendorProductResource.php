@@ -1,0 +1,36 @@
+<?php
+
+namespace App\Http\Resources\Pos;
+
+use Illuminate\Http\Resources\Json\JsonResource;
+
+class VendorProductResource extends JsonResource
+{
+    /**
+     * Transform the resource into an array.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return array
+     */
+    public function toArray($request)
+    {
+        if(!$this->is_offer){
+            $offer_percentage = ($this->price - $this->best_price)/$this->price * 100;
+        }
+        return [
+            "id" => $this->id,
+            // "price" => round($this->price,2),
+            "qty" => $this->qty,
+            "offer" => $this->Offer,
+            "per_order" => $this->per_order,
+            "best_price" => $this->best_price,
+            "mrp" => !empty($this->price) ? round($this->price,2) : round($this->best_price,2),
+            "memebership_p_price" => $this->memebership_p_price,
+            "is_offer" => $this->is_offer,
+            "offer_price"  => $this->offer_price,
+            "product" => new ProductResource($this->product),
+            "match_in_zone" => true,
+            "offer_percentage" => $offer_percentage ?? 0,
+        ];
+    }
+}

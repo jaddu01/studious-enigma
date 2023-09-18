@@ -281,8 +281,9 @@ class Helper
 			$hash = env('SMSHASH');
 			// //$message="Your OTP for Darbaar Mart is ".$otp;
 
-			$message = urlencode("Dear Customer, use OTP ($otp) to log in to your DARBAAR MART account and get your grocery essentials safely delivered at your home.\n\r \n\rStay Home, Stay Safe.\n\rTeam Darbaar Mart, Beawar e8Pwa8UjCOy");
-			$url = "http://control.yourbulksms.com/api/sendhttp.php?authkey=36346e6768313136333766&mobiles=".$phone_number."&sender=DMAART&route=2&country=91&DLT_TE_ID=1207162028126071690&message=".$message;
+			$message = urlencode("Dear Customer, Please use OTP $otp to login to your DARBAAR MART App and shop from our array of products. This OTP is valid for 15 minutes. Thanks e8Pwa8UjCOy");
+			// $message = urlencode("Dear Customer, use OTP ($otp) to log in to your DARBAAR MART account and get your grocery essentials safely delivered at your home.\n\r \n\rStay Home, Stay Safe.\n\rTeam Darbaar Mart, Beawar e8Pwa8UjCOy");
+			$url = "http://control.yourbulksms.com/api/sendhttp.php?authkey=36346e6768313136333766&mobiles=".$phone_number."&sender=DBMAAT&route=2&country=91&DLT_TE_ID=1707169406800685139&message=".$message;
 			$ch = curl_init($url);
 			curl_setopt($ch, CURLOPT_POST, 1);
 			curl_setopt($ch, CURLOPT_POSTFIELDS, $url);

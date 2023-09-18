@@ -82,7 +82,7 @@
                                         In {{ $locale }}<span class="required">*</span>
                                     </label>
                                     <div class="col-md-6 col-sm-6 col-xs-12">
-                                        <img src="/storage/app/public/upload/{{ $category->{'banner_image:' . $locale} }}"
+                                        <img src="{{ $category->{'banner_image:' . $locale} }}"
                                             height="75" width="75" />
                                         <input type="file" id="banner_image" name="banner_image:{{ $locale }}"
                                             class="form-control col-md-7 col-xs-12">
