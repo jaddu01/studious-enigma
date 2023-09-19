@@ -64,5 +64,6 @@ class Kernel extends HttpKernel {
 		'admin.auth' => AdminRedirectIfNotAuthenticated::class,
 		'admin.guest' => AdminRedirectIfAuthenticated::class,
 		'auth.verify' => \App\Http\Middleware\ApiVerify::class,
+		'auth.pos' => \App\Http\Middleware\PosVerify::class,
 	];
 }
