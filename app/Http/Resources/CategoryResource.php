@@ -26,7 +26,9 @@ class CategoryResource extends JsonResource
             'sort_no' => $this->sort_no,
             'status' => (boolean) $this->status,
             'is_show' => (boolean) $this->is_show,
-            'sub_category' => SubcategoryResource::collection($this->children),
+            'sub_category' => $this->whenLoaded('children', function () {
+                return CategoryResource::collection($this->children);
+            }),
         ];
     }
 }

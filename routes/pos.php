@@ -10,9 +10,15 @@
 
 use App\Http\Controllers\Pos\CategoryController;
 use App\Http\Controllers\Pos\ProductController;
+use App\Http\Controllers\Pos\UserController;
 
 Route::group(['prefix' => 'products'], function () {
     Route::get('/', [ProductController::class, 'index']);
 });
 
 Route::get('categories', [CategoryController::class, 'index']);
+Route::get('categories/{category_id}/sub-categories', [CategoryController::class, 'subCategories']);
+
+Route::group(['prefix' => 'users'], function () {
+    Route::get('/', [UserController::class, 'index']);
+});
