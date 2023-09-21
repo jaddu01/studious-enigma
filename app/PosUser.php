@@ -13,7 +13,7 @@ class PosUser extends Authenticatable
 {
     use HasApiTokens,Notifiable,SoftDeletes;
 
-    protected $appends = ['full_name','phone'];
+    // protected $appends = ['full_name','phone'];
     /**
      * The attributes that are mass assignable.
      *

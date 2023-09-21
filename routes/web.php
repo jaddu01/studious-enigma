@@ -560,6 +560,18 @@ Route::group(['prefix' => 'admin', 'namespace' => 'Admin'], function () {
         Route::any('pos/order/add-coin', 'Pos\OrdersController@addDarbaarCoin')->name('pos-order.addDarbaarCoin');
         Route::any('pos/pos-get-user-by-param', 'Pos\OrdersController@getUserByParam')->name('pos-get-user-by-param');
 
+
+        //pos users
+        Route::prefix('pos/users')->group(function(){
+            Route::get('/', 'Pos\UserController@index')->name('pos.users');
+            Route::get('datatable', 'Pos\UserController@anyData')->name('pos.users.datatable');
+            Route::get('create', 'Pos\UserController@create')->name('pos.users.create');
+            Route::post('store', 'Pos\UserController@store')->name('pos.users.store');
+            Route::get('edit/{id}', 'Pos\UserController@edit')->name('pos.users.edit');
+            Route::post('update/{id}', 'Pos\UserController@update')->name('pos.users.update');
+            Route::get('delete/{id}', 'Pos\UserController@destroy')->name('pos.users.delete');
+        });
+
         // Supplier
         Route::any('supplier/datatable', 'SupplierController@anyData')->name('supplier.datatable');
         Route::any('supplier/status', 'SupplierController@changeStatus')->name('admin.supplier.status');

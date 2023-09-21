@@ -83,6 +83,14 @@
                                     <li><a href="{{url('admin/pos/reports/expenses')}}">Expenses</a></li>
                                 </ul>
                             </li>
+
+                            <li>
+                                <a><i class="fa fa-users"></i>Users<span class="fa fa-chevron-down"></span></a>
+                                <ul class="nav child_menu">
+                                    <li><a href="{{url('admin/pos/users')}}">View All</a></li>
+                                    <li><a href="{{url('admin/pos/users/create')}}">Add New</a></li>
+                                </ul>
+                            </li>
                         </ul>
                     </li>
                     <!-- Customer -->

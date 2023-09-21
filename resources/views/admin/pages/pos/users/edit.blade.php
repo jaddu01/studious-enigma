@@ -25,13 +25,13 @@
                     <div class="x_panel">
 
                         <div class="x_content">
-
-                            {!! Form::open(['route' => 'pos.users.store','method'=>'post','class'=>'form-horizontal form-label-left validation','enctype'=>'multipart/form-data','autocomplete'=>'off']) !!}
-                             <span class="section">Add User</span>
+                            <form action="{{ route('pos.users.update', $user->id) }}" method="post" class="form-horizontal form-label-left validation" enctype="multipart/form-data" autocomplete="off">
+                                @csrf
+                             <span class="section">Edit User</span>
                             <div class="row">
                                 <div class="col-sm-6">
                                     <div class="form-group {{ $errors->has('email') ? ' has-error' : '' }}">
-                                        {!!  Form::text('email', null, array('class' => 'form-control custom_input','autocomplete'=>'off','placeholder'=>'Email')) !!}
+                                        <input type="email" class="form-control custom_input" name="email" value="{{ $user->email }}" placeholder="Email" autocomplete="off">
                                         @if( $errors->has('email'))
                                             {{ Form::filedError('email') }}
                                         @endif
@@ -43,7 +43,7 @@
                                 <div class="col-sm-6">
 
                                     <div class="form-group {{ $errors->has('name') ? ' has-error' : '' }}">
-                                        {!!  Form::text('name', null, array('class' => 'form-control custom_input','autocomplete'=>'off','placeholder'=>' Name')) !!}
+                                        <input type="text" class="form-control custom_input" name="name" value="{{ $user->name }}" placeholder=" Name" autocomplete="off">
                                         @if( $errors->has('name'))
                                             {{ Form::filedError('name') }}
                                         @endif
@@ -56,7 +56,7 @@
                                 <div class="col-sm-6">
                                     <div class="form-group">
                                         <div class="form-group {{ $errors->has('password') ? ' has-error' : '' }}">
-                                            {!!  Form::password('password',  array('class' => 'form-control custom_input','autocomplete'=>'off','placeholder'=>'Password')) !!}
+                                            <input type="password" name="password" id="password" class="form-control custom_input" autocomplete="off" placeholder="Password">
                                             @if( $errors->has('password'))
                                                 {{ Form::filedError('password') }}
                                             @endif
@@ -67,7 +67,7 @@
                                 <div class="col-sm-4">
 
                                         <div class="form-group {{ $errors->has('password_confirmation') ? ' has-error' : '' }}">
-                                            {!!  Form::password('password_confirmation',  array('class' => 'form-control custom_input','autocomplete'=>'off','placeholder'=>'Password Confirm')) !!}
+                                            <input type="password" name="password_confirmation" id="password_confirmation" class="form-control custom_input" autocomplete="off" placeholder="Password Confirm">
                                             @if( $errors->has('password_confirmation'))
                                                 {{ Form::filedError('password_confirmation') }}
                                             @endif
@@ -78,7 +78,7 @@
 
                                 <div class="col-sm-2">
                                     <div class="form-group {{ $errors->has('phone_code') ? ' has-error' : '' }}">
-                                        {!!  Form::select('phone_code', $countryPhoneCode,null, array('class' => 'form-control custom_input','placeholder'=>'phone code')) !!}
+                                        {!!  Form::select('phone_code', $countryPhoneCode, $user->phone_code, array('class' => 'form-control custom_input','placeholder'=>'phone code')) !!}
                                         @if( $errors->has('phone_code'))
                                             {{ Form::filedError('phone_code') }}
                                         @endif
@@ -87,7 +87,7 @@
                                 </div>
                                 <div class="col-sm-4">
                                     <div class="form-group {{ $errors->has('phone_number') ? ' has-error' : '' }}"> <span class="numbervalid"></span>
-                                        {!!  Form::text('phone_number', null, array('class' => 'form-control priceNum custom_input','autocomplete'=>'off','placeholder'=>'Phone Number')) !!}
+                                        {!!  Form::text('phone_number', $user->phone_number, array('class' => 'form-control priceNum custom_input','autocomplete'=>'off','placeholder'=>'Phone Number')) !!}
                                        
                                         @if( $errors->has('phone_number'))
                                             {{ Form::filedError('phone_number') }}
@@ -97,7 +97,7 @@
                                 </div>
                                 <div class="col-sm-6">
                                     <div class="form-group {{ $errors->has('address') ? ' has-error' : '' }}">
-                                        {!!  Form::text('address', null, array('class' => 'form-control custom_input','placeholder'=>'Address','autocomplete'=>'off')) !!}
+                                        {!!  Form::text('address', $user->address, array('class' => 'form-control custom_input','placeholder'=>'Address','autocomplete'=>'off')) !!}
                                         @if( $errors->has('address'))
                                             {{ Form::filedError('address') }}
                                         @endif
@@ -110,7 +110,7 @@
                                 </div>
                             </div>
 
-                            {!! Form::close() !!}
+                        </form>
                         </div>
                     </div>
                 </div>

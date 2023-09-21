@@ -18,7 +18,7 @@ class AuthController extends Controller
         try{
             $validator = Validator::make($request->all(), [
                 'email' => ['required','email', Rule::exists('pos_users')->where(function ($query) {
-                    $query->where('status', 1);
+                    $query->where('status', '1');
                 })],
                 'password' => 'required'
             ]);
