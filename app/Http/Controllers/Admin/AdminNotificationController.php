@@ -18,6 +18,7 @@ use Proengsoft\JsValidation\Facades\JsValidatorFacade;
 use DataTables;
 use DB;
 use Log;
+use Illuminate\Support\Str;
 
 class AdminNotificationController extends Controller
 {
@@ -216,6 +217,13 @@ class AdminNotificationController extends Controller
                 $playerIds = array_filter($playerIds, function ($value) {
                     return (!empty($value) || $value === 0 || $value==='0');
                   });
+                // if(count($playerIds) > 0){
+                //     foreach ($playerIds as $key => $value) {
+                //         if(Helper::isValidUuid($value)){
+                //             unset($playerIds[$key]);
+                //         }
+                //     }
+                // }
                 Log::info($playerIds);
                 $data_array['type'] = 'admin_notification';
                 Helper::sendOnesignalNotification(array_values($playerIds), $data_array['message_heading'], $data_array['message'], $data_array);

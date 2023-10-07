@@ -72,11 +72,12 @@ class UserController extends Controller
             if ($validator->fails()){
                return redirect()->back()->withErrors($validator->errors()->first());
             }
-            $input = $request->only(['name','phone_code','phone_number','email','address']);
+            $input = $request->only(['name','phone_code','phone_number','email','address', 'password']);
             $user = PosUser::find($id);
             if(!$user){
                 return redirect()->back()->withErrors('User not found');
             }
+            // dd($input);
             if(!empty($input['password'])){
                 $input['password'] = bcrypt($input['password']);
             }

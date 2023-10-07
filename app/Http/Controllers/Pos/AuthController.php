@@ -31,7 +31,7 @@ class AuthController extends Controller
             }
 
             $user = Auth::guard('pos')->user();
-
+           
             $token =  $user->createToken('pos')->accessToken;
             $this->response->user = new PosUserResource($user);
             return ResponseBuilder::successWithToken($token, $this->response, 'Login successfully',$this->successStatus);

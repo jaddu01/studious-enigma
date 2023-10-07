@@ -192,7 +192,7 @@ class OrderController extends Controller
                     $trmpArray['qty'] = $Rec['qty'];
                     $trmpArray['vendor_product_id'] = $Rec['vendorProduct']['id'];
                     $trmpArray['offer_total'] = $Rec['vendorProduct']['offer_price'] * $Rec['qty'];
-                    $trmpArray['message'] = $Rec['vendorProduct']['Product']['name'] . trans('site.out_of_stock') . '' . trans('site.max_qty') . '' . $Rec['qty'];
+                    $trmpArray['message'] = $Rec['vendorProduct']['Product']['name'] . ' is '. trans('site.out_of_stock') . '. ' . trans('site.max_qty') . ' ' . $Rec['qty'];
                     $trmpArray['is_offer'] = 'no';
                     $trmpArray['offer_data'] = json_encode(array());
                     if ($Rec['vendorProduct']['is_offer']) {
@@ -232,7 +232,7 @@ class OrderController extends Controller
                 } else {
                     $trmpArray['total'] = 0;
                     $trmpArray['offer_total'] = 0;
-                    $trmpArray['message'] = $Rec['vendorProduct']['Product']['name'] . trans('site.out_of_stock') . '' . trans('site.max_qty') . '' . $Rec['qty'];
+                    $trmpArray['message'] = $Rec['vendorProduct']['Product']['name'] .' is '. trans('site.out_of_stock') . '. ' . trans('site.max_qty') . ' ' . $Rec['qty'];
                     $trmpArray['status'] = 0;
                     $error = 1;
                 }
@@ -579,12 +579,12 @@ class OrderController extends Controller
                     if ($Rec['qty'] <= $Rec['vendorProduct']['qty']) {
                         $trmpArray['total'] = $Rec['vendorProduct']['price'] * $Rec['qty'];
                         $trmpArray['offer_price_total'] = $Rec['vendorProduct']['offer_price'] * $Rec['qty'];
-                        $trmpArray['message'] = $Rec['vendorProduct']['Product']['name'] . trans('site.out_of_stock') . '' . trans('site.max_qty') . '' . $Rec['qty'];
+                        $trmpArray['message'] = $Rec['vendorProduct']['Product']['name'] .' is '. trans('site.out_of_stock') . '. ' . trans('site.max_qty') . ' ' . $Rec['qty'];
                         $trmpArray['status'] = 1;
                     } else {
                         $trmpArray['total'] = 0;
                         $trmpArray['offer_price_total'] = 0;
-                        $trmpArray['message'] = $Rec['vendorProduct']['Product']['name'] . trans('site.out_of_stock') . '' . trans('site.max_qty') . '' . $Rec['qty'];
+                        $trmpArray['message'] = $Rec['vendorProduct']['Product']['name'] . ' is ' . trans('site.out_of_stock') . '. ' . trans('site.max_qty') . ' ' . $Rec['qty'];
                         $trmpArray['status'] = 0;
                         $error = 1;
                     }

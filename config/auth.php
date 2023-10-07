@@ -52,7 +52,7 @@ return [
         ],
 
         'pos' => [
-            'driver' => 'session',
+            'driver' => 'passport',
             'provider' => 'pos_users',
         ]
     ],

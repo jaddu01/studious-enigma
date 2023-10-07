@@ -6,6 +6,7 @@ use App\Helpers\ResponseBuilder;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Pos\VendorProductResource;
+use App\Http\Resources\VendorProductWithQuantityResource;
 use App\VendorProduct;
 
 class ProductController extends Controller
@@ -17,5 +18,16 @@ class ProductController extends Controller
         $this->response->product = VendorProductResource::collection($vendorProduct);
 
         return ResponseBuilder::success($this->response, 'Product list',$this->successStatus);
+    }
+
+
+    public function productWithQuantity(Request $request){
+        try{
+            $vendorProduct =  VendorProduct::whereHas('product',function($q){ $q->where('status','1'); })->get();
+            $this->response->product = VendorProductWithQuantityResource::collection($vendorProduct);
+            return ResponseBuilder::success($this->response, 'Product list',$this->successStatus);
+        }catch(\Exception $e){
+            return ResponseBuilder::error($e->getMessage(), $this->errorStatus);
+        }
     }
 }

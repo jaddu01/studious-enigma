@@ -30,4 +30,10 @@ class PosUser extends Authenticatable
     protected $hidden = [
         'password', 'remember_token'
     ];
+
+    protected static function boot()
+    {
+        parent::boot();
+        static::addGlobalScope(new OrderByScope());
+    }
 }

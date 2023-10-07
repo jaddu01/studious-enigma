@@ -182,7 +182,7 @@ class CartController extends Controller
             try {
                 $cart= $this->cart->where(['user_id'=>$user->id,'vendor_product_id'=>$request->vendor_product_id])->first();
                 $qty = Helper::outOfStock($request->vendor_product_id,$zone_id);
-                if($qty < $request->qty && $request->action == 'add'){
+                if($qty < $request->qty){
                     return ResponseBuilder::error(trans('order.product_out_of_stock'), $this->validationStatus);
                 }
                 if($cart){
