@@ -82,7 +82,7 @@
                                     </label>
                                     <div class="col-md-6 col-sm-6 col-xs-12">
 
-                                        {!!  Form::select('link_type', ['external'=>'External link','internal'=>'Internal Link'],null, array('class' => 'form-control col-md-7 col-xs-12','id'=>'link_type',)) !!}
+                                        {!!  Form::select('link_type', ['home'=>'Home link','external'=>'External link','internal'=>'Internal Link'],null, array('class' => 'form-control col-md-7 col-xs-12','id'=>'link_type',)) !!}
                                         @if ($errors->has('link_type'))
                                         <span class="help-block">
                                             <strong>{{ $errors->first('link_type') }}</strong>
@@ -220,23 +220,40 @@
 
         
         
-           $("#link_type").change(function(){
-           
-            if($(this).val()=='internal'){
+        $("#link_type").val('home').trigger('change');
+        $("#link_div").hide();
+        $("#internal_div").hide();
+
+        $("#link_type").change(function() {
+            if ($(this).val() == 'internal') {
+                $("#link").val();
                 $("#internal_div").show();
-                $("#cat_id").attr('required','required');
+                $("#cat_id").attr('required', 'required');
                 $("#link_div").removeClass("has-error");
                 $("#link").removeClass("has-error");
                 $("#link_div").hide();
-                
-            }else{
+                $("#link").val("");
+
+
+            } else if ($(this).val() == 'home') {
+                selectHomeLink();
+            } else {
                 $("#link_div").addClass("has-error");
                 $("#link").addClass("has-error");
                 $("#link_div").show();
                 $("#internal_div").hide();
+                $("#link").val("");
+
 
             }
         });
+
+        function selectHomeLink() {
+            $("#link_div").hide();
+            $("#internal_div").hide();
+            $("#link").val("homelink");
+
+        }
 
         $("#cat_id").change(function(){
             if($(this).val() == ''){
