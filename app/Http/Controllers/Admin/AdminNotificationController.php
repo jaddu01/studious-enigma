@@ -80,6 +80,7 @@ class AdminNotificationController extends Controller
     public function sendNotification ($user_id_array ,$dataArray, $device_type)
     {
         $push_message = "Test message";
+        
         $fields = [];
         $iphone[] = collect($user_id_array)->pluck('device_token');
        
@@ -158,6 +159,7 @@ class AdminNotificationController extends Controller
     }
     public function store(Request $request)
     {
+        
         $userData = User::get();
          
         $input = $request->all();
@@ -198,14 +200,14 @@ class AdminNotificationController extends Controller
                 $input['user_ids']= implode(',',$request->user_ids);
                 $user_ids = $request->user_ids;
                 $userData = $userData->whereIn('id',$request->user_ids);
-                // $user_id_array_iphone = $userData->where('device_type','I')->whereIn('id',$request->user_ids);
-                // $user_id_array_android = $userData->where('device_type','A')->whereIn('id',$request->user_ids);
+                $user_id_array_iphone = $userData->where('device_type','I')->whereIn('id',$request->user_ids);
+                $user_id_array_android = $userData->where('device_type','A')->whereIn('id',$request->user_ids);
             }
 
             if($request->has('selection')){
                 $input['selection']='all';
-                // $user_id_array_android = $userData->where('device_type','=','A');
-                // $user_id_array_iphone = $userData->where('device_type','=','I');
+                $user_id_array_android = $userData->where('device_type','=','A');
+                $user_id_array_iphone = $userData->where('device_type','=','I');
             }
             // dd($userData);
             //echo"<pre>";print_r($user_id_array_android);die;
@@ -228,13 +230,14 @@ class AdminNotificationController extends Controller
                 $data_array['type'] = 'admin_notification';
                 Helper::sendOnesignalNotification(array_values($playerIds), $data_array['message_heading'], $data_array['message'], $data_array);
                 
-
-                // if(count($user_id_array_android) > 0){
-                //     $this->sendNotification($user_id_array_android, $data_array, 'A');
-                // }
-                // if(count($user_id_array_iphone) > 0){
-                //     $this->sendNotification($user_id_array_iphone, $data_array,'I');
-                // }
+                // dd($user_id_array_iphone);
+                if(count($user_id_array_android) > 0){
+                    
+                    $this->sendNotification($user_id_array_android, $data_array, 'A');
+                }
+                if(count($user_id_array_iphone) > 0){
+                    $this->sendNotification($user_id_array_iphone, $data_array,'I');
+                }
                 Session::flash('success',trans('admin-notification.create_success'));
 
             } catch (\Exception $e) {
