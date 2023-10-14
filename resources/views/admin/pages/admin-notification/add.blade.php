@@ -219,7 +219,7 @@
         });
 
         
-        
+        //Home dropdown selected 
         $("#link_type").val('home').trigger('change');
         $("#link_div").hide();
         $("#internal_div").hide();
