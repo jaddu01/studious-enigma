@@ -70,7 +70,7 @@
 
                                 <div class="col-sm-6">
                                     <div class="form-group {{ $errors->has('gender') ? ' has-error' : '' }}">
-                                        {!!  Form::select('gender', Helper::$gender,null, array('class' => 'form-control custom_input','placeholder'=>'Gender')) !!}
+                                        {!!  Form::select('gender', Helper::$gender,null, array('id'=>'genderDropdown','class' => 'form-control custom_input','placeholder'=>'Gender')) !!}
                                         @if( $errors->has('gender'))
                                             {{ Form::filedError('gender') }}
                                         @endif
@@ -164,6 +164,7 @@
 <script>
     // initialize the validator function
     validator.message.date = 'not a real date';
+    // $("#genderDropdown").val('male').trigger('change');
 
     // validate a field on "blur" event, a 'select' on 'change' event & a '.reuired' classed multifield on 'keyup':
     $('form')

@@ -185,7 +185,10 @@ class ProductController extends Controller
     {
 
         $input = $request->all();
-        // dd($input);
+        $isOutOfStock = Product::where('id', $id)->value('qty') == 0; //check the product quantity before updated the product
+        $NowProductNotOutofStock = $request->qty != 0;//check the product quantity after updated the product 
+
+        
         $input['vendor_id'] = Auth::guard('admin')->user()->id;
         $input['disclaimer:en'] = 'While we work to ensure that product information is correct, on occasion manufacturers may alter their ingredient lists. Actual product packaging and materials may contain more and/or different information than that shown on our web site. We recommend that you do not solely rely on the information presented and that you always read labels, warnings, and directions before using or consuming a product. For additional information about a product, please contact the manufacturer.';
        //echo "<pre>"; print_r($input); die;
@@ -217,6 +220,19 @@ class ProductController extends Controller
                 $vendorProduct = $product->VendorProduct->where('product_id',$id)->first();
                 $vendorProduct->update(['vendor_id'=>Auth::guard('admin')->user()->id,'price'=>$input['price'],'qty'=>$input['qty'],'status'=>1, 'offer_id'=>$input['offer_id'], 'per_order'=>$input['per_order'], 'best_price' => $input['best_price'], 'memebership_p_price' => $input['memebership_p_price']]);
 
+                if ($isOutOfStock && $NowProductNotOutofStock) {
+                    $playerIds = $vendorProduct->users()->where('device_token', '!=', '0')->get()->pluck('device_token')->toArray();
+                    if (count($playerIds) > 0) {
+                        Log::info($playerIds);
+                        $brand_name = $product->brand->name;
+                        $data_array['type'] = 'stock_notification';
+                        $data_array['message_heading'] = "Product";
+                        $data_array['message'] = "$brand_name is now available. You can buy it now ";
+
+                        Helper::sendOnesignalNotification(array_values($playerIds), $data_array['message_heading'], $data_array['message'], $data_array);
+
+                    }
+                }
                 DB::commit();
                  Session::flash('success','Product updated successfully');
             } catch (\Exception $e) {

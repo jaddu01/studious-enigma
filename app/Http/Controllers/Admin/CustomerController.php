@@ -19,6 +19,7 @@ use Proengsoft\JsValidation\Facades\JsValidatorFacade;
 use DataTables;
 use DB;
 use Auth;
+use Illuminate\Support\Facades\Redirect;
 
 class CustomerController extends Controller
 {
@@ -185,14 +186,29 @@ class CustomerController extends Controller
         }
 
         $input = $request->all();
+        // dd($this->method);
         
-        $validator = Validator::make($request->all(), $this->user->rules($this->method,$id),$this->user->messages($this->method));
+        // $validator = Validator::make(
+        //     $request->all(), $this->user->rules($this->method,$id),
+        // $this->user->messages($this->method));
+        $validator = Validator::make($request->all(),[
+            'user_type' => 'sometimes|required',
+            'image' => 'image|mimes:jpg,png,jpeg',
+            'name' => 'sometimes|required',
+            'email' => 'sometimes|required|email|unique:users,email,'.$id.',id,deleted_at,NULL',
+            'phone_number' => 'sometimes|numeric|required|digits:10|unique:users,phone_number,'.$id.',id,deleted_at,NULL',
+            'password' => 'sometimes|required|string|min:6|confirmed',
+            'address' => 'sometimes|required',
+            'phone_code' => 'sometimes|required',
+        ]
+        );
 
         if ($validator->fails()) {
-
-            return redirect()->route('customer.index')
-                ->withErrors($validator)
-                ->withInput();
+            
+            // return redirect()->route('customer.index')
+            //     ->withErrors($validator)
+            //     ->withInput();
+            return Redirect::back()->withErrors($validator)->withInput();
         }else{
            $user= $this->user->FindOrFail($id)->fill($input)->save();
             return redirect()->route('customer.index')->with('success','User update successful');
