@@ -224,10 +224,10 @@ class ProductController extends Controller
                     $playerIds = $vendorProduct->users()->where('device_token', '!=', '0')->get()->pluck('device_token')->toArray();
                     if (count($playerIds) > 0) {
                         Log::info($playerIds);
-                        $brand_name = $product->brand->name;
+                        $product_name = $this->producttranslation->where('product_id',$product->id)->value('name');
                         $data_array['type'] = 'stock_notification';
                         $data_array['message_heading'] = "Product";
-                        $data_array['message'] = "$brand_name is now available. You can buy it now ";
+                        $data_array['message'] = "$product_name is now available. You can buy it now ";
 
                         Helper::sendOnesignalNotification(array_values($playerIds), $data_array['message_heading'], $data_array['message'], $data_array);
 
