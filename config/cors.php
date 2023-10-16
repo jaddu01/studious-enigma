@@ -11,7 +11,7 @@ return [
     | to accept any value.
     |
     */
-   
+    'paths' => ['api/*', 'pos/*','*'],
     'supportsCredentials' => false,
     'allowedOrigins' => ['*'],
     'allowedOriginsPatterns' => [],
