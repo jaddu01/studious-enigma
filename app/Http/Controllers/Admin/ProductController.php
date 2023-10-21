@@ -102,6 +102,8 @@ class ProductController extends Controller
     public function store(Request $request)
     {
         $input = $request->all();
+
+      
         
         $validator = Validator::make($request->all(),$this->model->rules($this->method),$this->model->messages($this->method));
 
@@ -150,6 +152,7 @@ class ProductController extends Controller
         $product=$this->model->with(['images'])->findOrFail($id);
         //echo"<pre>"; print_r($product->toArray());
         $related_products = $this->model->whereIn('id',$product->related_products)->get();
+        
         return view('admin/pages/product/show')->with('product',$product)->with('related_products',$related_products);
     }
 

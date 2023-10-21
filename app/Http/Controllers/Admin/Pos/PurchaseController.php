@@ -58,12 +58,13 @@ class PurchaseController extends Controller
         $suppliers=Supplier::where('status','=','1')->pluck('company_name','id');
         $payment_mode = ['cash'=>'Cash','cheque'=>'Cheque','online'=>'Online'];
         $payment_status = ['paid'=>'Paid','due'=>'Due'];
-        return view('admin/pages/pos/purchase//add')->with('validator',$validator)->with('brands',$brands)->with('vendors',$vendors)->with('suppliers',$suppliers)->with('payment_mode',$payment_mode)->with('payment_status',$payment_status);
+        return view('admin/pages/pos/purchase/add')->with('validator',$validator)->with('brands',$brands)->with('vendors',$vendors)->with('suppliers',$suppliers)->with('payment_mode',$payment_mode)->with('payment_status',$payment_status);
     }
 
     public function store(Request $request)
     {
         $input = $request->all();
+        dd($input);
         
         $validator = Validator::make($request->all(),$this->model->rules($this->method),$this->model->messages($this->method));
 

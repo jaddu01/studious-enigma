@@ -1,3 +1,6 @@
+:root{
+--red:  #dc3545;
+}
 .tile_count .tile_stats_count .count a{
 color:#ffffff !important;
 }
@@ -5221,3 +5224,8 @@ tr.shown td.details-control {
   padding: 15px 0;
   border-top: 5px solid #ededed;
   border-bottom: 5px solid #ededed;}
+
+  .startTxt{
+    color:var(--red);
+    font-size:1.25rem;
+  }
