@@ -26,7 +26,7 @@ class Medias extends BaseModel
     ];
 
 
-    public $translatedAttributes = ['title','image'];
+    public $translatedAttributes = ['title','image','message'];
 
     public function __construct(array $attributes = [])
     {
@@ -81,6 +81,8 @@ class Medias extends BaseModel
                     $trans = $trans + [
                             'image:'.$locale => 'sometimes|image|mimes:jpeg,png,jpg,gif,svg',
                             'title:'.$locale => 'required|unique:medias_translations,title,'.$id.',medias_id',
+                            'message:'.$locale => 'sometimes|string'
+
                         ];
                 }
                 return $page + $trans;
@@ -95,6 +97,7 @@ class Medias extends BaseModel
                     $trans = $trans + [
                             'image:'.$locale => 'sometimes|image|mimes:jpeg,png,jpg,gif,svg',
                              'title:'.$locale => 'required|unique:medias_translations,title,'.$id.',medias_id',
+
                         ];
                 }
                 return $page + $trans;

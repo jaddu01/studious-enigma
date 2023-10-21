@@ -67,7 +67,19 @@
                                 @endforeach
                                 {{ Form::hidden('media_type', 'refer', array('id' => 'media_type')) }}
                                
-                           
+                                <div class="item form-group {{ $errors->has('message') ? ' has-error' : '' }}">
+                                    <label class="control-label col-md-3 col-sm-3 col-xs-12" for="msg">Message <span class="required">*</span>
+                                    </label>
+                                    <div class="col-md-6 col-sm-6 col-xs-12">
+
+                                        {!!  Form::textarea('message:'.$locale, null, array('placeholder' => 'message','class' => 'form-control col-md-7 col-xs-12','id'=>'msg' )) !!}
+                                        @if ($errors->has('message'))
+                                            <span class="help-block">
+                                                <strong>{{ $errors->first('message') }}</strong>
+                                            </span>
+                                        @endif
+                                    </div>
+                                </div>
                            
                                 <div class="item form-group {{ $errors->has('status') ? ' has-error' : '' }}">
                                     <label class="control-label col-md-3 col-sm-3 col-xs-12" for="email">Status <span class="required">*</span>

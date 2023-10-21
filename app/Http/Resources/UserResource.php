@@ -2,6 +2,8 @@
 
 namespace App\Http\Resources;
 
+use App\Medias;
+use App\MediasTranslations;
 use Carbon\Carbon;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -16,6 +18,9 @@ class UserResource extends JsonResource
     public function toArray($request)
     {
         // dd($this->membership_to);
+        $refer_msg = Medias::where('media_type','refer')->first();
+        $refer_msg=$refer_msg->translate('en')->message;
+        
         return [
             "user_id"=>$this->id,
             "name"=>$this->name,
@@ -38,6 +43,8 @@ class UserResource extends JsonResource
             "referral_code" => $this->referral_code,
             "referral_by" => $this->referral_by,
             "referral" => $this->referral,
+            'referral_msg_txt'=>$refer_msg??null,
+
         ];
     }
 }

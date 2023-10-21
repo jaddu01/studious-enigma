@@ -15,7 +15,7 @@ class MediasTranslations extends Model
 {
     public $timestamps = false;
     protected $table = 'medias_translations';
-    protected $fillable = ['title','image'];
+    protected $fillable = ['title','image','message'];
 
     public function getImageAttribute($value)
     {

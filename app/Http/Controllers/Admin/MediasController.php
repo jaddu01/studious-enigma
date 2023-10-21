@@ -271,8 +271,8 @@ class MediasController extends Controller
      */
     public function referUpdateImage(Request $request, $id)
     {
-
         $input = $request->all();
+        // dd($input);
         $validator = Validator::make($request->all(),$this->model->rules($this->method,$id),$this->model->messages($this->method,$id));
        
         if ($validator->fails()) {
@@ -289,7 +289,7 @@ class MediasController extends Controller
 
                 }
             }
-
+            // dd($input);
             $this->model->withoutGlobalScope(StatusScope::class)->FindOrFail($id)->update($input);
             return redirect()->route('admin.media.refer-image')->with('success',trans('offer-slider.update_success'));
         }
