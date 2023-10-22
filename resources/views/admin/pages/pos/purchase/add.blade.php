@@ -51,11 +51,14 @@
                                     </div>
                                 </div>
                                 <div class="row mt-3">
-                                    <div class="col-md-12">
-                                        <label>Place of Supply: -</label><br>
-                                        <label>GSTIN: -</label><br>
+                                    <div class="col-md-12" id="supplier_address">
+                                        <label>Place of Supply: -</label><span id="state"></span><br>
+                                        <label>GSTIN: -</label><br><span id="gst_no"></span><br>
                                         <label>Billing Address</label><br>
-                                        <h5 class="mb-0"><small class="text-muted d-block mb-2"
+                                        <div id="Billing-address">
+                                            
+                                        </div>
+                                        <h5 class="mb-0" id="billing-not-provided"><small class="text-muted d-block mb-2"
                                                 data-address-message="">Billing Address is Not Provided</small></h5>
                                     </div>
                                 </div>
@@ -237,7 +240,13 @@
                                         <label for="payment_term">Payment Term<small class="startTxt">*</small></label>
                                         {!! Form::select(
                                             'payment_term',
-                                            ['90 Days' => '90 Days', '60 Days' => '60 Days', '30 Days'=>'30 Days', '15 Days'=>'15 Days', '7 Days'=>'7 Days'],
+                                            [
+                                                '90 Days' => '90 Days',
+                                                '60 Days' => '60 Days',
+                                                '30 Days' => '30 Days',
+                                                '15 Days' => '15 Days',
+                                                '7 Days' => '7 Days',
+                                            ],
                                             null,
                                             [
                                                 'placeholder' => 'Product',
@@ -255,13 +264,23 @@
                                     </div>
                                     <div class="col-md-4">
                                         <label for="tax_type">Tax Type<small class="startTxt">*</small></label>
-                                        {!! Form::select('tax_type', ['Default'=>'Default', 'Tax Inclusive'=>'Tax Inclusive', 'Tax Exclusive'=>'Tax Exclusive', 'Out Of Score'=>'Out Of Score'], null, [
-                                            'placeholder' => 'Product',
-                                            'class' => 'form-control col-md-7 col-xs-12 select2-product',
-                                            'id' => 'tax_type',
-                                            'dir' => $locale == 'ar' ? 'rtl' : 'ltr',
-                                            'lang' => $locale,
-                                        ]) !!}
+                                        {!! Form::select(
+                                            'tax_type',
+                                            [
+                                                'Default' => 'Default',
+                                                'Tax Inclusive' => 'Tax Inclusive',
+                                                'Tax Exclusive' => 'Tax Exclusive',
+                                                'Out Of Score' => 'Out Of Score',
+                                            ],
+                                            null,
+                                            [
+                                                'placeholder' => 'Product',
+                                                'class' => 'form-control col-md-7 col-xs-12 select2-product',
+                                                'id' => 'tax_type',
+                                                'dir' => $locale == 'ar' ? 'rtl' : 'ltr',
+                                                'lang' => $locale,
+                                            ],
+                                        ) !!}
                                         @if ($errors->has('tax_type'))
                                             <span class="help-block">
                                                 <strong>{{ $errors->first('tax_type') }}</strong>
@@ -290,7 +309,7 @@
                             </div>
                         </div>
                     @endforeach
-                   
+
                 </div>
             </div>
 
@@ -300,51 +319,48 @@
                     <div class="row">
                         <table class="table table-bordered ">
                             <thead class="thead-dark">
-                              <tr>
-                                <th scope="col">#</th>
-                                <th scope="col">Item Code/Barcode<small class="startTxt">*</small></th>
-                                <th scope="col" style="width:200px">Product Name<small class="startTxt">*</small></th>
-                                <th scope="col" style="width:80px">Qty<small class="startTxt">*</small></th>
-                                <th scope="col" style="width:80px">Free Qty<small class="startTxt">*</small></th>
-                                <th scope="col" style="width:80px">Unit Cost<small class="startTxt">*</small></th>
-                                <th scope="col" style="width:80px">MRP<small class="startTxt">*</small></th>
-                                <th scope="col" style="width:80px">Selling Price<small class="startTxt">*</small></th>
-                                <th scope="col">Taxable<small class="startTxt">*</small></th>
-                                <th scope="col">Tax<small class="startTxt">*</small></th>
-                                <th scope="col" style="width:80px">Landing Cost<small class="startTxt">*</small></th>
-                                <th scope="col" style="width:80px">Margin (%)<small class="startTxt">*</small></th>
-                                <th scope="col" style="width:80px">Total<small class="startTxt">*</small></th>
+                                <tr>
+                                    <th scope="col">#</th>
+                                    <th scope="col">Item Code/Barcode<small class="startTxt">*</small></th>
+                                    <th scope="col" style="width:200px">Product Name<small class="startTxt">*</small>
+                                    </th>
+                                    <th scope="col" style="width:80px">Qty<small class="startTxt">*</small></th>
+                                    <th scope="col" style="width:80px">Free Qty<small class="startTxt">*</small></th>
+                                    <th scope="col" style="width:80px">Unit Cost<small class="startTxt">*</small></th>
+                                    <th scope="col" style="width:80px">MRP<small class="startTxt">*</small></th>
+                                    <th scope="col" style="width:80px">Selling Price<small class="startTxt">*</small>
+                                    </th>
+                                    <th scope="col">Taxable<small class="startTxt">*</small></th>
+                                    <th scope="col">Tax<small class="startTxt">*</small></th>
+                                    <th scope="col" style="width:80px">Landing Cost<small class="startTxt">*</small>
+                                    </th>
+                                    <th scope="col" style="width:80px">Margin (%)<small class="startTxt">*</small>
+                                    </th>
+                                    <th scope="col" style="width:80px">Total<small class="startTxt">*</small></th>
 
-                              </tr>
+                                </tr>
                             </thead>
-                            <tbody>
-                              <tr>
-                                <td>1</td>
-                                <td><input type="text" class="form-control w-50"></td>
-                                <td><input type="text" class="form-control w-50"></td>
-                                <td><input type="text" class="form-control"></td>
-                                <td><input type="text" class="form-control"></td>
-                                <td><input type="text" class="form-control"></td>
-                                <td><input type="text" class="form-control"></td>
-                                <td><input type="text" class="form-control"></td>
-                                <td>4</td>
-                                <td>4</td>
-                                <td><input type="text" class="form-control"></td>
-                                <td><input type="text" class="form-control"></td>
-                                <td><input type="text" class="form-control"></td>
+                            <tbody id="product_Details_Tbody">
+            
+                                <tr>
+                                    <td>1</td>
+                                    <td><select class="form-control select2-barcode" style="width:130px;"></select></td>
+                                    <td><select class="form-control select2-product"></select></td>
+                                    <td><input type="text" placeholder="0" class="form-control product_qty"></td>
+                                    <td><input type="text" placeholder="0" class="form-control product_free_qty"></td>
+                                    <td><input type="text" placeholder="0" class="form-control product_unit_cost"></td>
+                                    <td><input type="text" placeholder="0" class="form-control product_mrp"></td>
+                                    <td><input type="text" placeholder="0" class="form-control  product_selling_price"></td>
+                                    <td><span class="product_taxable">4</span></td>
+                                    <td><span class="product_tax">3</span></td>
+                                    <td><input type="text" placeholder="0" class="form-control product_product_landing_cost"></td>
+                                    <td><input type="text" placeholder="0" class="form-control product_margin"></td>
+                                    <td><input type="text" placeholder="0" class="form-control product_total"></td>
 
+                                </tr>
 
-
-
-
-
-
-
-
-                              </tr>
-                           
                             </tbody>
-                          </table>
+                        </table>
                     </div>
                 </div>
             </div>
@@ -366,6 +382,14 @@
     <script src="{{ asset('public/js/select2.min.js') }}"></script>
     <script src="https://code.jquery.com/ui/1.13.1/jquery-ui.js"></script>
     <script>
+        function ajxHeader() {
+            $.ajaxSetup({
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                }
+            })
+
+        }
         $(document).ready(function() {
             $('.select2-vendor').select2({
                 placeholder: "Select Store",
@@ -379,10 +403,8 @@
                 placeholder: "Select Brand",
                 allowClear: true
             });
-            $('.select2-product').select2({
-                placeholder: "Select Product",
-                allowClear: true
-            });
+         
+          
 
             //for visible clendar Date
             $("#bill_date,#due_date,#shipping_date").datepicker({
@@ -390,16 +412,14 @@
             });
 
             $("#vendor_id").change(function() {
-
+                ajxHeader();
                 $.ajax({
                     data: {
                         vendor_id: $(this).val()
                     },
                     method: 'get',
                     url: "{!! route('purchase.get-brands') !!}",
-                    headers: {
-                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                    },
+
                     success: function(response) {
                         console.log(response);
                         var html = '';
@@ -474,9 +494,15 @@
         });
     </script>
     <!-- FastClick -->
+    <script>
+        let supplier_address_get_url = "{{ route('purchase.get.supplier.address','') }}";
+        let search_product_url = "{{route('purchase.get.supply.products')}}";
+        let supplier_product_info_url ="{{route('purchase.get.supplier.products.info','')}}";
+    </script>
     <script src="{{ asset('public/assets/fastclick/lib/fastclick.js') }}"></script>
     <!-- NProgress -->
     <script src="{{ asset('public/assets/nprogress/nprogress.js') }}"></script>
+    <script src="{{ asset('public/assets/purchase/add_purchase.js') }}"></script>
     {{-- <!-- validator -->
 <script src="{{asset('public/assets/validator/validator.min.js')}}"></ --}}script>
 @endpush

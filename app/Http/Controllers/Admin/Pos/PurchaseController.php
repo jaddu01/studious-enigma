@@ -16,10 +16,12 @@ use App\Product;
 use App\VendorProduct;
 use App\Supplier;
 use App\Helpers\Helper;
+use App\Helpers\ResponseBuilder;
 use App\Scopes\StatusScope;
 use App\User;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Http\Resources\SupplierProductResource;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Validator;
 use Proengsoft\JsValidation\Facades\JsValidatorFacade;
@@ -56,6 +58,7 @@ class PurchaseController extends Controller
         $brands=Brand::where('status','=','1')->listsTranslations('name','id')->pluck('name','id')->all();
         $vendors=$this->user->where(['user_type'=>'vendor','role'=>'user'])->pluck('name','id');
         $suppliers=Supplier::where('status','=','1')->pluck('company_name','id');
+        // dd($suppliers);
         $payment_mode = ['cash'=>'Cash','cheque'=>'Cheque','online'=>'Online'];
         $payment_status = ['paid'=>'Paid','due'=>'Due'];
         return view('admin/pages/pos/purchase/add')->with('validator',$validator)->with('brands',$brands)->with('vendors',$vendors)->with('suppliers',$suppliers)->with('payment_mode',$payment_mode)->with('payment_status',$payment_status);
@@ -188,5 +191,57 @@ class PurchaseController extends Controller
         $brands = VendorProduct::leftJoin('products','products.id', '=', 'vendor_products.product_id')->leftJoin('brand_translations','brand_translations.brand_id', '=', 'products.brand_id')->where('vendor_products.user_id', '=', $vendor_id)->where('brand_translations.name','!=',null)->pluck('brand_translations.name as name','brand_translations.brand_id as id');
         return response()->json($brands);
     }
+
+    public function getSupplierAddress(Request $request,Supplier $Supplier){
+        if($request->ajax()){
+            // $supplier = $Supplier->company_name;
+            
+          return   response()->json([
+                'state'=>$Supplier->state,
+                'gstin'=>$Supplier->gstin_number,
+                'company_name'=>$Supplier->company_name,
+                'address'=>$Supplier->address,
+                'pincode'=>$Supplier->pin_code,
+                'country'=>$Supplier->country,
+                'contact_number'=>$Supplier->contact_number,
+                'phone_number'=>$Supplier->phone_number
+            ]);
+        }
+    }
+
+    public function getSupplierProducts(Request $request){
+        $products = '';
+        if($request->type=='barcode'){
+        $products=Product::where('barcode','like',"%{$request->search}%")->has('ProductTranslation')->paginate($request->page);
+         
+            // return ResponseBuilder::success($supplierProducts,'success');
+       // return ResponseBuilder::successWithPagination($products,$supplierProducts,"success");
+        }
+        else if($request->type=='products'){
+        $products=Product::whereTranslationLike('name',"%{$request->search}%")->paginate($request->page);
+
+        }
+
+        $supplierProducts = SupplierProductResource::collection($products);
+        $response['data'] = $supplierProducts;
+        $response['pagination']=[
+            "more"=>true,
+
+        ];
+        $response['meta']=[
+            'total'=>$products->total()
+            
+        ];
+        return response($response);
+    }
     
+    public function getSupplierProductsInfo(Request $request,Product $product){
+        return response()->json([
+            'id'=>$this->id,
+            'qty'=>$this->qty,
+            'price'=>$this->price,
+            'unit_cost'=>$this->per_order,
+            'best_price'=>
+        ])
+    }
 }
