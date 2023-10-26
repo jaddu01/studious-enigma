@@ -56,7 +56,7 @@
                                         <label>GSTIN: -</label><br><span id="gst_no"></span><br>
                                         <label>Billing Address</label><br>
                                         <div id="Billing-address">
-                                            
+
                                         </div>
                                         <h5 class="mb-0" id="billing-not-provided"><small class="text-muted d-block mb-2"
                                                 data-address-message="">Billing Address is Not Provided</small></h5>
@@ -84,7 +84,7 @@
                                         @endif
 
                                     </div>
-                                    <div class="col-md-4">
+                                    {{-- <div class="col-md-4">
                                         <label for="shipping_date">Shipping Date<small class="startTxt">*</small></label>
                                         {!! Form::text('shipping_date', null, [
                                             'placeholder' => 'Shipping Date',
@@ -100,7 +100,7 @@
                                             </span>
                                         @endif
 
-                                    </div>
+                                    </div> --}}
                                     <div class="col-md-4">
                                         <label for="due_date">Due Date<small class="startTxt">*</small></label>
                                         {!! Form::text('due_date', null, [
@@ -119,10 +119,6 @@
 
                                     </div>
 
-
-                                </div>
-
-                                <div class="row mt-3">
                                     <div class="col-md-4">
                                         <label for="bill_amount">Bill Amount<small class="startTxt">*</small></label>
                                         {!! Form::number('bill_amount', null, [
@@ -139,6 +135,10 @@
                                             </span>
                                         @endif
                                     </div>
+                                </div>
+
+                                <div class="row mt-3">
+
                                     <div class="col-md-4">
                                         <label for="">Invoice No.<small class="startTxt">*</small></label>
                                         {!! Form::text('invoice_no', null, [
@@ -170,7 +170,33 @@
                                             </span>
                                         @endif
                                     </div>
-
+                                    <div class="col-md-4">
+                                        <label for="payment_term">Payment Term<small class="startTxt">*</small></label>
+                                        {!! Form::select(
+                                            'payment_term',
+                                            [
+                                                '90 Days' => '90 Days',
+                                                '60 Days' => '60 Days',
+                                                '30 Days' => '30 Days',
+                                                '15 Days' => '15 Days',
+                                                '10 Days' => '10 Days',
+                                                '7 Days' => '7 Days',
+                                            ],
+                                            null,
+                                            [
+                                                'placeholder' => 'Product',
+                                                'class' => 'form-control col-md-7 col-xs-12 select2-product',
+                                                'id' => 'payment_term',
+                                                'dir' => $locale == 'ar' ? 'rtl' : 'ltr',
+                                                'lang' => $locale,
+                                            ],
+                                        ) !!}
+                                        @if ($errors->has('payment_term'))
+                                            <span class="help-block">
+                                                <strong>{{ $errors->first('payment_term') }}</strong>
+                                            </span>
+                                        @endif
+                                    </div>
                                 </div>
 
                                 {{-- <div class="row mt-3">
@@ -237,30 +263,6 @@
                                     <div class="col-md-4">
                                     </div>
                                     <div class="col-md-4">
-                                        <label for="payment_term">Payment Term<small class="startTxt">*</small></label>
-                                        {!! Form::select(
-                                            'payment_term',
-                                            [
-                                                '90 Days' => '90 Days',
-                                                '60 Days' => '60 Days',
-                                                '30 Days' => '30 Days',
-                                                '15 Days' => '15 Days',
-                                                '7 Days' => '7 Days',
-                                            ],
-                                            null,
-                                            [
-                                                'placeholder' => 'Product',
-                                                'class' => 'form-control col-md-7 col-xs-12 select2-product',
-                                                'id' => 'payment_term',
-                                                'dir' => $locale == 'ar' ? 'rtl' : 'ltr',
-                                                'lang' => $locale,
-                                            ],
-                                        ) !!}
-                                        @if ($errors->has('payment_term'))
-                                            <span class="help-block">
-                                                <strong>{{ $errors->first('payment_term') }}</strong>
-                                            </span>
-                                        @endif
                                     </div>
                                     <div class="col-md-4">
                                         <label for="tax_type">Tax Type<small class="startTxt">*</small></label>
@@ -317,56 +319,68 @@
                 <div class="x_panel ">
                     <span class="section">Product Details</span>
                     <div class="row">
-                        <table class="table table-bordered ">
-                            <thead class="thead-dark">
-                                <tr>
-                                    <th scope="col">#</th>
-                                    <th scope="col">Item Code/Barcode<small class="startTxt">*</small></th>
-                                    <th scope="col" style="width:200px">Product Name<small class="startTxt">*</small>
-                                    </th>
-                                    <th scope="col" style="width:80px">Qty<small class="startTxt">*</small></th>
-                                    <th scope="col" style="width:80px">Free Qty<small class="startTxt">*</small></th>
-                                    <th scope="col" style="width:80px">Unit Cost<small class="startTxt">*</small></th>
-                                    <th scope="col" style="width:80px">MRP<small class="startTxt">*</small></th>
-                                    <th scope="col" style="width:80px">Selling Price<small class="startTxt">*</small>
-                                    </th>
-                                    <th scope="col">Taxable<small class="startTxt">*</small></th>
-                                    <th scope="col">Tax<small class="startTxt">*</small></th>
-                                    <th scope="col" style="width:80px">Landing Cost<small class="startTxt">*</small>
-                                    </th>
-                                    <th scope="col" style="width:80px">Margin (%)<small class="startTxt">*</small>
-                                    </th>
-                                    <th scope="col" style="width:80px">Total<small class="startTxt">*</small></th>
+                        <div class="col-md-12 table-responsive">
+                            <table class="table table-bordered">
+                                <thead class="thead-dark">
+                                    <tr>
+                                        <th scope="col" id="addNewHeader" style="width:70px"></th>
+                                        <th scope="col">#</th>
+                                        <th scope="col">Item Code/Barcode<small class="startTxt">*</small></th>
+                                        <th scope="col" style="width:200px">Product Name<small class="startTxt">*</small>
+                                        </th>
+                                        <th scope="col" style="width:80px">Qty<small class="startTxt">*</small></th>
+                                        <th scope="col" style="width:80px">Free Qty<small class="startTxt">*</small></th>
+                                        <th scope="col" style="width:80px">Unit Cost<small class="startTxt">*</small>
+                                        </th>
+                                        <th scope="col" style="width:80px">Net Rate<small class="startTxt">*</small>
+                                        </th>
+                                        <th scope="col" style="width:80px">MRP<small class="startTxt">*</small></th>
+                                        <th scope="col" style="width:80px">Selling Price<small class="startTxt">*</small>
+                                        </th>
+                                        <th scope="col">GST Amount<small class="startTxt">*</small></th>
+                                        <th scope="col">GST(%)<small class="startTxt">*</small></th>
 
-                                </tr>
-                            </thead>
-                            <tbody id="product_Details_Tbody">
-            
-                                <tr>
-                                    <td>1</td>
-                                    <td><select class="form-control select2-barcode" style="width:130px;"></select></td>
-                                    <td><select class="form-control select2-product"></select></td>
-                                    <td><input type="text" placeholder="0" class="form-control product_qty"></td>
-                                    <td><input type="text" placeholder="0" class="form-control product_free_qty"></td>
-                                    <td><input type="text" placeholder="0" class="form-control product_unit_cost"></td>
-                                    <td><input type="text" placeholder="0" class="form-control product_mrp"></td>
-                                    <td><input type="text" placeholder="0" class="form-control  product_selling_price"></td>
-                                    <td><span class="product_taxable">4</span></td>
-                                    <td><span class="product_tax">3</span></td>
-                                    <td><input type="text" placeholder="0" class="form-control product_product_landing_cost"></td>
-                                    <td><input type="text" placeholder="0" class="form-control product_margin"></td>
-                                    <td><input type="text" placeholder="0" class="form-control product_total"></td>
+                                        <th scope="col" style="width:80px">Margin (%)<small class="startTxt">*</small>
+                                        </th>
+                                        <th scope="col" style="width:80px">Total<small class="startTxt">*</small></th>
 
-                                </tr>
+                                    </tr>
+                                </thead>
+                                <tbody id="product_Details_Tbody">
 
-                            </tbody>
-                        </table>
+
+                                    <tr id="totalResult" class="display-hide">
+        
+                                        <td colspan="4" style="border:none !important;"><div class="text-right" style="padding-right: 30px;"><span class="dark-txt">Total</span></div></td>
+                                        <td style="border:none !important;"><div class="text-center"><span class="dark-txt" id="totalQty">10</span></div></td>
+                                        <td style="border:none !important;"></td>
+                                        <td style="border:none !important;"></td>
+                                        <td style="border:none !important;"></td>
+                                        <td style="border:none !important;"></td>
+                                        <td style="border:none !important;"></td>
+                                        
+                                        <td style="border:none !important;"><div class="text-center"><span class="dark-txt" id="totalGstAmount"></span></div></td>
+                                        <td style="border:none !important;"></td>
+                                        <td style="border:none !important;"></td>
+                                        <td style="border:none !important;"><div class="text-center"><span class="dark-txt" id="total"></span></div></td>
+
+
+
+
+                                    </tr>
+                                </tbody>
+                            </table>
+
+                        </div>
+
                     </div>
                 </div>
             </div>
             <div class="row">
                 <div class="col-12 text-right">
-                    {!! Form::submit('Submit', ['class' => 'btn btn-success']) !!}
+                    {{-- {!! Form::submit('Submit', ['class' => 'btn btn-success']) !!} --}}
+                    {{-- {!! Form::End !!} --}}
+
 
                 </div>
             </div>
@@ -403,11 +417,11 @@
                 placeholder: "Select Brand",
                 allowClear: true
             });
-         
-          
+
+
 
             //for visible clendar Date
-            $("#bill_date,#due_date,#shipping_date").datepicker({
+            $("#bill_date,#due_date").datepicker({
                 dateFormat: 'yy-mm-dd'
             });
 
@@ -495,14 +509,16 @@
     </script>
     <!-- FastClick -->
     <script>
-        let supplier_address_get_url = "{{ route('purchase.get.supplier.address','') }}";
-        let search_product_url = "{{route('purchase.get.supply.products')}}";
-        let supplier_product_info_url ="{{route('purchase.get.supplier.products.info','')}}";
+        let supplier_address_get_url = "{{ route('purchase.get.supplier.address', '') }}";
+        let search_product_url = "{{ route('purchase.get.supply.products') }}";
+        let supplier_product_info_url = "{{ route('purchase.get.supplier.products.info', '') }}";
     </script>
     <script src="{{ asset('public/assets/fastclick/lib/fastclick.js') }}"></script>
     <!-- NProgress -->
     <script src="{{ asset('public/assets/nprogress/nprogress.js') }}"></script>
     <script src="{{ asset('public/assets/purchase/add_purchase.js') }}"></script>
+    <script src="{{ asset('public/assets/purchase/field-calculation.js') }}"></script>
+    <script src="{{ asset('public/assets/purchase/btn-action.js') }}"></script>
     {{-- <!-- validator -->
 <script src="{{asset('public/assets/validator/validator.min.js')}}"></ --}}script>
 @endpush

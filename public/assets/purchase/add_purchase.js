@@ -1,30 +1,150 @@
-$(document).ready(function(){
-  
 
-    $("#supplier_id").on('change',function(){
-        const  supplier_id = $(this).val();
-        const url =supplier_address_get_url+'/'+supplier_id;
-        console.log(url);
+
+function setTblData(count = null) {
+    const tableRow = `<tr>
+    <td>
+    <div style="width:70px;" class="text-center">
+    <i class="fa fa-times-circle btn-pill1 product_delete_field_row_btn ml-1 ${(count === 1) ? 'display-hide' : ''}" aria-hidden="true"></i>
+
+    <i class="fa fa-plus-circle btn-pill product_add_new_field_row_btn" aria-hidden="true"></i>
+</div>
+    </td>
+    <td><span class="product_no">1</span>
+    </td>
+    <td><input type="text" placeholder="Barcode" style="width:130px;"
+            class="form-control product_barcode"></td>
+    <td><select class="form-control select2-product" style="width:200px;"></select>
+    </td>
+    <td class="display-hide">
+        <input type="text" class="form-control select2-product2 "
+            style="width:200px;" product_id="">
+    </td>
+    
+    <td><input type="number" value="0" placeholder="0"
+            class="product-tbl-column-width form-control product_qty product-field">
+    </td>
+    <td><input type="number" value="0" placeholder="0"
+            class="product-tbl-column-width form-control product-field product_free_qty">
+    </td>
+    <td><input type="number" value="0" placeholder="0"
+            class="product-tbl-column-width form-control product-field product_unit_cost">
+    </td>
+    <td><input type="number" value="0" placeholder="0"
+            class="product-tbl-column-width form-control product-field product_net_rate">
+    </td>
+    <td><input type="number" value="0" placeholder="0"
+            class="product-tbl-column-width form-control product-field product_mrp">
+    </td>
+    <td><input type="number" value="0" placeholder="0"
+            class="product-tbl-column-width form-control product-field  product_selling_price">
+    </td>
+    <td><span class="product_gst_amount">0</span></td>
+    <td><span class="product_gst_percentage" amount="">0</span></td>
+    <td><input type="number" value="0" placeholder="0"
+            class="product-tbl-column-width form-control product-field product_margin">
+    </td>
+    <td><input type="number" value="0" placeholder="0"
+            class="product-tbl-column-width form-control product-field product_total">
+    </td>
+    
+    </tr>`;
+    // $("#product_Details_Tbody").append(tableRow); 
+    // $("#totalResult").inser(tableRow); 
+
+    $(tableRow).insertBefore('#totalResult');
+    $('#product_Details_Tbody:last').find('.select2-product').select2({
+        placeholder: "Search Product",
+        allowClear: true,
+        minimumInputLength: 3,
+        ajax: {
+            url: search_product_url,
+            data: function (params) {
+                var query = {
+                    search: params.term,
+                    page: params.page,
+                    type: 'products'
+                }
+                return query;
+            },
+
+            processResults: function (res, params) {
+                params.page = params.page || 1;
+
+                return {
+                    results: res.data,
+
+                };
+            },
+        },
+        cache: true,
+    },
+
+    );
+    $("#product_Details_Tbody:last").find(".select2-product").on('change', function () {
+        const product_id = $(this).val();
+        // console.log(product_id);
+        const self = $(this);
+        const uRL = supplier_product_info_url + '/' + product_id;
+        getProductDetails(uRL, self);
+    });
+
+    $("#product_Details_Tbody:last").find('.product_barcode').blur(function () {
+        const uRL = supplier_product_info_url;
+        const self = $(this);
+        const barcode = $(this).val();
+
+        getProductDetails(uRL, self, type = 'barcode', barcode);
+    });
+
+}
+
+const showTblResult = () => {
+    $("#totalResult").removeClass('display-hide');
+    let totalQty=gstAmount=total=0;
+
+    $("#product_Details_Tbody tr").not("#totalResult").each(function (indx, value) {
+        totalQty+=parseFloat($(this).find(".product_qty").val());
+        gstAmount+=parseFloat($(this).find(".product_gst_amount").text());
+        total+=parseFloat(parseFloat($(this).find(".product_total").val()));
+
+    })
+
+    $("#totalQty").text(totalQty);
+    $("#totalGstAmount").text(gstAmount);
+    $("#total").text(total);
+
+
+
+}
+// const hideTblResult=()=>{
+//     $("#totalResult").addClass('d-none');
+// }
+
+$(document).ready(function () {
+
+    $("#supplier_id").on('change', function () {
+        const supplier_id = $(this).val();
+        const url = supplier_address_get_url + '/' + supplier_id;
+
         getSupplierAddress(url);
     });
 
-    function getSupplierAddress(url){
+    function getSupplierAddress(url) {
         ajxHeader();
         $.ajax({
-            url:url,
-            method:'get',
-            beforeSend:function(){
+            url: url,
+            method: 'get',
+            beforeSend: function () {
 
             },
-            success:function(res){
+            success: function (res) {
                 let contact_number = res.contact_number;
                 let phone_number = res.phone_number;
-                if(contact_number!=undefined)
-                {
-                    contact_number=`${contact_number},`;
+                if (contact_number != undefined) {
+                    contact_number = `${contact_number},`;
                 }
-                if(phone_number!=undefined){
-                    phone_number= `${phone_number}`;
+                if (phone_number != undefined) {
+                    phone_number = `${phone_number}`;
                 }
                 $("#supplier_address").find('#Billing-address').html('');
                 $("#supplier_address").find('#state').text(res.state)
@@ -32,112 +152,37 @@ $(document).ready(function(){
                 $("#supplier_address").find('#Billing-address').html(`<div>${res.company_name}<br>${res.address}, ${res.pincode}, ${res.state}, ${res.country}</div>
                 <i class="fa fa-phone"></i> ${contact_number} ${phone_number}`);
                 $("#supplier_address").find('#billing-not-provided').hide();
-
-
-
-
-
+                if ($("#product_Details_Tbody tr").length == 1) {
+                    // $("#product_Details_Tbody").html('');
+                    setTblData(1);
+                    showTblResult();
+                }
 
             }
         })
     }
-
-    
-//search product using barcode
-$("#product_Details_Tbody").find(".select2-barcode").select2(
-    
-    {
-        placeholder:"Search Barcode",
-        allowClear:true,
-    minimumInputLength: 3 ,
-    ajax: {
-      url: search_product_url,
-      data: function (params) {
-        var query = {
-          search: params.term,
-          page: params.page,
-          type: 'barcode'
-        }
-        return query;
-      },
-    
-  
-    processResults: function (res, params) {
-        params.page = params.page||1;
-
-        return {
-            results: res.data,
-        };
-    },
-    },
- 
-    cache:true,
-},
-
-);
-
-//search product using product name
-$("#product_Details_Tbody").find(".select2-product").select2({
-    placeholder: "Select Product",
-    allowClear: true,
-    minimumInputLength: 3 ,
-    ajax: {
-      url: search_product_url,
-      data: function (params) {
-        var query = {
-          search: params.term,
-          page: params.page,
-          type: 'products'
-        }
-        return query;
-      },
-    //   processResults: function (res) {
-    //     // Transforms the top-level key of the response object from 'items' to 'results'
-    //     return {
-    //       results: res.data
-    //     };
-    //   }
-  
-    processResults: function (res, params) {
-        params.page = params.page||1;
-        // console.log(res.meta.total_item);
-        
-        return {
-            results: res.data,
-            // pagination: {
-            //     more: (params.page * 10) < res.meta.total
-            // }
-        };
-    },
-    },
- 
-    cache:true,
-},
-
-);
-
-//click to barcode searched output
-$("#product_Details_Tbody").find(".select2-barcode").on('change',function(){
-    const product_id = $(this).val();
-    
-})
-
-//click to product searched output
-$("#product_Details_Tbody").find(".select2-product").on('change',function(){
-    const product_id = $(this).val();
-    const uRL = supplier_product_info_url+'/'+product_id;
-    getProductDetails(uRL);
-    
 });
 
-function getProductDetails(uRL){
+function getProductDetails(uRL, self, type = null, barcode = null) {
     $.ajax({
-        url:uRL,
-        success:function(res){
-            console.log(res);
+        url: uRL,
+        data: { 'type': type, 'barcode': barcode },
+        success: function (res) {
+
+            const parent = self.parent().parent();
+            parent.find(".product-field").val('');
+            parent.find('.product_mrp').val(res.mrp);
+
+            parent.find('.product_gst_percentage').text(res.gst_percentage);
+            parent.find('.product_gst_percentage').attr('amount', res.gst_percentage);
+            parent.find('.product_barcode').val(res.barcode);
+
+            if (type == 'barcode') {
+                const newOption = new Option(res.name, res.id, false, false);
+                parent.find(".select2-product").append(newOption).trigger('change');
+
+            }
+
         }
     })
 }
-
-  
-});

@@ -53,7 +53,7 @@ class ProductController extends Controller
                     'pos_user_id'=>1,
                     'invoice_no'=>(is_null($PosCustomerOrder)?'D_BEAW0':'D_BEAW'.$PosCustomerOrder->id),
                     'extra_discount'=>$products['extraDiscount'],
-                    'delivery_charge'=>$products['deliveryCharge'],z
+                    'delivery_charge'=>$products['deliveryCharge'],
                     'due_amount'=>$products['due_amount'],
                     'mode'=>$products['mode'],
                     'description'=>$products['description'],
@@ -75,9 +75,12 @@ class ProductController extends Controller
                         'customer_id'=>$products['customerID'],
                         'price'=>$product['price'],
                         'qty'=>$product['quantity'],
+                        'is_offer'=>$product['is_offer'],
                         'vendor_product_id'=>$product['vendor_product_id'],
                         'product_id'=>$product['productId'],
                         'offer_value'=>$product['offer_price'],
+                        'offer_data'=>$product['offer_data'],
+
                     ]);
 
                

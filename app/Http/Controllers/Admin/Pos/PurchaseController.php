@@ -236,12 +236,33 @@ class PurchaseController extends Controller
     }
     
     public function getSupplierProductsInfo(Request $request,Product $product){
+        if($request->type=='barcode'){
+            $pd = Product::where('barcode',$request->barcode)->first();
+            return response()->json([
+                'id'=>$pd->id,
+                // 'qty'=>$pd->qty,
+                 'name'=>$pd->ProductTranslation()->first()->name,
+                'mrp'=>$pd->price,
+                'unit_cost'=>$pd->per_order,
+                'selling_price'=>$pd->best_price,
+                'gst_percentage'=>$pd->gst,
+                'barcode'=>$pd->barcode
+                
+                // 'best_price'=>
+            ]);
+        }
         return response()->json([
-            'id'=>$this->id,
-            'qty'=>$this->qty,
-            'price'=>$this->price,
-            'unit_cost'=>$this->per_order,
-            'best_price'=>
-        ])
+            'id'=>$product->id,
+            // 'qty'=>$product->qty,
+            'name'=>$product->ProductTranslation()->first()->name,
+            'mrp'=>$product->price,
+            'unit_cost'=>$product->per_order,
+            'selling_price'=>$product->best_price,
+            'gst_percentage'=>$product->gst,
+            'barcode'=>$product->barcode
+
+            
+            // 'best_price'=>
+        ]);
     }
 }

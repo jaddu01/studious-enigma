@@ -1,5 +1,6 @@
 :root{
 --red:  #dc3545;
+--success:#26B99A;
 }
 .tile_count .tile_stats_count .count a{
 color:#ffffff !important;
@@ -5228,4 +5229,30 @@ tr.shown td.details-control {
   .startTxt{
     color:var(--red);
     font-size:1.25rem;
+  }
+
+  .product-tbl-column-width{
+    width: 80px !important;
+  }
+  .display-hide{
+    display: none !important;
+  }
+  .btn-pill,.btn-pill1{
+   
+    padding:2px;
+    font-size: x-large;
+    color:  var(--success);
+    
+  }
+  .btn-pill1{
+    color: var(--red);
+  }
+ 
+  .btn-pill:hover,.btn-pill1:hover{
+    cursor: pointer;
+   
+  }
+  .dark-txt{
+    color: #000;
+    font-weight: bolder;
   }

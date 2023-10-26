@@ -537,7 +537,7 @@ Route::group(['prefix' => 'admin', 'namespace' => 'Admin'], function () {
         Route::any('pos/purchase/get-brands', 'Pos\PurchaseController@getBrands')->name('purchase.get-brands');
         Route::get('pos/purchase/supplier_address/{Supplier}','Pos\PurchaseController@getSupplierAddress')->name('purchase.get.supplier.address');
         Route::get('pos/purchase/supplier-products','Pos\PurchaseController@getSupplierProducts')->name('purchase.get.supply.products');
-        Route::get('pos/purchase/supplier-products-info/{product}','Pos\PurchaseController@getSupplierProductsInfo')->name('purchase.get.supplier.products.info');
+        Route::get('pos/purchase/supplier-products-info/{product?}','Pos\PurchaseController@getSupplierProductsInfo')->name('purchase.get.supplier.products.info');
         Route::resource('pos/purchase', 'Pos\PurchaseController');
         Route::get('pos/reports/sales', 'Pos\ReportsController@sales')->name('reports.sales');
         Route::any('pos/reports/sales/data', 'Pos\ReportsController@salesData')->name('reports.sales.data');
