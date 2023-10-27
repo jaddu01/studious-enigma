@@ -48,8 +48,6 @@ function setTblData(count = null) {
     </td>
     
     </tr>`;
-    // $("#product_Details_Tbody").append(tableRow); 
-    // $("#totalResult").inser(tableRow); 
 
     $(tableRow).insertBefore('#totalResult');
     $('#product_Details_Tbody:last').find('.select2-product').select2({
@@ -98,14 +96,39 @@ function setTblData(count = null) {
 
 }
 
+const setAdditionalChargeTblRow = (count = null) => {
+    const additionalChargeTblRow = ` <tr>
+    <td>
+        <div style="width:70px;" class="text-center">
+            <i class="fa fa-times-circle btn-pill1 additional_charge_row_delete_btn  ml-1 ${(count === 1) ? 'display-hide' : ''}"
+                aria-hidden="true"></i>
+            <i class="fa fa-plus-circle btn-pill additional_charge_row_add_btn "
+                aria-hidden="true"></i>
+        </div>
+    </td>
+    <td><span class="additional_charge additional_charge_number">1</span></td>
+    <td>
+        <div class="text-center"><input type="text"
+                class="additional_charge AdditionalCharge text-center"
+                style="width:400px;"></div>
+    </td>
+    <td><input type="number" class="additional_charge AdditionalChargeValue text-center"
+            style="width:100px;"></td>
+   
+
+</tr>`;
+    $(additionalChargeTblRow).insertBefore("#additionalChargeResult");
+
+}
+
 const showTblResult = () => {
     $("#totalResult").removeClass('display-hide');
-    let totalQty=gstAmount=total=0;
+    let totalQty = gstAmount = total = 0;
 
     $("#product_Details_Tbody tr").not("#totalResult").each(function (indx, value) {
-        totalQty+=parseFloat($(this).find(".product_qty").val());
-        gstAmount+=parseFloat($(this).find(".product_gst_amount").text());
-        total+=parseFloat(parseFloat($(this).find(".product_total").val()));
+        totalQty += parseFloat($(this).find(".product_qty").val());
+        gstAmount += parseFloat($(this).find(".product_gst_amount").text());
+        total += parseFloat(parseFloat($(this).find(".product_total").val()));
 
     })
 
@@ -116,9 +139,21 @@ const showTblResult = () => {
 
 
 }
-// const hideTblResult=()=>{
-//     $("#totalResult").addClass('d-none');
-// }
+
+const showAdditionalChargeTblResult = () => {
+    $("#additionalChargeResult").removeClass('display-hide');
+    let  total = 0;
+    $("#additional_charge_body tr").not("#additionalChargeResult").each(function (indx, value) {
+        let totalVal = $(this).find(".AdditionalChargeValue").val();
+       
+        if(totalVal){
+            total += parseFloat(totalVal);
+
+        }
+
+    })
+    $("#totalAddionalChargeTbl").text(total);
+}
 
 $(document).ready(function () {
 

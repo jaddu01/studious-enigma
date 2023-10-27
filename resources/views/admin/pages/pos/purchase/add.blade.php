@@ -189,8 +189,9 @@
                                                 'id' => 'payment_term',
                                                 'dir' => $locale == 'ar' ? 'rtl' : 'ltr',
                                                 'lang' => $locale,
-                                            ],
+                                            ]
                                         ) !!}
+
                                         @if ($errors->has('payment_term'))
                                             <span class="help-block">
                                                 <strong>{{ $errors->first('payment_term') }}</strong>
@@ -281,7 +282,7 @@
                                                 'id' => 'tax_type',
                                                 'dir' => $locale == 'ar' ? 'rtl' : 'ltr',
                                                 'lang' => $locale,
-                                            ],
+                                            ]
                                         ) !!}
                                         @if ($errors->has('tax_type'))
                                             <span class="help-block">
@@ -332,7 +333,8 @@
                                         <th scope="col" style="width:80px">Free Qty<small class="startTxt">*</small></th>
                                         <th scope="col" style="width:80px">Unit Cost<small class="startTxt">*</small>
                                         </th>
-                                        <th scope="col" style="width:80px">Net Rate<small class="startTxt">*</small>
+                                        <th scope="col" style="width:80px">Net Rate (With GST)<small
+                                                class="startTxt">*</small>
                                         </th>
                                         <th scope="col" style="width:80px">MRP<small class="startTxt">*</small></th>
                                         <th scope="col" style="width:80px">Selling Price<small class="startTxt">*</small>
@@ -350,19 +352,30 @@
 
 
                                     <tr id="totalResult" class="display-hide">
-        
-                                        <td colspan="4" style="border:none !important;"><div class="text-right" style="padding-right: 30px;"><span class="dark-txt">Total</span></div></td>
-                                        <td style="border:none !important;"><div class="text-center"><span class="dark-txt" id="totalQty">10</span></div></td>
+
+                                        <td colspan="4" style="border:none !important;">
+                                            <div class="text-right" style="padding-right: 30px;"><span
+                                                    class="dark-txt">Total</span></div>
+                                        </td>
+                                        <td style="border:none !important;">
+                                            <div class="text-center"><span class="dark-txt" id="totalQty">10</span>
+                                            </div>
+                                        </td>
                                         <td style="border:none !important;"></td>
                                         <td style="border:none !important;"></td>
                                         <td style="border:none !important;"></td>
                                         <td style="border:none !important;"></td>
                                         <td style="border:none !important;"></td>
-                                        
-                                        <td style="border:none !important;"><div class="text-center"><span class="dark-txt" id="totalGstAmount"></span></div></td>
+
+                                        <td style="border:none !important;">
+                                            <div class="text-center"><span class="dark-txt" id="totalGstAmount"></span>
+                                            </div>
+                                        </td>
                                         <td style="border:none !important;"></td>
                                         <td style="border:none !important;"></td>
-                                        <td style="border:none !important;"><div class="text-center"><span class="dark-txt" id="total"></span></div></td>
+                                        <td style="border:none !important;">
+                                            <div class="text-center"><span class="dark-txt" id="total"></span></div>
+                                        </td>
 
 
 
@@ -371,6 +384,48 @@
                                 </tbody>
                             </table>
 
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-12 col-sm-12 col-xs-12 mt-3">
+                <div class="x_panel ">
+
+                    <span class="section"><i class="fa fa-plus-circle btn-pill mt-3" id="additionalChargeBtn"></i>Add
+                        Additional Charges</span>
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="collapse in" id="addionalCharges">
+                                <div class="col-md-12 table-responsive">
+                                    <table class="table ">
+                                        <thead class="thead-dark">
+                                            <tr>
+                                                <th scope="col" id="addNewHeader" style="width:70px"></th>
+                                                <th scope="col">#</th>
+                                                <th scope="col" class="text-center">Additional Charges<small
+                                                        class="startTxt">*</small>
+                                                </th>
+
+                                                <th scope="col" style="width:100px" class="text-center">Value<small
+                                                        class="startTxt">*</small>
+                                                </th>
+                                                {{-- <th scope="col" style="width:100px" class="text-center">Total</th> --}}
+
+                                            </tr>
+                                        </thead>
+                                        <tbody id="additional_charge_body">
+                                           
+                                            <tr id="additionalChargeResult" class="display-hide">
+                                                <td colspan="3"><div class="text-center dark-txt" style="padding-left: 100px;"><span>Total</span></div></td>
+                                                <td><div class="text-center"><span id="totalAddionalChargeTbl" class="dark-txt">0</span></div></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+
+                                </div>
+                            </div>
                         </div>
 
                     </div>
@@ -519,6 +574,6 @@
     <script src="{{ asset('public/assets/purchase/add_purchase.js') }}"></script>
     <script src="{{ asset('public/assets/purchase/field-calculation.js') }}"></script>
     <script src="{{ asset('public/assets/purchase/btn-action.js') }}"></script>
-    {{-- <!-- validator -->
-<script src="{{asset('public/assets/validator/validator.min.js')}}"></ --}}script>
+
+    <!-- <script src="{{ asset('public/assets/validator/validator.min.js') }}"><script> -->
 @endpush

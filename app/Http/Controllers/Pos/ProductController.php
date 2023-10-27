@@ -57,6 +57,8 @@ class ProductController extends Controller
                     'due_amount'=>$products['due_amount'],
                     'mode'=>$products['mode'],
                     'description'=>$products['description'],
+                    'order_date'=>$products['order_date'],
+                    'order_time'=>$products['order_time'],
                 ]);
               
 

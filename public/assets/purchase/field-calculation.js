@@ -3,21 +3,23 @@ $(document).ready(function(){
         const self = $(this);
         calculation(self);
         showTblResult();
-    }).on("keyup",".product-field",function(){
-        const self = $(this);
-        calculation(self);
-        showTblResult();
-    });
+    })
+    // .on("keyup",".product-field",function(){
+    //     const self = $(this);
+    //     calculation(self);
+    //     showTblResult();
+    // });
 
 
     function calculation(self){
         const fieldValue = getFieldValue(self);
         const net_rate = NetRateCalculation(fieldValue.unit_cost,fieldValue.gst);
-        const gst_amount = GstAmountCalculation(fieldValue.qty,fieldValue.unit_cost,fieldValue.gst);
+        const gst_amount = GstAmountCalculation(fieldValue.net_rate,fieldValue.unit_cost);
         const margin = MarginCalculation(fieldValue.mrp,fieldValue.net_rate);
         const total = TotalAmountCalculation(fieldValue.net_rate,fieldValue.qty);
+        const unit_cost = UnitCostCalculation(fieldValue.net_rate, fieldValue.gst);
 
-        setFieldValue(self,net_rate,gst_amount,margin,total);
+        setFieldValue(self,net_rate,gst_amount,margin,total,unit_cost);
     }
     function getFieldValue(self){
         const parent = self.parent().parent();
@@ -40,15 +42,28 @@ $(document).ready(function(){
        return data;
     }
 
-    const setFieldValue=(self,net_rate,gst_amount,margin,total)=>{
+    const setFieldValue=(self,net_rate,gst_amount,margin,total,unit_cost)=>{
         const parent = self.parent().parent();
-        parent.find('.product_net_rate').val(net_rate);
         parent.find('.product_gst_amount').text(gst_amount);
         parent.find('.product_margin').val(margin);
         parent.find('.product_total').val(total);
+        parent.find('.product_net_rate').val(net_rate);
+        if(parent.find('.product_net_rate').val()==0 ||parent.find('.product_net_rate').val()==''){
+            parent.find('.product_net_rate').val(net_rate);
+        }
+
+        if(parent.find('.product_unit_cost').val()==0||parent.find('.product_unit_cost').val()=='')
+        {
+            parent.find('.product_unit_cost').val(unit_cost);
+
+        }
+
     }
 
-
+const UnitCostCalculation = (net_rate,gst)=>{
+    const unit_cost = (net_rate*100)/(100+gst);
+    return unit_cost;
+}
     const NetRateCalculation=(unit_cost,gst)=>{
         const NetRate =  unit_cost*(gst+100)/100;
         // console.log("Result",(gst+100))
@@ -57,13 +72,16 @@ $(document).ready(function(){
         return twoDecimalPalace(NetRate);
     }
 
-    const GstAmountCalculation=(qty,unit_cost,gst)=>{
-        const gstAmount = (qty*unit_cost)*(gst/100);
+    const GstAmountCalculation=(net_rate,unit_cost)=>{
+        // const gstAmount = (qty*unit_cost)*(gst/100);
+        const gstAmount = Math.abs(net_rate-unit_cost)
+
         return twoDecimalPalace(gstAmount);
     }
 
     const MarginCalculation=(mrp,net_rate)=>{
-        const margin = Math.abs(net_rate-mrp);
+        const profit = Math.abs(net_rate-mrp);
+        const margin = (profit*100)/mrp;
         return twoDecimalPalace(margin);
     }
 
