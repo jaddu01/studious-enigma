@@ -11,6 +11,8 @@ use App\PosCustomerOrderItem;
 use App\PosCustomerPayment;
 use App\PosCustomerProductOrder;
 use App\Product;
+use App\User;
+use App\UserWallet;
 use App\VendorProduct;
 use Illuminate\Support\Facades\DB;
 
@@ -59,8 +61,45 @@ class ProductController extends Controller
                     'description'=>$products['description'],
                     'order_date'=>$products['order_date'],
                     'order_time'=>$products['order_time'],
+                    'bill_amount'=>$products['bill_amount'],
+                    'changes'=>$products['changes'],
+                    'payment'=>$products['payment'],
+
                 ]);
-              
+              $new_customer_wallet = $products['payment']-$products['bill_amount']-$products['changes'];
+             $customer_remain_wallet = DB::table('users')->find($products['customerID'])->wallet_amount;
+
+              if($new_customer_wallet>0){
+                User::where('id',$products['customerID'])->update([
+                    'wallet_amount'=>($customer_remain_wallet+$new_customer_wallet),
+                ]);
+                UserWallet::create([
+                    'user_id'=>$products['customerID'],
+                    'transaction_id'=>'DARPOS16943319085785',
+                    'transaction_type'=>'CREDIT',
+                    'type'=>'Pos Amount Credit by Admin',
+                    'amount'=>$new_customer_wallet,
+                    'status'=>1,
+                    'wallet_type'=>'amount',
+
+                ]);
+              }
+
+              if($new_customer_wallet<0 && $new_customer_wallet!=0){
+                User::where('id',$products['customerID'])->update([
+                    'wallet_amount'=>($customer_remain_wallet+$new_customer_wallet),
+                ]);
+                UserWallet::create([
+                    'user_id'=>$products['customerID'],
+                    'transaction_id'=>'DARPOS16943319085785',
+                    'transaction_type'=>'DEBIT',
+                    'type'=>'Pos  Amount Debit by Admin',
+                    'amount'=>(-1*$new_customer_wallet),
+                    'status'=>1,
+                    'wallet_type'=>'amount',
+
+                ]);
+              }
 
                 PosCustomerPayment::create([
                     'customer_id'=>$products['customerID'],

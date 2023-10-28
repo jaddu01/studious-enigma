@@ -70,7 +70,7 @@ $(document).ready(function () {
         //additional charge
 
         $("#additionalChargeBtn").click(function () {
-                
+                $('#addionalCharges').collapse('show');
                 if (count('additional_charge_body') == 1) {
                         $("#additionalChargeResult").removeClass('display-hide');
                         setAdditionalChargeTblRow(1);

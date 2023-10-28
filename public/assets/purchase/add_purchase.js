@@ -121,38 +121,69 @@ const setAdditionalChargeTblRow = (count = null) => {
 
 }
 
+const setResult = () => {
+    let additionalCharge = 0;
+    let ttl = 0;
+    if ($("#totalAddionalChargeTbl").text()) {
+        additionalCharge = parseFloat($("#totalAddionalChargeTbl").text());
+        $("#totalAdditionalCharges").text(additionalCharge.toFixed(2));
+    }else{
+        $("#totalAdditionalCharges").text(0.00);
+
+    }
+
+    // if ($("#total").text()) {
+    //     ttl = parseFloat($("#total").text());
+
+    // }else{
+    //     $("#totalAmount").text(0.00)
+
+    // }
+    $("#totalAmount").text(parseFloat($("#total").text()).toFixed(2));
+    ttl = parseFloat($("#total").text());
+
+    $("#NetAmount").text((additionalCharge + ttl).toFixed(2))
+}
 const showTblResult = () => {
     $("#totalResult").removeClass('display-hide');
     let totalQty = gstAmount = total = 0;
 
     $("#product_Details_Tbody tr").not("#totalResult").each(function (indx, value) {
-        totalQty += parseFloat($(this).find(".product_qty").val());
-        gstAmount += parseFloat($(this).find(".product_gst_amount").text());
-        total += parseFloat(parseFloat($(this).find(".product_total").val()));
+        if ($(this).find(".product_qty")) {
+            totalQty += parseFloat($(this).find(".product_qty").val());
 
-    })
+        }
+        if ($(this).find(".product_gst_amount").text()) {
+            gstAmount += parseFloat($(this).find(".product_gst_amount").text());
 
-    $("#totalQty").text(totalQty);
-    $("#totalGstAmount").text(gstAmount);
-    $("#total").text(total);
-
-
-
-}
-
-const showAdditionalChargeTblResult = () => {
-    $("#additionalChargeResult").removeClass('display-hide');
-    let  total = 0;
-    $("#additional_charge_body tr").not("#additionalChargeResult").each(function (indx, value) {
-        let totalVal = $(this).find(".AdditionalChargeValue").val();
-       
-        if(totalVal){
-            total += parseFloat(totalVal);
+        }
+        if ($(this).find(".product_total").val()) {
+            total += parseFloat(parseFloat($(this).find(".product_total").val()));
 
         }
 
     })
-    $("#totalAddionalChargeTbl").text(total);
+
+    $("#totalQty").text(totalQty.toFixed(2));
+    $("#totalGstAmount").text(gstAmount.toFixed(2));
+    $("#total").text(total.toFixed(2));
+    setResult();
+}
+
+const showAdditionalChargeTblResult = () => {
+    $("#additionalChargeResult").removeClass('display-hide');
+    let total = 0;
+    $("#additional_charge_body tr").not("#additionalChargeResult").each(function (indx, value) {
+        let totalVal = $(this).find(".AdditionalChargeValue").val();
+
+        if (totalVal) {
+            total += parseFloat(totalVal);
+        }
+
+    })
+    $("#totalAddionalChargeTbl").text(total.toFixed(2));
+    setResult();
+
 }
 
 $(document).ready(function () {

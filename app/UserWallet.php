@@ -15,6 +15,9 @@ class UserWallet extends BaseModel
         'user_id',
         'transaction_id',
         'amount',
+        'transaction_type',
+        'status',
+        'type',
         'description' ,
         'wallet_type',
         'created_at'

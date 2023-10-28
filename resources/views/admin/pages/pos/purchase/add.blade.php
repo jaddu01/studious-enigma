@@ -189,7 +189,7 @@
                                                 'id' => 'payment_term',
                                                 'dir' => $locale == 'ar' ? 'rtl' : 'ltr',
                                                 'lang' => $locale,
-                                            ]
+                                            ],
                                         ) !!}
 
                                         @if ($errors->has('payment_term'))
@@ -282,8 +282,7 @@
                                                 'id' => 'tax_type',
                                                 'dir' => $locale == 'ar' ? 'rtl' : 'ltr',
                                                 'lang' => $locale,
-                                            ]
-                                        ) !!}
+                                            ]) !!}
                                         @if ($errors->has('tax_type'))
                                             <span class="help-block">
                                                 <strong>{{ $errors->first('tax_type') }}</strong>
@@ -395,9 +394,9 @@
 
                     <span class="section"><i class="fa fa-plus-circle btn-pill mt-3" id="additionalChargeBtn"></i>Add
                         Additional Charges</span>
-                    <div class="row">
+                    <div class="row mb-3">
                         <div class="col-12">
-                            <div class="collapse in" id="addionalCharges">
+                            <div class="collapse" id="addionalCharges">
                                 <div class="col-md-12 table-responsive">
                                     <table class="table ">
                                         <thead class="thead-dark">
@@ -416,10 +415,17 @@
                                             </tr>
                                         </thead>
                                         <tbody id="additional_charge_body">
-                                           
-                                            <tr id="additionalChargeResult" class="display-hide">
-                                                <td colspan="3"><div class="text-center dark-txt" style="padding-left: 100px;"><span>Total</span></div></td>
-                                                <td><div class="text-center"><span id="totalAddionalChargeTbl" class="dark-txt">0</span></div></td>
+
+                                            <tr id="additionalChargeResult" class="display-hide bg-dark"
+                                                style="background-color:#EBEDF3">
+                                                <td colspan="3">
+                                                    <div class="text-center dark-txt" style="padding-left: 100px;">
+                                                        <span>Total</span></div>
+                                                </td>
+                                                <td>
+                                                    <div class="text-center"><span id="totalAddionalChargeTbl"
+                                                            class="dark-txt">0</span></div>
+                                                </td>
                                             </tr>
                                         </tbody>
                                     </table>
@@ -429,8 +435,46 @@
                         </div>
 
                     </div>
+                    <div class="row mt-3">
+                        <div class="col-md-8">
+
+                        </div>
+                        <div class="col-md-4">
+                            <div class="row" style="padding-right:10px;">
+                                <div class="col-md-8" style="background-color:#EBEDF3; padding:3px;">
+                                    <div class="row">
+                                        <div class="col-md-12">
+                                            <h5>Total Amount</h5>
+
+                                        </div>
+                                        <div class="col-md-12">
+                                            <h5 class="text-primary">Total Additional Charge</h5>
+                                        </div>
+                                        <div class="col-md-12">
+                                            <h4>Net Amount</h4>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4" style="padding: 3px;">
+                                   <div class="row">
+                                    <div class="col-md-12 text-right" style="border:1px solid #EBEDF3;">
+                                        <h5 id="totalAmount">0.00</h5>
+                                    </div>
+                                    <div class="col-md-12 text-right" style="border:1px solid #EBEDF3;">
+                                        <h5 id="totalAdditionalCharges" class="text-primary">0.00</h5>
+                                    </div>
+
+                                    <div class="col-md-12 text-right" style="border:1px solid #EBEDF3;">
+                                        <h4 id="NetAmount">0.00</h4>
+                                    </div>
+                                   </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
+
             <div class="row">
                 <div class="col-12 text-right">
                     {{-- {!! Form::submit('Submit', ['class' => 'btn btn-success']) !!} --}}
