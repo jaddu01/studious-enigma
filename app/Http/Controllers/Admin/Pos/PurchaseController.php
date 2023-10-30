@@ -22,10 +22,15 @@ use App\User;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\SupplierProductResource;
+use App\SupplierBillPurchase;
+use App\SupplierPurchaseAdditionalCharge;
+use App\SupplierPurchaseProductDetail;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Validator;
 use Proengsoft\JsValidation\Facades\JsValidatorFacade;
 use DataTables;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class PurchaseController extends Controller
 {
@@ -57,8 +62,7 @@ class PurchaseController extends Controller
         $validator = JsValidatorFacade::make($this->model->rules('POST'));
         $brands=Brand::where('status','=','1')->listsTranslations('name','id')->pluck('name','id')->all();
         $vendors=$this->user->where(['user_type'=>'vendor','role'=>'user'])->pluck('name','id');
-        $suppliers=Supplier::where('status','=','1')->pluck('company_name','id');
-        // dd($suppliers);
+        $suppliers=Supplier::where('status','=','1')->orderBy('id','DESC')->pluck('company_name','id');
         $payment_mode = ['cash'=>'Cash','cheque'=>'Cheque','online'=>'Online'];
         $payment_status = ['paid'=>'Paid','due'=>'Due'];
         return view('admin/pages/pos/purchase/add')->with('validator',$validator)->with('brands',$brands)->with('vendors',$vendors)->with('suppliers',$suppliers)->with('payment_mode',$payment_mode)->with('payment_status',$payment_status);
@@ -67,7 +71,7 @@ class PurchaseController extends Controller
     public function store(Request $request)
     {
         $input = $request->all();
-        dd($input);
+        // dd($input);
         
         $validator = Validator::make($request->all(),$this->model->rules($this->method),$this->model->messages($this->method));
 
@@ -96,6 +100,115 @@ class PurchaseController extends Controller
             }
             return back();
         }
+    }
+
+    public function SaveSupplierPurchase(Request $request){
+        try {
+            if($request->ajax()){
+                DB::beginTransaction();
+                // dd($request->data['supplier_id']);
+               $supplier_id = $request->data['supplier_id'];
+               $supplier_bill_purchase_order = SupplierBillPurchase::create([
+                    "supplier_id"=>$supplier_id,
+                    "bill_date"=>$request->data['bill_date'],
+                    "due_date"=>$request->data['bill_date'],
+                    "bill_amount"=>$request->data['bill_amount'],
+                    "invoice_no"=>$request->data['invoice_no'],
+                    "reference_bill_no"=>$request->data['reference_bill_no'],
+                    "payment_term"=>$request->data['payment_term'],
+                    "tax_type"=>$request->data['tax_type'],
+                    "tax_type"=>$request->data['tax_type'],
+                    "net_amount"=>$request->data['net_amount'],
+                    "due_amount"=>$request->data['net_amount'],
+                    "total_amount"=>$request->data['total_amount'],
+                    "total_additional_charge"=>$request->data['total_additional_charge']
+                ]);
+
+                foreach($request->data['additional_charges'] as $additionalCharge){
+                    SupplierPurchaseAdditionalCharge::create([
+                    'supplier_bill_id'=>$supplier_bill_purchase_order->id,
+                    'supplier_id'=>$supplier_id,
+                    'charge_name'=>$additionalCharge['charge_name'],
+                    'charge'=>$additionalCharge['charge_value']
+
+                    ]);
+                }
+
+                //  SupplierPurchaseProductDetail::create([
+                //         'supplier_id'=>$supplier_id,
+                //         'supplier_bill_id'=>$supplier_bill_purchase_order->id,
+                //         'product_id'=>1,
+                //         'bar_code'=>123455,
+                //         'qty'=>1,
+                //         'free_qty'=>123,
+                //         'unit_cost'=>100,
+                //         'selling_price'=>200,
+                //         'mrp'=>10,
+                //         'net_rate'=>300,
+                //         'margin'=>500,
+                //         'total'=>300
+                //     ]);
+
+                foreach($request->data['products'] as $product){
+                   
+                        echo $product['product_id'];
+                        echo "\n";
+
+                        echo $product['barcode'];
+                        echo "\n";
+
+                        echo $product['qty'];
+                        echo "\n";
+
+                        echo $product['free_qty'];
+                        echo "\n";
+
+                        echo $product['unit_cost'];
+                        echo "\n";
+
+                        echo $product['selling_price'];
+                        echo "\n";
+
+                        echo $product['mrp'];
+                        echo "\n";
+
+                        echo $product['net_rate'];
+                        echo "\n";
+
+                        echo $product['margin'];
+                        echo "\n";
+                        echo $product['total'];
+                        echo "\n";
+
+
+                    SupplierPurchaseProductDetail::create([
+                        'supplier_id'=>$supplier_id,
+                        'supplier_bill_id'=>$supplier_bill_purchase_order->id,
+                        'product_id'=>$product['product_id'],
+                        'bar_code'=>$product['barcode'],
+                        'qty'=>$product['qty'],
+                        'gst_amount'=>$product['gst_amount'],
+                        'free_qty'=>$product['free_qty'],
+                        'unit_cost'=>$product['unit_cost'],
+                        'selling_price'=>$product['selling_price'],
+                        'mrp'=>$product['mrp'],
+                        'net_rate'=>$product['net_rate'],
+                        'margin'=>$product['margin'],
+                        'total'=>$product['total'],
+                    ]);
+
+                    
+                }
+              
+                DB::commit(); 
+            }
+            //code...
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            Log::error($th);
+           
+        }
+   
     }
 
     public function edit($id)

@@ -25,6 +25,7 @@
             'method' => 'post',
             'class' => 'form-horizontal form-label-left validation',
             'enctype' => 'multipart/form-data',
+            "id"=>"supplier_form"
         ]) !!}
 
         {{ csrf_field() }}
@@ -474,14 +475,17 @@
                     </div>
                 </div>
             </div>
+            <div class="col-md-12 col-sm-12 col-xs-12 mt-3">
 
             <div class="row">
-                <div class="col-12 text-right">
-                    {{-- {!! Form::submit('Submit', ['class' => 'btn btn-success']) !!} --}}
-                    {{-- {!! Form::End !!} --}}
+                <div class="col-12 text-right p-3">
+                    {{-- {!! Form::submit('Submit', ['class' => 'btn btn-success']) !!}  --}}
+                    <button class="btn btn-primary" id ="saveOnlyBtn">Save (Only)</button>
+                    <button class="btn btn-success" id ="saveAndPaymentBtn">Save & Payment</button>
 
-
+    
                 </div>
+            </div>
             </div>
         </div>
         {!! Form::close() !!}
@@ -494,6 +498,8 @@
 @push('scripts')
     <script src="{{ asset('public/js/select2.min.js') }}"></script>
     <script src="https://code.jquery.com/ui/1.13.1/jquery-ui.js"></script>
+
+
     <script>
         function ajxHeader() {
             $.ajaxSetup({
@@ -611,6 +617,7 @@
         let supplier_address_get_url = "{{ route('purchase.get.supplier.address', '') }}";
         let search_product_url = "{{ route('purchase.get.supply.products') }}";
         let supplier_product_info_url = "{{ route('purchase.get.supplier.products.info', '') }}";
+        const saveOnlyUrl = "{{route('purchase.supplier.purchase.save')}}";
     </script>
     <script src="{{ asset('public/assets/fastclick/lib/fastclick.js') }}"></script>
     <!-- NProgress -->
@@ -618,6 +625,7 @@
     <script src="{{ asset('public/assets/purchase/add_purchase.js') }}"></script>
     <script src="{{ asset('public/assets/purchase/field-calculation.js') }}"></script>
     <script src="{{ asset('public/assets/purchase/btn-action.js') }}"></script>
+    <script src="{{asset('public/assets/purchase/save-only-data.js')}}"></script>
 
     <!-- <script src="{{ asset('public/assets/validator/validator.min.js') }}"><script> -->
 @endpush

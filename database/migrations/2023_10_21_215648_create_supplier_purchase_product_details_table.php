@@ -17,6 +17,8 @@ class CreateSupplierPurchaseProductDetailsTable extends Migration
             $table->increments('id');
             $table->integer('supplier_id')->unsigned();
             $table->foreign('supplier_id')->references('id')->on('suppliers');
+            $table->integer('supplier_bill_id')->unsigned();
+            $table->foreign('supplier_bill_id')->references('id')->on('supplier_bill_purchases');
             $table->integer('product_id')->unsigned();
             $table->foreign('product_id')->references('id')->on('products');
             $table->string('bar_code');
