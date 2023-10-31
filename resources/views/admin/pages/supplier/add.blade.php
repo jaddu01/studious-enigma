@@ -36,20 +36,29 @@
 
                                 <div class="row mb-3">
                                     <div
-                                        class="col-md-4 item form-group{{ $errors->has('gstin_number') ? ' has-error' : '' }}">
+                                        class="col-md-3 item form-group{{ $errors->has('gstin_number') ? ' has-error' : '' }}">
                                         <label class="control-label" for="gstin_number">GSTIN
                                         </label>
-                                        {!! Form::text('gstin_number', null, [
-                                            'placeholder' => 'GSTIN',
-                                            'class' => 'form-control ',
-                                            'dir' => $locale == 'ar' ? 'rtl' : 'ltr',
-                                            'lang' => $locale,
-                                        ]) !!}
+                                       
+                                            {!! Form::text('gstin_number', null, [
+                                                'placeholder' => 'GSTIN',
+                                                'class' => 'form-control ',
+                                                'dir' => $locale == 'ar' ? 'rtl' : 'ltr',
+                                                'lang' => $locale,
+                                                'id'=>'gstin_number'
+                                            ]) !!}
+                                           
+                                        
                                         @if ($errors->has('gstin_number'))
                                             <span class="help-block">
                                                 <strong>{{ $errors->first('gstin_number') }}</strong>
                                             </span>
                                         @endif
+                                    </div>
+                                    <div class="col-md-1">
+                                        <button class="btn btn-primary pt-3" id="verifyBtn" style="margin-top: 18px">
+                                            Verify
+                                        </button>
                                     </div>
                                     <div
                                         class="col-md-4 item form-group{{ $errors->has('pan_number') ? ' has-error' : '' }}">
@@ -77,6 +86,7 @@
                                             'class' => 'form-control ',
                                             'dir' => $locale == 'ar' ? 'rtl' : 'ltr',
                                             'lang' => $locale,
+                                            'id'=>'company_name'
                                         ]) !!}
                                         @if ($errors->has('company_name'))
                                             <span class="help-block">
@@ -97,6 +107,7 @@
                                             'class' => 'form-control ',
                                             'dir' => $locale == 'ar' ? 'rtl' : 'ltr',
                                             'lang' => $locale,
+                                            'id'=>'address'
                                         ]) !!}
 
                                         @if ($errors->has('address'))
@@ -116,6 +127,7 @@
                                             'class' => 'form-control ',
                                             'dir' => $locale == 'ar' ? 'rtl' : 'ltr',
                                             'lang' => $locale,
+                                            'id'=>'city'
                                         ]) !!}
 
                                         @if ($errors->has('city'))
@@ -154,6 +166,7 @@
                                             'class' => 'form-control ',
                                             'dir' => $locale == 'ar' ? 'rtl' : 'ltr',
                                             'lang' => $locale,
+                                            'id'=>'pin_code'
                                         ]) !!}
 
                                         @if ($errors->has('pin_code'))
@@ -174,6 +187,7 @@
                                             'class' => 'form-control ',
                                             'dir' => $locale == 'ar' ? 'rtl' : 'ltr',
                                             'lang' => $locale,
+                                            'id'=>'country_name'
                                         ]) !!}
 
                                         @if ($errors->has('country'))
@@ -238,6 +252,22 @@
                                         @endif
 
                                     </div>
+                                    <div
+                                    class="col-md-4 item form-group{{ $errors->has('remark') ? ' has-error' : '' }}">
+                                    <label class="control-label" for="remark">Remark
+                                    </label>
+                                    {!! Form::text('remark', null, [
+                                        'placeholder' => 'Remark',
+                                        'class' => 'form-control ',
+                                        'dir' => $locale == 'ar' ? 'rtl' : 'ltr',
+                                        'lang' => $locale,
+                                    ]) !!}
+                                    @if ($errors->has('remark'))
+                                        <span class="help-block">
+                                            <strong>{{ $errors->first('remark') }}</strong>
+                                        </span>
+                                    @endif
+                                </div>
                                 </div>
 
 
@@ -300,24 +330,24 @@
                                                 </span>
                                             @endif
                                         </div>
-                                      
+
                                     </div>
 
                                     <div class="row mb-3">
                                         <div
-                                        class="col-md-4 item form-group{{ $errors->has('tax_state') ? ' has-error' : '' }}">
-                                        <label class="control-label" for="tax_state">State</label>
-                                        {!! Form::select('tax_state', $states, null, [
-                                            'placeholder' => 'Select State',
-                                            'class' => 'form-control tax_state',
-                                            'id' => 'tax_state',
-                                        ]) !!}
-                                        @if ($errors->has('tax_state'))
-                                            <span class="help-block">
-                                                <strong>{{ $errors->first('tax_state') }}</strong>
-                                            </span>
-                                        @endif
-                                    </div>
+                                            class="col-md-4 item form-group{{ $errors->has('tax_state') ? ' has-error' : '' }}">
+                                            <label class="control-label" for="tax_state">State</label>
+                                            {!! Form::select('tax_state', $states, null, [
+                                                'placeholder' => 'Select State',
+                                                'class' => 'form-control tax_state',
+                                                'id' => 'tax_state',
+                                            ]) !!}
+                                            @if ($errors->has('tax_state'))
+                                                <span class="help-block">
+                                                    <strong>{{ $errors->first('tax_state') }}</strong>
+                                                </span>
+                                            @endif
+                                        </div>
                                         <div
                                             class="col-md-4 item form-group{{ $errors->has('opening_balance') ? ' has-error' : '' }}">
                                             <label class="control-label" for="opening_balance">Opening Balance
@@ -349,24 +379,7 @@
                                         </div>
 
                                     </div>
-                                    <div class="row mb-3">
-                                        <div
-                                            class="col-md-4 item form-group{{ $errors->has('remark') ? ' has-error' : '' }}">
-                                            <label class="control-label" for="remark">Remark
-                                            </label>
-                                            {!! Form::text('remark', null, [
-                                                'placeholder' => 'Remark',
-                                                'class' => 'form-control ',
-                                                'dir' => $locale == 'ar' ? 'rtl' : 'ltr',
-                                                'lang' => $locale,
-                                            ]) !!}
-                                            @if ($errors->has('remark'))
-                                                <span class="help-block">
-                                                    <strong>{{ $errors->first('remark') }}</strong>
-                                                </span>
-                                            @endif
-                                        </div>
-                                    </div>
+                                   
                                 </div>
                             </div>
 
@@ -469,6 +482,7 @@
         });
     </script>
     <!-- FastClick -->
+    
     <script src="{{ asset('public/assets/fastclick/lib/fastclick.js') }}"></script>
     <!-- NProgress -->
     <script src="{{ asset('public/assets/nprogress/nprogress.js') }}"></script>
