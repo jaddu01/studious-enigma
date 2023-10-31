@@ -92,7 +92,15 @@ class SupplierController extends Controller
     public function store(Request $request)
     {
         $input = $request->all();
-        $validator = Validator::make($request->all(),$this->model->rules($this->method),$this->model->messages($this->method));
+        $validator = Validator::make($request->all(),[
+            'company_name' => 'required',
+            'gstin_number'=>'required|unique:suppliers,gstin_number',
+
+        ],
+    [
+        'gstin_number.unique'=>"This GSTIN number is already exists"
+    ]);
+        // $validator = Validator::make($request->all(),$this->model->rules($this->method),$this->model->messages($this->method));
 
         if ($validator->fails()) {
             return redirect('admin/supplier/create')

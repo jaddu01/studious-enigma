@@ -53,11 +53,11 @@
                                     </div>
                                     <div
                                         class="col-md-4 item form-group{{ $errors->has('pan_number') ? ' has-error' : '' }}">
-                                        <label class="control-label" for="gstin_number">PAN No.
+                                        <label class="control-label" for="pan_number">PAN No.
                                         </label>
                                         {!! Form::text('pan_number', null, [
                                             'placeholder' => 'PAN No.',
-                                            'id' => 'gstin_number',
+                                            'id' => 'pan_number',
                                             'class' => 'form-control',
                                             'dir' => $locale == 'ar' ? 'rtl' : 'ltr',
                                             'lang' => $locale,
@@ -129,11 +129,9 @@
                                     <div class="col-md-4 item form-group {{ $errors->has('state') ? ' has-error' : '' }}">
                                         <label class="control-label" for="state">State
                                         </label>
-
                                         {!! Form::select('state', $states, null, [
                                             'placeholder' => 'State',
-                                            'id' => 'state',
-                                            'class' => 'form-control select2-tax-state',
+                                            'class' => 'form-control select2-state',
                                             'id' => 'state',
                                         ]) !!}
                                         @if ($errors->has('state'))
@@ -302,23 +300,24 @@
                                                 </span>
                                             @endif
                                         </div>
+                                      
                                     </div>
+
                                     <div class="row mb-3">
                                         <div
-                                            class="col-md-4 item form-group{{ $errors->has('tax_state') ? ' has-error' : '' }}">
-                                            <label class="control-label" for="tax_state">State
-                                            </label>
-                                            {!! Form::select('tax_state', $states, null, [
-                                                'id' => 'tax_state',
-                                                'class' => 'form-control select2-tax_state',
-                                                'id' => 'tax_state',
-                                            ]) !!}
-                                            @if ($errors->has('tax_state'))
-                                                <span class="help-block">
-                                                    <strong>{{ $errors->first('tax_state') }}</strong>
-                                                </span>
-                                            @endif
-                                        </div>
+                                        class="col-md-4 item form-group{{ $errors->has('tax_state') ? ' has-error' : '' }}">
+                                        <label class="control-label" for="tax_state">State</label>
+                                        {!! Form::select('tax_state', $states, null, [
+                                            'placeholder' => 'Select State',
+                                            'class' => 'form-control tax_state',
+                                            'id' => 'tax_state',
+                                        ]) !!}
+                                        @if ($errors->has('tax_state'))
+                                            <span class="help-block">
+                                                <strong>{{ $errors->first('tax_state') }}</strong>
+                                            </span>
+                                        @endif
+                                    </div>
                                         <div
                                             class="col-md-4 item form-group{{ $errors->has('opening_balance') ? ' has-error' : '' }}">
                                             <label class="control-label" for="opening_balance">Opening Balance
@@ -349,29 +348,28 @@
 
                                         </div>
 
-
                                     </div>
                                     <div class="row mb-3">
                                         <div
-                                        class="col-md-4 item form-group{{ $errors->has('remark') ? ' has-error' : '' }}">
-                                        <label class="control-label" for="remark">Remark
-                                        </label>
-                                        {!! Form::text('remark', null, [
-                                            'placeholder' => 'Remark',
-                                            'class' => 'form-control ',
-                                            'dir' => $locale == 'ar' ? 'rtl' : 'ltr',
-                                            'lang' => $locale,
-                                        ]) !!}
-                                        @if ($errors->has('remark'))
-                                            <span class="help-block">
-                                                <strong>{{ $errors->first('remark') }}</strong>
-                                            </span>
-                                        @endif
-                                    </div>
+                                            class="col-md-4 item form-group{{ $errors->has('remark') ? ' has-error' : '' }}">
+                                            <label class="control-label" for="remark">Remark
+                                            </label>
+                                            {!! Form::text('remark', null, [
+                                                'placeholder' => 'Remark',
+                                                'class' => 'form-control ',
+                                                'dir' => $locale == 'ar' ? 'rtl' : 'ltr',
+                                                'lang' => $locale,
+                                            ]) !!}
+                                            @if ($errors->has('remark'))
+                                                <span class="help-block">
+                                                    <strong>{{ $errors->first('remark') }}</strong>
+                                                </span>
+                                            @endif
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                            
+
 
                             <div class="x_content">
                                 <span class="section"><i class="fa fa-plus-circle btn-pill mt-3"
@@ -380,10 +378,10 @@
                                     <div class="row mb-3">
                                         <div
                                             class="col-md-4 item form-group{{ $errors->has('bank_name') ? ' has-error' : '' }}">
-                                            <label class="control-label" for="bank_name">Bank Number
+                                            <label class="control-label" for="bank_name">Bank Name
                                             </label>
                                             {!! Form::text('bank_name', null, [
-                                                'placeholder' => 'Bank Number',
+                                                'placeholder' => 'Bank Name',
                                                 'class' => 'form-control ',
                                                 'dir' => $locale == 'ar' ? 'rtl' : 'ltr',
                                                 'lang' => $locale,
@@ -432,7 +430,7 @@
                                 </div>
                             </div>
 
-                         
+
                         </div>
 
 
@@ -462,14 +460,12 @@
     <script src="{{ asset('public/js/select2.min.js') }}"></script>
     <script>
         $(document).ready(function() {
-            $('.select2-state').select2({
+            $('.select2-state,.select2-tax_state').select2({
                 placeholder: "Select State",
                 allowClear: true
             });
-            $('.select2-tax-state').select2({
-                placeholder: "Select State",
-                allowClear: true
-            });
+
+
         });
     </script>
     <!-- FastClick -->
