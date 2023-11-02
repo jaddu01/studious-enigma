@@ -24,6 +24,7 @@ Route::post('login', [AuthController::class, 'login']);
         Route::get('/', [ProductController::class, 'index']);
         Route::get('/with-quantity', [ProductController::class, 'productWithQuantity']);
         Route::post('/update',[ProductController::class,'updateProduct']);
+        Route::get('/orders',[ProductController::class,'orders']);
     });
     
     Route::get('categories', [CategoryController::class, 'index']);

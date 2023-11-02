@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Pos;
 use App\Helpers\ResponseBuilder;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Http\Resources\Pos\PosOrderResource;
 use App\Http\Resources\Pos\VendorProductResource;
 use App\Http\Resources\VendorProductWithQuantityResource;
 use App\PosCustomerOrderItem;
@@ -38,7 +39,6 @@ class ProductController extends Controller
         }
     }
     public function updateProduct(Request $request){
-        
         try{
            
         //    dd($invoiceNo??1);
@@ -148,6 +148,17 @@ class ProductController extends Controller
             DB::rollBack();
             dd($e);
             return ResponseBuilder::error($e->getMessage(), $this->errorStatus);
+        }
+    }
+
+    public function orders(Request $request){
+        try {
+            $orders = PosCustomerProductOrder::get();
+            $this->response->order_list = PosOrderResource::collection($orders);
+            return ResponseBuilder::success($this->response,'Order List');
+        } catch (\Exception $e) {
+            return ResponseBuilder::error($e->getMessage(), $this->errorStatus);
+
         }
     }
 
