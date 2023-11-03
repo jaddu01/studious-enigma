@@ -121,6 +121,7 @@ class ProductController extends Controller
                         'product_id'=>$product['productId'],
                         'offer_value'=>$product['offer_price'],
                         'offer_data'=>$product['offer_data'],
+                        'best_price'=>$product['best_price'],
 
                     ]);
 

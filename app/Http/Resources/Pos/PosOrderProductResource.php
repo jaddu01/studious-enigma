@@ -20,6 +20,8 @@ class PosOrderProductResource extends JsonResource
             'quantity'=>$this->qty,
             'price'=>$this->price,
             'offer_price'=>$this->offer_value,
+            'best_price'=>$this->best_price,
+            'is_offer'=>$this->is_offer,
             'offer_data'=>$this->offer_data,
             // 'best_price'=>$this->best_price,
 
