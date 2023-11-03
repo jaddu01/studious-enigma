@@ -32,5 +32,6 @@ Route::post('login', [AuthController::class, 'login']);
     
     Route::group(['prefix' => 'users'], function () {
         Route::get('/', [UserController::class, 'index']);
+        Route::post('/create',[UserController::class,'addCustomer']);
     });
 // });
