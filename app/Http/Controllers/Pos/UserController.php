@@ -6,6 +6,7 @@ use App\Helpers\ResponseBuilder;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Pos\AddCustomerRequest;
+use App\Http\Resources\Pos\UserDetailsResource;
 use App\Http\Resources\UserResource;
 use App\User;
 use Illuminate\Support\Facades\DB;
@@ -28,11 +29,13 @@ class UserController extends Controller
     public function addCustomer(AddCustomerRequest $request){
         try {
             DB::beginTransaction();
-            $data = $request->only('name','phone_code','phone_number','whatsapp_no','address','dob');
             
-            User::create($data);
+            $data = $request->only('name','phone_code','phone_number','whatsapp_no','address','dob');
+            $data['role']='user';
+            $user =   User::create($data);
+            $this->response->user_details = new UserDetailsResource($user);
             DB::commit();
-            return ResponseBuilder::success(null,__('user.add_customer_sucessfully'));
+            return ResponseBuilder::success($this->response,__('user.add_customer_sucessfully'));
         } catch (\Exception $e) {
             DB::rollBack();
             return ResponseBuilder::error($e->getMessage(), $this->errorStatus);

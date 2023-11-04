@@ -24,10 +24,10 @@ class AddCustomerRequest extends FormRequest
         return [
             'name' => 'required',
             'phone_code'=>'required',
-            'dob'=>'required|date',
+            'dob'=>'date',
             'phone_number' => 'required|unique:users,phone_number',
-            'whatsapp_no' => 'required|unique:users,whatsapp_no',
-            'address' => 'required',
+            'whatsapp_no' => 'unique:users,whatsapp_no',
+            // 'address' => '',
         ];
         
     }
