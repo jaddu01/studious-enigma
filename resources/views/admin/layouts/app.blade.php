@@ -67,7 +67,19 @@
 
    {{-- <script src="{{ asset('js/admin-components.js') }}"></script>--}}
     <!-- Custom Theme Scripts -->
+
     <script src="{{asset('public/js/custom.js')}}"></script>
+    
+    <script>
+          function ajxHeader() {
+            $.ajaxSetup({
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                }
+            })
+
+        }
+    </script>
     <?php if($user_id != 1){ ?>
     <script type="text/javascript">
         $(document).ready(function(){

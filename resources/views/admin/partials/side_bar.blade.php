@@ -42,7 +42,7 @@
                 <ul class="nav side-menu">
                     <!-- POS -->
                     <li>
-                        <a><i class="fa fa-file"></i>POS1  <span class="fa fa-chevron-down"></span></a>
+                        <a><i class="fa fa-fax"></i>POS <span class="fa fa-chevron-down"></span></a>
                         <ul class="nav child_menu">
                             @if (!Auth::guard('admin')->user()->can(['index','create','view','delete','update'], App\PosOrders::class))
                                 <li><a><i class="fa fa-image"></i>Orders <span class="fa fa-chevron-down"></span></a>
@@ -96,11 +96,11 @@
 
                     <!-- Inventory-->
                     @if (!Auth::guard('admin')->user()->can(['index','create','view','delete','update'], App\Product::class))
-                    <li><a><i class="fa fa-product-hunt"></i>Inventory <span class="fa fa-cubes"></span></a>
+                    <li><a><i class="fa fa-cubes "></i>Inventory <span class="fa fa-chevron-down"></span></a>
                         <ul class="nav child_menu">
                             @if (!Auth::guard('admin')->user()->can(['create'], App\Product::class))
                             <li>
-                                <a href="{{url('admin/product/create')}}">Add Product</a>
+                                <a href="{{route('admin.inventory.list')}}">Stock Verification</a>
                             </li>
                             @endif
                           

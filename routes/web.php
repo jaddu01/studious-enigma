@@ -13,6 +13,9 @@
 
 // Route::get('/', 'Admin\Auth\LoginController@showLoginForm');
 // Route::get('/login', 'Admin\Auth\LoginController@showLoginForm');
+
+use App\Http\Controllers\Admin\InventoryController;
+
 Route::get('/test-connection', function () {
     try {
         DB::connection()->getPdo();
@@ -26,26 +29,26 @@ Route::get('/', 'FrontController@index');
 Route::get('/search-product', 'SearchController@searchProduct');
 Route::post('/login', 'Auth\LoginController@login')->name('login');
 
-Route::post('resendOTP','UserController@resendOtp')->name('resendOTP');
-Route::post('resendRegisterOTP','Auth\RegisterController@resendRegisterOtp')->name('resendRegisterOTP');
+Route::post('resendOTP', 'UserController@resendOtp')->name('resendOTP');
+Route::post('resendRegisterOTP', 'Auth\RegisterController@resendRegisterOtp')->name('resendRegisterOTP');
 
 Route::post('/mobilelogin', 'Auth\LoginController@mobilelogin')->name('mobile.login');
 Route::post('/loginmobile', 'Auth\LoginController@loginmobile')->name('login.mobile');
 Route::post('/verifymobileOtp', 'Auth\LoginController@verifymobileOtp')->name('verifymobileOtp');
-Route::get('/transferimages','FrontController@transferimages');
-Route::get('/sendpasswordform','FrontController@sendpasswordform');
+Route::get('/transferimages', 'FrontController@transferimages');
+Route::get('/sendpasswordform', 'FrontController@sendpasswordform');
 
-Route::get('/phpinfo','FrontController@phpinfofunc');
-Route::post('/sendpassword','FrontController@sendpassword')->name('sendpassword');
+Route::get('/phpinfo', 'FrontController@phpinfofunc');
+Route::post('/sendpassword', 'FrontController@sendpassword')->name('sendpassword');
 Route::any('/register', 'Auth\RegisterController@store')->name('register');
 Route::any('/createregister', 'Auth\RegisterController@createregister')->name('createregister');
 //Route::post('register', 'Auth\RegistrationController@store')->name('register');
-Route::get('afterRegister','Auth\RegisterController@afterRegister');
-Route::get('/customerupdate/{id}','FrontController@updatedata');
-Route::get('/forgotpassword','FrontController@forgotpassword');
+Route::get('afterRegister', 'Auth\RegisterController@afterRegister');
+Route::get('/customerupdate/{id}', 'FrontController@updatedata');
+Route::get('/forgotpassword', 'FrontController@forgotpassword');
 Route::get('/profile/update', 'UserController@update');
-Route::get('/verifyOtp','Auth\RegisterController@verifyOtp');
-Route::post('/verifyOtp','Auth\RegisterController@verifedOtp')->name('verifyOtp');
+Route::get('/verifyOtp', 'Auth\RegisterController@verifyOtp');
+Route::post('/verifyOtp', 'Auth\RegisterController@verifedOtp')->name('verifyOtp');
 Route::get('/profile', 'UserController@show')->middleware('auth')->name('profile');
 Route::post('/updateprofile', 'UserController@update')->middleware('auth')->name('updateprofile');
 Route::get('/change-password', 'UserController@changePassword')->middleware('auth')->name('change-password');
@@ -71,18 +74,18 @@ Route::get('/mywallet', 'WalletController@mywallet');
 Route::get('/mycoins', 'WalletController@mycoins');
 Route::get('/product/{slug}', 'ProductController@productdeatils');
 Route::get('/list/{slug}', 'ProductController@productlisting');
-Route::get('/api/search', 'Api\SearchController@index'); 
+Route::get('/api/search', 'Api\SearchController@index');
 //Route::get('/update-zone/{id}','FrontController@updateZone');
 //Route::get('/get-zone','FrontController@getZone');
-Route::get('/update-zone/{id}','HomeController@updateZone')->middleware('auth');
-Route::get('/get-zone','HomeController@getZone')->middleware('auth');
-Route::get('/offer/{slug}','OfferController@index')->middleware('auth');
-Route::get('/import','FrontController@importExcel');
-Route::get('/importpackage','FrontController@importpackage');
-Route::get('/zonecode','FrontController@zonecode');
-Route::get('/category/generate-slug','FrontController@categorySlug');
-Route::get('/products/generate-slug','FrontController@productSlug');
-Route::get('/get-home-data','FrontController@Home');
+Route::get('/update-zone/{id}', 'HomeController@updateZone')->middleware('auth');
+Route::get('/get-zone', 'HomeController@getZone')->middleware('auth');
+Route::get('/offer/{slug}', 'OfferController@index')->middleware('auth');
+Route::get('/import', 'FrontController@importExcel');
+Route::get('/importpackage', 'FrontController@importpackage');
+Route::get('/zonecode', 'FrontController@zonecode');
+Route::get('/category/generate-slug', 'FrontController@categorySlug');
+Route::get('/products/generate-slug', 'FrontController@productSlug');
+Route::get('/get-home-data', 'FrontController@Home');
 Route::get('/privacy-policy', 'CmsController@privacypolicy');
 Route::get('/faq', 'CmsController@faq');
 Route::get('/contact-us', 'CmsController@contactus');
@@ -117,10 +120,10 @@ Route::group(['prefix' => 'admin', 'namespace' => 'Admin'], function () {
         'as' => 'password.resetpass.store',
         'uses' => 'Auth\ResetPasswordController@reset'
     ]);
-    
+
 
     // TODO  auth admin route section
-    Route::group(['middleware' => ['admin.auth']], function(){
+    Route::group(['middleware' => ['admin.auth']], function () {
         Route::get('/checkAuth', 'UserController@checkAuth')->middleware('admin.auth');
 
         Route::get('dashboard', 'HomeController@index')->name('admin.auth');
@@ -134,24 +137,24 @@ Route::group(['prefix' => 'admin', 'namespace' => 'Admin'], function () {
         Route::any('user/datatable', 'UserController@anyData')->name('user.datatable');
         Route::any('user/status', 'UserController@changeStatus')->name('admin.user.status');
         Route::resource('user', 'UserController');
-        
+
         // TODO admin customer section
-         Route::get('tracking/customer-heatmap', 'CustomerController@customerAddressHeatmap')->name('customer.heatmap');
+        Route::get('tracking/customer-heatmap', 'CustomerController@customerAddressHeatmap')->name('customer.heatmap');
         Route::get('customer/address-map/{id}', 'CustomerController@mapview')->name('customer.mapview');
 
         Route::any('customer/datatable', 'CustomerController@anyData')->name('customer.datatable');
         Route::get('customer/viewcart/{id}', 'CustomerController@viewcart')->name('customer.viewcart');
         Route::any('customer/status', 'CustomerController@changeStatus')->name('admin.customer.status');
-        Route::get('customer/wallet/{id}','CustomerController@wallethistory');
+        Route::get('customer/wallet/{id}', 'CustomerController@wallethistory');
         Route::get('wallethistory/datatable', 'CustomerController@wallethistoryData')->name('customer.wallethistory.datatable');
-        Route::get('customer/darbaar-coin/{id}','CustomerController@darbaarCoinHistory');
+        Route::get('customer/darbaar-coin/{id}', 'CustomerController@darbaarCoinHistory');
         Route::get('darbaar-coin-history/datatable', 'CustomerController@darbaarCoinHistoryData')->name('customer.darbaarCoin.datatable');
         Route::resource('customer', 'CustomerController');
 
 
         //TODO delivery location section routes
         Route::any('delivery-location-by-id', 'DeliveryLocationController@getDeliveryAddressById')->name('delivery-location-by-id');
-        Route::resource('delivery_location','DeliveryLocationController');
+        Route::resource('delivery_location', 'DeliveryLocationController');
 
 
         // TODO admin category section
@@ -171,25 +174,25 @@ Route::group(['prefix' => 'admin', 'namespace' => 'Admin'], function () {
         Route::any('coin-settings/datatable', 'CoinSettingsController@anyData')->name('coinSettings.datatable');
         Route::any('coin-settings/status', 'CoinSettingsController@changeStatus')->name('admin.coinSettings.status');
         Route::resource('coin-settings', 'CoinSettingsController');
-        
+
         // TODO admin order section
         Route::any('order/export/{type}', 'OrderController@exportOrder');
         Route::any('order/edit-qty/{item_id}', 'OrderController@editQty');
         Route::any('order/remove-order-item/{item_id}', 'OrderController@removeOrderItem');
 
 
-        Route::match(['get', 'post'],'order/add-product/{order_id}', 'OrderController@addProduct');
-        Route::match(['get', 'post'],'order/add-productlist/{order_id}', 'OrderController@addProductlist');
-        Route::match(['get', 'post'],'order/modify-address/{order_id}', 'OrderController@modifyAddress');
-        Route::match(['get', 'post'],'order/modify-delivery-date-or-slot/{order_id}', 'OrderController@modifyDeliveryDateOrSlot');
-        Route::match(['get', 'post'],'order/change-shopper-and-driver/{order_id}', 'OrderController@changeShopperAndDriver');
-        Route::match(['get', 'post'],'order/add-discount/{order_id}', 'OrderController@addDiscount');
-        Route::match(['get', 'post'],'order/invoice/{order_id}', 'OrderController@invoice')->name('order.invoice');
-        Route::match(['get', 'post'],'order/pdfdownload/{order_id}', 'OrderController@pdfdownload');
+        Route::match(['get', 'post'], 'order/add-product/{order_id}', 'OrderController@addProduct');
+        Route::match(['get', 'post'], 'order/add-productlist/{order_id}', 'OrderController@addProductlist');
+        Route::match(['get', 'post'], 'order/modify-address/{order_id}', 'OrderController@modifyAddress');
+        Route::match(['get', 'post'], 'order/modify-delivery-date-or-slot/{order_id}', 'OrderController@modifyDeliveryDateOrSlot');
+        Route::match(['get', 'post'], 'order/change-shopper-and-driver/{order_id}', 'OrderController@changeShopperAndDriver');
+        Route::match(['get', 'post'], 'order/add-discount/{order_id}', 'OrderController@addDiscount');
+        Route::match(['get', 'post'], 'order/invoice/{order_id}', 'OrderController@invoice')->name('order.invoice');
+        Route::match(['get', 'post'], 'order/pdfdownload/{order_id}', 'OrderController@pdfdownload');
 
         Route::get('order/track/{id}', 'OrderController@trackOrder')->name('order.track');
         Route::post('order/track/current', 'OrderController@trackDriverCurrentCoordinates')->name('order.track.current');
-        
+
         Route::any('order/datatable', 'OrderController@anyData')->name('order.datatable');
         Route::any('order/datatablenew', 'OrderController@anyDataOrderStatus')->name('order.datatablenew');
         Route::any('order/status', 'OrderController@changeStatus')->name('admin.order.status');
@@ -197,25 +200,25 @@ Route::group(['prefix' => 'admin', 'namespace' => 'Admin'], function () {
         Route::any('order/showDetail/{id}', 'OrderController@showDetail')->name('order.showDetail');
         Route::resource('order', 'OrderController');
 
-         Route::any('first_order/datatable', 'FirstOrderController@anyData')->name('first_order.datatable');
-         Route::any('first_order/changestatus', 'FirstOrderController@changeStatus')->name('admin.first-order.status');
-         Route::resource('first_order', 'FirstOrderController');
+        Route::any('first_order/datatable', 'FirstOrderController@anyData')->name('first_order.datatable');
+        Route::any('first_order/changestatus', 'FirstOrderController@changeStatus')->name('admin.first-order.status');
+        Route::resource('first_order', 'FirstOrderController');
 
 
 
         // TODO admin notification section
         Route::any('notification/status', 'NotificationController@changeStatus')->name('admin.notification.status');
         Route::any('notification/datatable', 'NotificationController@anyData')->name('notification.datatable');
-        
+
         Route::any('notification/unavailable/datatable', 'NotificationController@unavailableData')->name('notification.unavailabledata');
         Route::get('notification/unavailable', 'NotificationController@unavailableProductOrders')->name('admin.notification.unavailable');
         Route::any('notification/update/datatable', 'NotificationController@updateproductData')->name('notification.updateproductData');
         Route::get('notification/shopper', 'NotificationController@updateProducts')->name('admin.notification.update');
         Route::any('notification/order/datatable', 'NotificationController@orderStatusData')->name('notification.orderStatusData');
         Route::get('notification/order', 'NotificationController@orderStatus')->name('admin.notification.update');
-         Route::any('notification/address/datatable', 'NotificationController@addressUpdateData')->name('notification.addressStatusData');
+        Route::any('notification/address/datatable', 'NotificationController@addressUpdateData')->name('notification.addressStatusData');
         Route::get('notification/address', 'NotificationController@addressUpdate')->name('admin.notification.address');
-           Route::get('notification/address/details', 'NotificationController@addressDetails')->name('admin.notification.addressDetails');
+        Route::get('notification/address/details', 'NotificationController@addressDetails')->name('admin.notification.addressDetails');
         Route::resource('notification', 'NotificationController');
 
         Route::get('product/addvariant', 'ProductController@addVariant')->name('admin.product.addvariant');
@@ -224,7 +227,7 @@ Route::group(['prefix' => 'admin', 'namespace' => 'Admin'], function () {
         Route::get('product/editvariant/{id}', 'ProductController@editvariant')->name('admin.product.editvariant');
         Route::post('product/updatevariant/{id}', 'ProductController@updateVariant')->name('admin.product.updatevariant');
         // TODO admin manual order section
-       
+
 
         Route::any('get-delivery-day', 'ManualOrderController@deliveryDay')->name('get-delivery-day');
         Route::any('get-vendor-product', 'ManualOrderController@getVendorProduct')->name('get-vendor-product');
@@ -237,7 +240,7 @@ Route::group(['prefix' => 'admin', 'namespace' => 'Admin'], function () {
         Route::any('offer/status', 'OfferController@changeStatus')->name('admin.offer.status');
         Route::resource('offer', 'OfferController');
 
-         // TODO admin coupon section
+        // TODO admin coupon section
         Route::any('coupon/datatable', 'CouponController@anyData')->name('coupon.datatable');
         Route::any('coupon/status', 'CouponController@changeStatus')->name('admin.coupon.status');
         Route::resource('coupon', 'CouponController');
@@ -249,20 +252,20 @@ Route::group(['prefix' => 'admin', 'namespace' => 'Admin'], function () {
         Route::any('slider/status', 'SliderController@changeStatus')->name('admin.slider.status');
         Route::resource('slider', 'SliderController');
 
-         // TODO offer slider section
+        // TODO offer slider section
 
         Route::any('offer-slider/datatable', 'OfferSliderController@anyData')->name('offer-slider.datatable');
         Route::any('offer-slider/status', 'OfferSliderController@changeStatus')->name('admin.offer-slider.status');
-         Route::post('offer-slider/getsubcat', 'OfferSliderController@getSubCategory')->name('offer-slider.sub-cat');
+        Route::post('offer-slider/getsubcat', 'OfferSliderController@getSubCategory')->name('offer-slider.sub-cat');
         Route::resource('offer-slider', 'OfferSliderController');
 
-          // TODO how it works section
+        // TODO how it works section
 
         Route::any('how-it-works/datatable', 'HowItWorksController@anyData')->name('how-it-works.datatable');
         Route::any('how-it-works/status', 'HowItWorksController@changeStatus')->name('admin.how-it-works.status');
         Route::resource('how-it-works', 'HowItWorksController');
 
-          // TODO how it works section
+        // TODO how it works section
 
         // Media Section //
 
@@ -283,9 +286,9 @@ Route::group(['prefix' => 'admin', 'namespace' => 'Admin'], function () {
         Route::any('admin-notification/orderNotification', 'AdminNotificationController@orderNotification')->name('admin-notification.orderNotification');
         Route::any('admin-notification/unavailable', 'AdminNotificationController@unavailable')->name('admin-notification.unavailable');
         Route::any('admin-notification/unavailableanydata', 'AdminNotificationController@unavailableanydata')->name('admin-notification.unavailableanydata');
-        
-        
-        
+
+
+
         Route::any('admin-notification/status', 'AdminNotificationController@changeStatus')->name('admin.admin-notification.status');
         Route::resource('admin-notification', 'AdminNotificationController');
 
@@ -344,7 +347,7 @@ Route::group(['prefix' => 'admin', 'namespace' => 'Admin'], function () {
 
 
         // TODO zone section
-        
+
         Route::get('zone-details', 'ZoneController@getZoneDetailsById')->name('zone-details');
         Route::get('load-zone', 'ZoneController@loadZoneByLat')->name('load-zone');
         Route::get('view-tracking', 'OperationController@viewTracking')->name('view-tracking');
@@ -374,8 +377,8 @@ Route::group(['prefix' => 'admin', 'namespace' => 'Admin'], function () {
         Route::any('permission_access/ajax', 'PermissionAccessController@getHtml')->name('permission_access.ajax');
         Route::any('permission_access/status', 'PermissionAccessController@changeStatus')->name('admin.permission_access.status');
         Route::resource('permission_access', 'PermissionAccessController');
-        
-        
+
+
         // TODO Anaylitics & Report section
         Route::any('anaylitics/driver/datatable', 'AnayliticsController@driverData')->name('anaylitics.datatable.driver');
         Route::any('analytics/driver', 'AnayliticsController@driver')->name('admin.anaylitics.driver');
@@ -397,8 +400,8 @@ Route::group(['prefix' => 'admin', 'namespace' => 'Admin'], function () {
         Route::any('anaylitics/status', 'AnayliticsController@changeStatus')->name('admin.anaylitics.status');
         Route::resource('anaylitics', 'AnayliticsController');
 
-        Route::any('analytics/payment-history','AnayliticsController@paymentHistory')->name('anaylitics.payment-history');
-        Route::any('analytics/payment-history-data','AnayliticsController@paymentHistoryData')->name('anaylitics.payment-history-data');
+        Route::any('analytics/payment-history', 'AnayliticsController@paymentHistory')->name('anaylitics.payment-history');
+        Route::any('analytics/payment-history-data', 'AnayliticsController@paymentHistoryData')->name('anaylitics.payment-history-data');
 
 
 
@@ -406,10 +409,10 @@ Route::group(['prefix' => 'admin', 'namespace' => 'Admin'], function () {
         // TODO admin product section
 
         /*test*/
-         Route::any('product/importtest', 'ProductController@importTest');
+        Route::any('product/importtest', 'ProductController@importTest');
         Route::post('product/importExcelToUpdateBestPrice', 'ProductController@importExcelToUpdateBestPrice')->name('admin.product.importExcelToUpdateBestPrice');
-        Route::get('product/edit-product-data','ProductController@editProductData')->name('admin.product.edit-product-data');
-        Route::post('product/edit-product-data','ProductController@editProductData')->name('admin.product.edit-product-data');
+        Route::get('product/edit-product-data', 'ProductController@editProductData')->name('admin.product.edit-product-data');
+        Route::post('product/edit-product-data', 'ProductController@editProductData')->name('admin.product.edit-product-data');
         /*test*/
 
         Route::any('product/datatable', 'ProductController@anyData')->name('product.datatable');
@@ -430,7 +433,7 @@ Route::group(['prefix' => 'admin', 'namespace' => 'Admin'], function () {
         Route::get('vendor-product/edit-product-data', 'VendorProductController@editProductData')->name('admin.vendor-product.edit-product-data');
 
         Route::post('vendor-product/edit-product-data', 'VendorProductController@editProductData')->name('admin.vendor-product.edit-product-data');
-         
+
         Route::any('vendor-product/datatable', 'VendorProductController@anyData')->name('vendor-product.datatable');
         Route::any('vendor-product/changeShopperAndDriver', 'VendorProductController@changeShopperAndDriver')->name('vendor-product.changeShopperAndDriver');
         Route::any('vendor-product/shopperassignment', 'VendorProductController@shopperassignment')->name('vendor-product.shopperassignment');
@@ -444,21 +447,21 @@ Route::group(['prefix' => 'admin', 'namespace' => 'Admin'], function () {
         //autocomplete.search
         Route::any('autocomplete/search', 'VendorProductController@search')->name('autocomplete.search');
 
-		// TODO admin vendor-commission section
-		
-		Route::any('vendor-commission/datatable', 'VendorCommissionController@anyData')->name('vendor-commission.datatable');
-		Route::resource('vendor-commission', 'VendorCommissionController');
-		
-		// TODO admin Revenue section
+        // TODO admin vendor-commission section
+
+        Route::any('vendor-commission/datatable', 'VendorCommissionController@anyData')->name('vendor-commission.datatable');
+        Route::resource('vendor-commission', 'VendorCommissionController');
+
+        // TODO admin Revenue section
         Route::any('revenue/getdata', 'RevenueController@getRevenueData')->name('revenue.getdata');
         Route::any('revenue/getcomment', 'RevenueController@getCommentData')->name('revenue.getcomment');
-        
-		Route::any('revenue/add', 'RevenueController@storeRevenue')->name('revenue.add');
+
+        Route::any('revenue/add', 'RevenueController@storeRevenue')->name('revenue.add');
         Route::any('revenue/comment/add', 'RevenueController@storeComment')->name('revenue.comment.add');
-		Route::any('revenue/datatable', 'RevenueController@anyData')->name('revenue.datatable');
-		/*Route::any('revenue/update', 'RevenueController@update')->name('revenue.update');*/
-		Route::resource('revenue', 'RevenueController');
-       
+        Route::any('revenue/datatable', 'RevenueController@anyData')->name('revenue.datatable');
+        /*Route::any('revenue/update', 'RevenueController@update')->name('revenue.update');*/
+        Route::resource('revenue', 'RevenueController');
+
         // TODO admin setting section
         Route::get('setting/general', 'SettingController@general');
         Route::post('setting/general', 'SettingController@generalUpdate');
@@ -483,11 +486,11 @@ Route::group(['prefix' => 'admin', 'namespace' => 'Admin'], function () {
 
         Route::get('setting/address_setting', 'SettingController@address_setting');
         Route::post('setting/address_setting', 'SettingController@AddressSettingUpdate');
-        
+
 
         Route::post('setting/reboot', 'SettingController@reBoot');
 
-         // TODO admin language management section
+        // TODO admin language management section
 
         Route::get('language/site/{lang}', 'LanguageController@site');
         Route::post('language/site/{lang}', 'LanguageController@siteUpdate');
@@ -522,12 +525,12 @@ Route::group(['prefix' => 'admin', 'namespace' => 'Admin'], function () {
 
         // TODO admin cms section
         Route::any('cms/datatable', 'CmsController@anyData')->name('cms.datatable');
-        Route::resource('cms', 'CmsController',['only' => ['index','update','edit']]);
+        Route::resource('cms', 'CmsController', ['only' => ['index', 'update', 'edit']]);
 
         //Membership module
         Route::any('membership/changestatus', 'MembershipController@changeStatus')->name('admin.membership.status');
         Route::any('membership/datatable', 'MembershipController@anyData')->name('membership.datatable');
-        Route::resource('membership','MembershipController');
+        Route::resource('membership', 'MembershipController');
 
         // POS section
         Route::any('pos/expenses/datatable', 'Pos\ExpensesController@anyData')->name('expenses.datatable');
@@ -535,10 +538,10 @@ Route::group(['prefix' => 'admin', 'namespace' => 'Admin'], function () {
         Route::any('pos/purchase/datatable', 'Pos\PurchaseController@anyData')->name('purchase.datatable');
         Route::any('pos/purchase/get-products', 'Pos\PurchaseController@getProducts')->name('purchase.get-products');
         Route::any('pos/purchase/get-brands', 'Pos\PurchaseController@getBrands')->name('purchase.get-brands');
-        Route::get('pos/purchase/supplier_address/{Supplier}','Pos\PurchaseController@getSupplierAddress')->name('purchase.get.supplier.address');
-        Route::get('pos/purchase/supplier-products','Pos\PurchaseController@getSupplierProducts')->name('purchase.get.supply.products');
-        Route::get('pos/purchase/supplier-products-info/{product?}','Pos\PurchaseController@getSupplierProductsInfo')->name('purchase.get.supplier.products.info');
-        Route::post('pos/purchase/supplier-products-save','Pos\PurchaseController@SaveSupplierPurchase')->name('purchase.supplier.purchase.save');
+        Route::get('pos/purchase/supplier_address/{Supplier}', 'Pos\PurchaseController@getSupplierAddress')->name('purchase.get.supplier.address');
+        Route::get('pos/purchase/supplier-products', 'Pos\PurchaseController@getSupplierProducts')->name('purchase.get.supply.products');
+        Route::get('pos/purchase/supplier-products-info/{product?}', 'Pos\PurchaseController@getSupplierProductsInfo')->name('purchase.get.supplier.products.info');
+        Route::post('pos/purchase/supplier-products-save', 'Pos\PurchaseController@SaveSupplierPurchase')->name('purchase.supplier.purchase.save');
 
         Route::resource('pos/purchase', 'Pos\PurchaseController');
         Route::get('pos/reports/sales', 'Pos\ReportsController@sales')->name('reports.sales');
@@ -547,7 +550,7 @@ Route::group(['prefix' => 'admin', 'namespace' => 'Admin'], function () {
         Route::any('pos/reports/expenses/data', 'Pos\ReportsController@expensesData')->name('reports.expenses.data');
         Route::get('pos/reports/purchase', 'Pos\ReportsController@purchase')->name('reports.purchase');
         Route::any('pos/reports/purchase/data', 'Pos\ReportsController@purchaseData')->name('reports.purchase.data');
-        
+
         Route::any('pos/orders/create', 'Pos\OrdersController@create')->name('pos.orders.create');
         Route::any('pos/orders/datatable', 'Pos\OrdersController@anyData')->name('pos.orders.datatable');
         //Route::any('order/datatablenew', 'OrderController@anyDataOrderStatus')->name('order.datatablenew');
@@ -560,14 +563,14 @@ Route::group(['prefix' => 'admin', 'namespace' => 'Admin'], function () {
         Route::any('pos/pos-get-barcode-product', 'Pos\OrdersController@getBarcodeProduct')->name('pos-get-barcode-product');
         Route::any('pos/get-vendor-product-detail', 'Pos\OrdersController@getVendorProductDetail')->name('pos-get-vendor-product-detail');
         Route::any('pos/order/store', 'Pos\OrdersController@store')->name('pos-order.store');
-        Route::match(['get', 'post'],'pos/order/pdfdownload/{order_id}', 'Pos\OrdersController@pdfdownload');
-        Route::match(['get', 'post'],'pos/order/print/{order_id}', 'Pos\OrdersController@print');
+        Route::match(['get', 'post'], 'pos/order/pdfdownload/{order_id}', 'Pos\OrdersController@pdfdownload');
+        Route::match(['get', 'post'], 'pos/order/print/{order_id}', 'Pos\OrdersController@print');
         Route::any('pos/order/add-coin', 'Pos\OrdersController@addDarbaarCoin')->name('pos-order.addDarbaarCoin');
         Route::any('pos/pos-get-user-by-param', 'Pos\OrdersController@getUserByParam')->name('pos-get-user-by-param');
 
 
         //pos users
-        Route::prefix('pos/users')->group(function(){
+        Route::prefix('pos/users')->group(function () {
             Route::get('/', 'Pos\UserController@index')->name('pos.users');
             Route::get('datatable', 'Pos\UserController@anyData')->name('pos.users.datatable');
             Route::get('create', 'Pos\UserController@create')->name('pos.users.create');
@@ -582,8 +585,8 @@ Route::group(['prefix' => 'admin', 'namespace' => 'Admin'], function () {
         Route::any('supplier/status', 'SupplierController@changeStatus')->name('admin.supplier.status');
         Route::resource('supplier', 'SupplierController');
 
-        Route::any('test/update-sku','TestController@updateSku');
-        Route::any('test/export-product-data','TestController@exportProductData');
+        Route::any('test/update-sku', 'TestController@updateSku');
+        Route::any('test/export-product-data', 'TestController@exportProductData');
 
         // Wallet Management
         Route::any('wallet-management/datatable', 'WalletManagementController@anyData')->name('walletManagement.datatable');
@@ -592,21 +595,19 @@ Route::group(['prefix' => 'admin', 'namespace' => 'Admin'], function () {
         Route::any('wallet-management/datatable', 'WalletManagementController@anyData')->name('walletManagement.datatable');
         Route::get('wallet-management/wallet-history/datatable', 'WalletManagementController@walletHistoryData')->name('walletManagement.wallet.datatable');
         Route::get('wallet-management/coin-history/datatable', 'WalletManagementController@coinHistoryData')->name('walletManagement.coin.datatable');
-        Route::resource('wallet-management','WalletManagementController');
-        Route::match(['get','post'],'wallet-management/add-wallet-entry/{id}', 'WalletManagementController@addWalletEntry')->name('wallet-management.add-wallet-entry');
-        Route::match(['get','post'],'wallet-management/add-coin-entry/{id}', 'WalletManagementController@addCoinEntry')->name('wallet-management.add-coin-entry');
-
-    
+        Route::resource('wallet-management', 'WalletManagementController');
+        Route::match(['get', 'post'], 'wallet-management/add-wallet-entry/{id}', 'WalletManagementController@addWalletEntry')->name('wallet-management.add-wallet-entry');
+        Route::match(['get', 'post'], 'wallet-management/add-coin-entry/{id}', 'WalletManagementController@addCoinEntry')->name('wallet-management.add-coin-entry');
     });
 });
 
-Route::post('broadcastAuth','HomeController@AuthSocket');
-Route::any('/broadcasting/auth', function() {
+Route::post('broadcastAuth', 'HomeController@AuthSocket');
+Route::any('/broadcasting/auth', function () {
     return Auth::guard('admin')->user();
 });
 Auth::routes();
 Route::get('/home', 'HomeController@index')->name('home');
-Route::post('/search','SearchController@index')->name('search');
+Route::post('/search', 'SearchController@index')->name('search');
 Route::post('/addtocart', 'CartController@addtocart')->name('addtocart');
 Route::post('/notifyme', 'CartController@notifyme')->name('notifyme');
 Route::post('/removeOutStock', 'CartController@removeOutStock')->name('removeOutStock');
@@ -620,7 +621,7 @@ Route::any('/getaddress', 'OrderController@getaddress')->name('getaddress');
 Route::post('/placeorder', 'OrderController@store')->name('placeorder');
 
 Route::any('delivery-location-by-id', 'DeliveryLocationController@getDeliveryAddressById')->name('delivery-location-by-id');
-Route::resource('delivery_location','DeliveryLocationController');
+Route::resource('delivery_location', 'DeliveryLocationController');
 
 
 // Get Route For Show Payment Form
@@ -647,12 +648,17 @@ Route::get('/whats-app/send-text/{phone_number}', 'WhatsappController@sendText')
 Route::get('/whats-app/get-pdf/{id}', 'WhatsappController@getPdf');
 
 Route::get('/pdf/{file}', function ($file) {
-      // file path
-     $path = public_path('invoices' . '/' . $file .'#invoice.pdf');
-      // header
-     $header = [
-       'Content-Type' => 'application/pdf',
-       'Content-Disposition' => 'inline; filename="' . $file . '"'
-     ];
+    // file path
+    $path = public_path('invoices' . '/' . $file . '#invoice.pdf');
+    // header
+    $header = [
+        'Content-Type' => 'application/pdf',
+        'Content-Disposition' => 'inline; filename="' . $file . '"'
+    ];
     return response()->file($path, $header);
 })->name('pdf');
+
+
+Route::prefix('inventory')->group(function () {
+    Route::get('/', [InventoryController::class, 'inventoryList'])->name('admin.inventory.list');
+});
