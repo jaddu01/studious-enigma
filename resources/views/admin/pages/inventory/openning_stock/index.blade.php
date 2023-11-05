@@ -75,6 +75,9 @@
 @endsection
 @push('scripts')
     <!-- FastClick -->
+    <script>
+        const uRL = "{{route('admin.opening.stock.list')}}";
+        </script>
     <script src="{{ asset('public/assets/fastclick/lib/fastclick.js') }}"></script>
     <!-- NProgress -->
     <script src="{{ asset('public/assets/nprogress/nprogress.js') }}"></script>
@@ -98,8 +101,7 @@
     <script src="{{ asset('public/assets/pnotify/dist/pnotify.buttons.js') }}"></script>
     <script src="{{ asset('public/assets/pnotify/dist/pnotify.nonblock.js') }}"></script>
     <script src="{{ asset('public/js/bootstrap-toggle.min.js') }}"></script>
-
-
+    <script src="{{asset('public/js/dt/stock-opening-dt.js')}}"></script>
     <!-- Datatables -->
     <script>
         // $(function() {

@@ -37,7 +37,7 @@
 </head>
 <body class="nav-md">
 <input type="hidden" id="ActiveSidebarCurrentSection" value="{{$currentSection??null}}">
-<input type="hiddem" id="ActiveSidebarCurrentPage" value="{{$currentPage??null}}">
+<input type="hidden" id="ActiveSidebarCurrentPage" value="{{$currentPage??null}}">
     <div class="container body" id="wrapper1">
         <div class="main_container">
             
