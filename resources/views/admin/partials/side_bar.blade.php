@@ -40,8 +40,81 @@
             <div class="menu_section">
                <h3>&nbsp;</h3>
                 <ul class="nav side-menu">
+                       {{-- users --}}
+                       @if (!Auth::guard('admin')->user()->can(['index','create','view','delete','update'], App\Product::class))
+                    
+                       <li><a><i class="fa fa-user "></i>Contacts <span class="fa fa-chevron-down"></span></a>
+                           <ul class="nav child_menu">
+                        <li><a href="{{url('admin/customer')}}"><i class="fa fa-users"></i>Customers</a></li>
+                        <li>
+                            <a><i class="fa fa-users"></i>POS Users<span class="fa fa-chevron-down"></span></a>
+                            <ul class="nav child_menu">
+                                <li><a href="{{url('admin/pos/users')}}">View All</a></li>
+                                <li><a href="{{url('admin/pos/users/create')}}">Add New</a></li>
+                            </ul>
+                        </li>
+                        <li><a><i class="fa fa-product-hunt"></i>Supplier <span class="fa fa-chevron-down"></span></a>
+                            <ul class="nav child_menu">
+                                @if (!Auth::guard('admin')->user()->can(['create'], App\Supplier::class))
+                                <li>
+                                    <a href="{{url('admin/supplier/create')}}">Add Supplier</a>
+                                </li>
+                                @endif
+                                @if (!Auth::guard('admin')->user()->can(['view'], App\Supplier::class))
+                                <li>
+                                    <a href="{{url('admin/supplier')}}">View Supplier</a>
+                                </li>
+                            </ul>
+                        </li>
+                                @endif
+                                <li><a><i class="fa fa-users"></i>Shoppers/Drivers/Stores <span class="fa fa-chevron-down"></span></a>
+                                    <ul class="nav child_menu">
+                                        @if (!Auth::guard('admin')->user()->can(['create'], App\User::class))
+                                        <li>
+                                            <a href="{{url('admin/user/create')}}">Add New</a>
+                                        </li>
+                                        @endif
+                                        @if (!Auth::guard('admin')->user()->can(['view'], App\User::class))
+                                        <li>
+                                            <a href="{{url('admin/user')}}">View All</a>
+                                        </li>
+                                        @endif
+
+                                    </ul>
+                                </li>
+                                @if (!Auth::guard('admin')->user()->can(['create','view','delete','update'], App\User::class))
+                                
+                            @endif
+                            
+                            @if (!Auth::guard('admin')->user()->can(['index','create','view','delete','update'], App\VendorProduct::class))
+                            <li><a><i class="fa fa-sliders"></i>Shopper/Driver Management <span class="fa fa-chevron-down"></span></a>
+                                <ul class="nav child_menu">
+                                    @if (!Auth::guard('admin')->user()->can(['shoppersAssignment'], App\VendorProduct::class))
+                                    <li>
+                                        <a href="{{url('admin/vendor-product/shopperassignment')}}">Shopper Assignment</a>
+                                    </li>
+                                    @endif
+                                    @if (!Auth::guard('admin')->user()->can(['driverassignment'], App\VendorProduct::class))
+                                    <li>
+                                        <a href="{{url('admin/vendor-product/driverassignment')}}">Driver Assignment</a>
+                                    </li>
+                                    @endif
+                                    @if (!Auth::guard('admin')->user()->can(['map'], App\VendorProduct::class))
+                                    <li>
+                                        <a href="{{url('admin/vendor-product/map')}}">Map View</a>
+                                    </li>
+                                    @endif
+                                </ul>
+                            </li>
+                        @endif
+                         
+                           </ul>
+                       </li>
+                 
+                       @endif
+
                     <!-- POS -->
-                    <li>
+                    {{-- <li>
                         <a><i class="fa fa-fax"></i>POS <span class="fa fa-chevron-down"></span></a>
                         <ul class="nav child_menu">
                             @if (!Auth::guard('admin')->user()->can(['index','create','view','delete','update'], App\PosOrders::class))
@@ -61,13 +134,7 @@
                                 </li>
 
                             @endif
-                            <li>
-                                <a><i class="fa fa-file"></i>Purchase  <span class="fa fa-chevron-down"></span></a>
-                                <ul class="nav child_menu">
-                                    <li><a href="{{url('admin/pos/purchase/create')}}">Add Purchase</a></li>
-                                    <li><a href="{{url('admin/pos/purchase/')}}">View Purchase</a></li>
-                                </ul>
-                            </li>
+                           
                             <li>
                                 <a><i class="fa fa-file"></i>Expenses  <span class="fa fa-chevron-down"></span></a>
                                 <ul class="nav child_menu">
@@ -84,35 +151,81 @@
                                 </ul>
                             </li>
 
-                            <li>
-                                <a><i class="fa fa-users"></i>Users<span class="fa fa-chevron-down"></span></a>
-                                <ul class="nav child_menu">
-                                    <li><a href="{{url('admin/pos/users')}}">View All</a></li>
-                                    <li><a href="{{url('admin/pos/users/create')}}">Add New</a></li>
-                                </ul>
-                            </li>
+                          
+                        </ul>
+                    </li> --}}
+                 
+
+                    {{-- Purchase --}}
+                    <li>
+                        <a><i class="fa fa-shopping-bag"></i>Purchase  <span class="fa fa-chevron-down"></span></a>
+                        <ul class="nav child_menu">
+                            <li><a href="{{url('admin/pos/purchase/create')}}">Add Purchase</a></li>
+                            <li><a href="{{url('admin/pos/purchase/')}}">View Purchase</a></li>
                         </ul>
                     </li>
-
                     <!-- Inventory-->
                     @if (!Auth::guard('admin')->user()->can(['index','create','view','delete','update'], App\Product::class))
-                    <li><a><i class="fa fa-cubes "></i>Inventory <span class="fa fa-chevron-down"></span></a>
+                    
+
+                    <li  id="sidebarInventorySection"><a><i class="fa fa-cubes"></i>Inventory <span class="fa fa-chevron-down"></span></a>
                         <ul class="nav child_menu">
+                          
+                            <li><a><i class="fa fa-product-hunt"></i>Products <span class="fa fa-chevron-down"></span></a>
+                                <ul class="nav child_menu">
+                                    @if (!Auth::guard('admin')->user()->can(['create'], App\Product::class))
+                                    <li>
+                                        <a href="{{url('admin/product/create')}}">Add Product</a>
+                                    </li>
+                                    @endif
+                                    @if (!Auth::guard('admin')->user()->can(['view'], App\Product::class))
+                                    <li>
+                                        <a href="{{url('admin/product')}}">View Products</a>
+                                    </li>
+                                    @endif
+                                    @if (!Auth::guard('admin')->user()->can(['view'], App\Product::class))
+                                    {{-- <li>
+                                        <a href="{{url('admin/product/variantview')}}">Product Variant</a>
+                                    </li> --}}
+                                    @endif
+        
+                                </ul>
+                            </li>
+                            <li><a><i class="fa fa-list-alt"></i>Categories <span class="fa fa-chevron-down"></span></a>
+                                <ul class="nav child_menu">
+                                    @if (!Auth::guard('admin')->user()->can(['create'], App\Category::class))
+                                    <li>
+                                        <a href="{{url('admin/category/create')}}">Add Category</a>
+                                    </li>
+                                    @endif
+                                    @if (!Auth::guard('admin')->user()->can(['view'], App\Category::class))
+                                    <li>
+                                        <a href="{{url('admin/category')}}">View Categories</a>
+                                    </li>
+                                    @endif
+                                    
+                                    
+    
+                                </ul>
+                            </li>
+
                             @if (!Auth::guard('admin')->user()->can(['create'], App\Product::class))
-                            <li>
+                            <li id="sidebarStockVerification">
                                 <a href="{{route('admin.inventory.list')}}">Stock Verification</a>
                             </li>
-                            @endif
-                          
 
+                            <li id="sidebarOpeningStock">
+                                <a href="{{route('admin.opening.stock')}}">Opening Stock</a>
+                            </li>
+                            @endif
                         </ul>
+                        
                     </li>
                 @endif
 
-                    <!-- Customer -->
+                    {{-- <!-- Customer -->
                     @if (!Auth::guard('admin')->user()->can(['index'], App\User::class))
-                        <li><a href="{{url('admin/customer')}}"><i class="fa fa-users"></i>Customers</a></li>
-                    @endif
+                    @endif --}}
                     
                     <!-- Orders -->
                     @if (!Auth::guard('admin')->user()->can(['index'], App\ProductOrder::class))
@@ -120,7 +233,7 @@
                     @endif
                     
                     <!-- Products -->
-                    @if (!Auth::guard('admin')->user()->can(['index','create','view','delete','update'], App\Product::class))
+                    {{-- @if (!Auth::guard('admin')->user()->can(['index','create','view','delete','update'], App\Product::class))
                         <li><a><i class="fa fa-product-hunt"></i>Products <span class="fa fa-chevron-down"></span></a>
                             <ul class="nav child_menu">
                                 @if (!Auth::guard('admin')->user()->can(['create'], App\Product::class))
@@ -134,14 +247,12 @@
                                 </li>
                                 @endif
                                 @if (!Auth::guard('admin')->user()->can(['view'], App\Product::class))
-                                {{-- <li>
-                                    <a href="{{url('admin/product/variantview')}}">Product Variant</a>
-                                </li> --}}
+                              
                                 @endif
 
                             </ul>
                         </li>
-                    @endif
+                    @endif --}}
 
                     <!-- Store Products -->
                     @if (!Auth::guard('admin')->user()->can(['index','create','view','delete','update'], App\VendorProduct::class))
@@ -163,7 +274,7 @@
                     @endif
                     
                     <!-- Categories -->
-                    @if (!Auth::guard('admin')->user()->can(['index','create','view','delete','update'], App\Category::class))
+                    {{-- @if (!Auth::guard('admin')->user()->can(['index','create','view','delete','update'], App\Category::class))
                         <li><a><i class="fa fa-list-alt"></i>Categories <span class="fa fa-chevron-down"></span></a>
                             <ul class="nav child_menu">
                                 @if (!Auth::guard('admin')->user()->can(['create'], App\Category::class))
@@ -181,7 +292,7 @@
 
                             </ul>
                         </li>
-                    @endif
+                    @endif --}}
 
                     <!-- Media -->
                     <li>
@@ -307,7 +418,7 @@
                         <a><i class="fa fa-users"></i>Group 1 <span class="fa fa-chevron-down"></span></a>
                         <ul class="nav child_menu">
                             <!-- Shoppers /Drivers / Stores -->
-                            @if (!Auth::guard('admin')->user()->can(['create','view','delete','update'], App\User::class))
+                            {{-- @if (!Auth::guard('admin')->user()->can(['create','view','delete','update'], App\User::class))
                                 <li><a><i class="fa fa-users"></i>Shoppers/Drivers/Stores <span class="fa fa-chevron-down"></span></a>
                                     <ul class="nav child_menu">
                                         @if (!Auth::guard('admin')->user()->can(['create'], App\User::class))
@@ -323,7 +434,7 @@
 
                                     </ul>
                                 </li>
-                            @endif
+                            @endif --}}
                             <!-- Zone Management -->
                             @if (!Auth::guard('admin')->user()->can(['create','view','delete','update'], App\Zone::class))
                                 <li><a><i class="fa fa-area-chart"></i>Zone Management <span class="fa fa-chevron-down"></span></a>
@@ -496,7 +607,7 @@
                                 </li>
                             @endif
                             <!-- Shopper / Driver Management -->
-                            @if (!Auth::guard('admin')->user()->can(['index','create','view','delete','update'], App\VendorProduct::class))
+                            {{-- @if (!Auth::guard('admin')->user()->can(['index','create','view','delete','update'], App\VendorProduct::class))
                                 <li><a><i class="fa fa-sliders"></i>Shopper/Driver Management <span class="fa fa-chevron-down"></span></a>
                                     <ul class="nav child_menu">
                                         @if (!Auth::guard('admin')->user()->can(['shoppersAssignment'], App\VendorProduct::class))
@@ -516,7 +627,7 @@
                                         @endif
                                     </ul>
                                 </li>
-                            @endif
+                            @endif --}}
                         </ul>
                     </li>
                     <!-- Group 2 -->
@@ -601,23 +712,9 @@
                                 </li>
                             @endif
                            <!-- Suppliers -->
-                           @if (!Auth::guard('admin')->user()->can(['index','create','view','delete','update'], App\Supplier::class))
-                                <li><a><i class="fa fa-product-hunt"></i>Supplier <span class="fa fa-chevron-down"></span></a>
-                                    <ul class="nav child_menu">
-                                        @if (!Auth::guard('admin')->user()->can(['create'], App\Supplier::class))
-                                        <li>
-                                            <a href="{{url('admin/supplier/create')}}">Add Supplier</a>
-                                        </li>
-                                        @endif
-                                        @if (!Auth::guard('admin')->user()->can(['view'], App\Supplier::class))
-                                        <li>
-                                            <a href="{{url('admin/supplier')}}">View Supplier</a>
-                                        </li>
-                                        @endif
-
-                                    </ul>
-                                </li>
-                            @endif
+                           {{-- @if (!Auth::guard('admin')->user()->can(['index','create','view','delete','update'], App\Supplier::class))
+                               
+                            @endif --}}
                            <!-- Access Level -->
                            @if (!Auth::guard('admin')->user()->can(['index','create','view','delete','update'], App\AccessLevel::class))
                                 <li><a><i class="fa fa-mortar-board"></i>Access Level <span class="fa fa-chevron-down"></span></a>
@@ -765,7 +862,7 @@
                         </ul>
                     </li>
                     @if (!Auth::guard('admin')->user()->can(['index','addWallet','viewWallet','addCoin','viewCoin'], App\WalletManagement::class))
-                        <li><a><i class="fa fa-product-hunt"></i>Wallet Management <span class="fa fa-chevron-down"></span></a>
+                        <li><a><svg fill="#fff" height="15px" style="margin-right: 8px;" width="15px" version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 458.531 458.531" xml:space="preserve"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <g id="XMLID_830_"> <g> <g> <path d="M336.688,343.962L336.688,343.962c-21.972-0.001-39.848-17.876-39.848-39.848v-66.176 c0-21.972,17.876-39.847,39.848-39.847h103.83c0.629,0,1.254,0.019,1.876,0.047v-65.922c0-16.969-13.756-30.725-30.725-30.725 H30.726C13.756,101.49,0,115.246,0,132.215v277.621c0,16.969,13.756,30.726,30.726,30.726h380.943 c16.969,0,30.725-13.756,30.725-30.726v-65.922c-0.622,0.029-1.247,0.048-1.876,0.048H336.688z"></path> <path d="M440.518,219.925h-103.83c-9.948,0-18.013,8.065-18.013,18.013v66.176c0,9.948,8.065,18.013,18.013,18.013h103.83 c9.948,0,18.013-8.064,18.013-18.013v-66.176C458.531,227.989,450.466,219.925,440.518,219.925z M372.466,297.024 c-14.359,0-25.999-11.64-25.999-25.999s11.64-25.999,25.999-25.999c14.359,0,25.999,11.64,25.999,25.999 C398.465,285.384,386.825,297.024,372.466,297.024z"></path> <path d="M358.169,45.209c-6.874-20.806-29.313-32.1-50.118-25.226L151.958,71.552h214.914L358.169,45.209z"></path> </g> </g> </g> </g></svg>Wallet Management <span class="fa fa-chevron-down"></span></a>
                             <ul class="nav child_menu">
                                 @if (!Auth::guard('admin')->user()->can(['index'], App\WalletManagement::class))
                                 <li>

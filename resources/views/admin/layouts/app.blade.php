@@ -36,7 +36,8 @@
 
 </head>
 <body class="nav-md">
-
+<input type="hidden" id="ActiveSidebarCurrentSection" value="{{$currentSection??null}}">
+<input type="hiddem" id="ActiveSidebarCurrentPage" value="{{$currentPage??null}}">
     <div class="container body" id="wrapper1">
         <div class="main_container">
             
@@ -69,7 +70,7 @@
     <!-- Custom Theme Scripts -->
 
     <script src="{{asset('public/js/custom.js')}}"></script>
-    
+    <script src="{{asset('public/js/sidebar.js')}}"></script>
     <script>
           function ajxHeader() {
             $.ajaxSetup({

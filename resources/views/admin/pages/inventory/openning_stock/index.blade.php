@@ -43,29 +43,23 @@
                 <div class="col-md-12 col-sm-12 col-xs-12">
                     <div class="x_panel">
                         <div class="x_title">
-                            <h2>Stock Verification </h2>
+                            <h2>Opening Stock</h2>
                             <div class="clearfix"></div>
                         </div>
+                      
                         @component('components.datatable.tablestructure')
                             @slot('tableID')
-                                abc
+                                dttbl
                             @endslot
 
                             @slot('tableHeading')
-                                <th>Id</th>
-                                <th>Name</th>
-                                <th>mobile</th>
-                                <th>Email</th>
-                                <th>Membership</th>
-                                <th>Membership ends on</th>
-                                <th>Wallet Amount</th>
-                                <th>Darbaar Coins</th>
-                                <th>Referred By</th>
-                                <th>No Of Order</th>
-                                <th>Delivered Of Order</th>
-                                <th>Total Amount</th>
-                                <th>Created At</th>
-                                <th>Action</th>
+                                <th>Sr No.</th>
+                                <th>Product Name</th>
+                                <th>Price</th>
+                                <th>Qty</th>
+                                <th>Created On</th>
+                                <th>Actions</th>
+                            
                             @endslot
                         @endcomponent
 

@@ -14,7 +14,8 @@
 // Route::get('/', 'Admin\Auth\LoginController@showLoginForm');
 // Route::get('/login', 'Admin\Auth\LoginController@showLoginForm');
 
-use App\Http\Controllers\Admin\InventoryController;
+use App\Http\Controllers\Admin\Inventory\OpeningStockController;
+use App\Http\Controllers\Admin\Inventory\StockVerificationController;
 
 Route::get('/test-connection', function () {
     try {
@@ -660,5 +661,7 @@ Route::get('/pdf/{file}', function ($file) {
 
 
 Route::prefix('inventory')->group(function () {
-    Route::get('/', [InventoryController::class, 'inventoryList'])->name('admin.inventory.list');
+    Route::get('/', [StockVerificationController::class, 'index'])->name('admin.inventory.list');
+    Route::get('create',[StockVerificationController::class,'createStockVerification'])->name('admin.stock.verification.create');
+    Route::get('opening-stock',[OpeningStockController::class,'index'])->name('admin.opening.stock');
 });
