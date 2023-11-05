@@ -57,7 +57,7 @@
                             @slot('tableHeading')
                                 <th>Sr No.</th>
                                 <th>Product Name</th>
-                                <th>Price</th>
+                                <th>MRP</th>
                                 <th>Qty</th>
                                 <th>Created On</th>
                                 <th>Actions</th>

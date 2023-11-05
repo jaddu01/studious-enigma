@@ -10,6 +10,7 @@
 
 use App\Http\Controllers\Pos\AuthController;
 use App\Http\Controllers\Pos\CategoryController;
+use App\Http\Controllers\Pos\OrderController;
 use App\Http\Controllers\Pos\ProductController;
 use App\Http\Controllers\Pos\UserController;
 
@@ -25,7 +26,12 @@ Route::post('login', [AuthController::class, 'login']);
         Route::get('/with-quantity', [ProductController::class, 'productWithQuantity']);
         Route::post('/update',[ProductController::class,'updateProduct']);
         Route::get('/orders',[ProductController::class,'orders']);
+        Route::patch('orders/update',[OrderController::class,'update']);
+
+
     });
+
+   
     
     Route::get('categories', [CategoryController::class, 'index']);
     Route::get('categories/{category_id}/sub-categories', [CategoryController::class, 'subCategories']);
