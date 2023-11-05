@@ -7,6 +7,9 @@ $(document).ready(function(){
             serverSide: true,
             stateSave: false,
             pageLength: 10,
+            language: {
+                searchPlaceholder: "Search Product Name"
+            },
             ajax: {
                 url: uRL,
                 data: {
@@ -60,4 +63,8 @@ $(document).ready(function(){
         });
     }
     dbTble();
+
+    $("#dttbl").on("click",'.editBtn',function(){
+        $("#openingStockModal").modal('show');
+    });
 })

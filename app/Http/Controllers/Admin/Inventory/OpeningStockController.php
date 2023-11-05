@@ -14,7 +14,7 @@ class OpeningStockController extends Controller
     {
         $currentSection = 'sidebarInventorySection';
         $currentPage = 'sidebarOpeningStock';
-        return view('admin.pages.inventory.openning_stock.index', compact('currentSection', 'currentPage'));
+        return view('admin.pages.inventory.opening_stock.index', compact('currentSection', 'currentPage'));
     }
 
     public function list(Request $request)
