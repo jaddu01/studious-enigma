@@ -665,4 +665,5 @@ Route::prefix('inventory')->group(function () {
     Route::get('create',[StockVerificationController::class,'createStockVerification'])->name('admin.stock.verification.create');
     Route::get('opening-stock',[OpeningStockController::class,'index'])->name('admin.opening.stock');
     Route::get('opening-stock/list',[OpeningStockController::class,'list'])->name('admin.opening.stock.list');
+    Route::post('opening-stock/update',[OpeningStockController::class,'updateStock'])->name('admin.opening.stock.update');
 });

@@ -1,6 +1,6 @@
-db_table='';
-filter_val=null;
-$(document).ready(function(){
+db_table = '';
+filter_val = null;
+$(document).ready(function () {
     // alert("Working");
     function dbTble(filterVal = filter_val) {
         db_table = $("#dttbl").DataTable({
@@ -23,14 +23,14 @@ $(document).ready(function(){
                 name: 'sr_no',
                 data: 'sr_no',
                 // orderable:false,
-               
+
             },
             {
-                name:'product_name',
-                data:'product_name',
-                searchable:true,
-                orderable:false,
-            
+                name: 'product_name',
+                data: 'product_name',
+                searchable: true,
+                orderable: false,
+
             },
 
             {
@@ -49,6 +49,11 @@ $(document).ready(function(){
                 orderable: false
             },
             {
+                name: 'updated_at',
+                data: 'update_date',
+                orderable: false
+            },
+            {
                 name: 'action',
                 data: 'action',
                 orderable: false
@@ -64,7 +69,53 @@ $(document).ready(function(){
     }
     dbTble();
 
-    $("#dttbl").on("click",'.editBtn',function(){
+    $("#dttbl").on("click", '.editBtn', function () {
+        $("#openingStockModal").find('input[name=product_id]').val($(this).attr('product-id'));
+        $("#openingStockModal").find('input[name=product]').val($(this).attr('product'));
+        $("#openingStockModal").find('input[name=qty]').val($(this).attr('qty'));
+        $("#openingStockModal").find('#barcode').val($(this).attr('barcode'));
+        $("#openingStockModal").find('input[name=purchase_price]').val($(this).attr('purchase-price'));
+        $("#openingStockModal").find('input[name=best_price]').val($(this).attr('selling-price'));
+        $("#openingStockModal").find('input[name=price]').val($(this).attr('price'));
+
+
         $("#openingStockModal").modal('show');
     });
+
+    //click to save btn
+
+    $("#saveBtn").click(function () {
+        const formElementData = $("#openingStockForm").serializeArray();
+        const data = ArrayToJson(formElementData)
+        console.log(data);
+        updateStock(data);
+    });
+
+
+    const updateStock = (data_) => {
+        ajxHeader();
+        $.ajax({
+            url: openingStockUpdateUrl,
+            method: 'post',
+            data: data_,
+            success: function (res) {
+                // console.log(res)
+                $("#openingStockModal").modal('hide');
+                refreshTbl();
+
+
+            },
+            error: function (err) {
+                // console.error(err);
+                $("#openingStockModal").modal('hide');
+
+            }
+        })
+    }
+
+    const refreshTbl = () => {
+        db_table.destroy();
+        dbTble();
+        // db_table.ajax.reload();
+    }
 })
