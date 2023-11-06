@@ -16,6 +16,10 @@
 
 use App\Http\Controllers\Admin\Inventory\OpeningStockController;
 use App\Http\Controllers\Admin\Inventory\StockVerificationController;
+use App\User;
+use App\UserWallet;
+use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 
 Route::get('/test-connection', function () {
     try {
@@ -666,4 +670,43 @@ Route::prefix('inventory')->group(function () {
     Route::get('opening-stock',[OpeningStockController::class,'index'])->name('admin.opening.stock');
     Route::get('opening-stock/list',[OpeningStockController::class,'list'])->name('admin.opening.stock.list');
     Route::post('opening-stock/update',[OpeningStockController::class,'updateStock'])->name('admin.opening.stock.update');
+});
+
+Route::get('expire-coin',function(){
+try{
+    DB::beginTransaction();
+    function isExpire($date)
+    {
+        $days =  Carbon::createFromFormat('Y-m-d H:i:s', $date)->diffInDays(now());
+
+        if ($days > 30) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+
+    $user_wallet = UserWallet::where('status', 1)->where('transaction_type', 'CREDIT')
+        ->where('wallet_type', 'coin')->get();
+    foreach ($user_wallet as $wallet) {
+        if (isExpire($wallet->created_at)) {
+            UserWallet::where('id', $wallet->id)->update(['status' => 0]);
+            $user_coin=User::where('id',$wallet->user_id)->value('coin_amount');
+            if($user_coin>=$wallet->amount){
+                User::where('id',$wallet->user_id)->decrement('coin_amount',$wallet->amount);
+            }
+        }
+    }
+    DB::commit();
+    return "working";
+
+}
+catch(Exception $e){
+    Log::error($e);
+    DB::rollBack();
+
+}
+   
+
 });
