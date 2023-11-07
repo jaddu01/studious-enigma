@@ -53,12 +53,13 @@
                                 <thead>
                                 <tr>
                                     <th>Id</th>
-                                    <th>Company Name</th>
+                                    <th>Company Name1</th>
                                     <th>Contact Person</th>
                                     <th>Phone No.</th>
                                     <th>Address</th>
                                     <th>City</th>
                                     <th>State</th>
+                                    <th>GSTIN</th>
                                     <th>Created At</th>
                                     <th>Action</th>
                                 </tr>
@@ -137,7 +138,17 @@
                     { data: 'contact_number', name: 'contact_number',orderable: false, searchable: false },
                     { data: 'address', name: 'address',orderable: false, searchable: false },
                     { data: 'city', name: 'city' },
-                    { data: 'state', name: 'state' },
+                    { data: 'state', 
+                    name: 'state' },
+                    {  
+                        name: 'gstin_number',
+                    data:function(row){
+                       if(row.gstin_number==null){
+                        return 'N/A';
+                       }
+                       return row.gstin_number;
+                    }
+                      },
                     { data: 'created_at', name: 'created_at' },
                     { data: 'action', name: 'action',orderable: false, searchable: false }
                 ]

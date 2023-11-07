@@ -185,7 +185,7 @@
                                             ],
                                             null,
                                             [
-                                                'placeholder' => 'Product',
+                                                
                                                 'class' => 'form-control col-md-7 col-xs-12 select2-product',
                                                 'id' => 'payment_term',
                                                 'dir' => $locale == 'ar' ? 'rtl' : 'ltr',
@@ -220,7 +220,7 @@
                                     <div class="col-md-4">
                                         <label for="product_id">Product<small class="startTxt">*</small></label>
                                         {!! Form::select('product_id', [], null, [
-                                            'placeholder' => 'Product',
+                                           'placeholder' => 'Product',
                                             'class' => 'form-control col-md-7 col-xs-12 select2-product',
                                             'id' => 'product_id',
                                             'dir' => $locale == 'ar' ? 'rtl' : 'ltr',
@@ -278,7 +278,7 @@
                                             ],
                                             null,
                                             [
-                                                'placeholder' => 'Product',
+                                                
                                                 'class' => 'form-control col-md-7 col-xs-12 select2-product',
                                                 'id' => 'tax_type',
                                                 'dir' => $locale == 'ar' ? 'rtl' : 'ltr',
@@ -452,7 +452,7 @@
                                             <h5 class="text-primary">Total Additional Charge</h5>
                                         </div>
                                         <div class="col-md-12">
-                                            <h4>Net Amount</h4>
+                                            <b style="font-size: 18px;">Net Amount</b>
                                         </div>
                                     </div>
                                 </div>
