@@ -861,12 +861,13 @@ class OrderController extends Controller
 
                         $client = new Client();
                         $authkey = env('AUTHKEY');
-                        $phone_number = $user->phone_number;
+                        $phone_number = $user->country_code.$user->phone_number;
                         $senderid = env('SENDERID');
-                        $message = "Dear Customer, Your order#".$order->order_code." has been Cancelled.";
+                        // $message = "Dear Customer, Your order#".$order->order_code." has been Cancelled.";
+                        $message = "Your order ".$order->order_code." has been cancelled. If you have any questions or concerns, please feel free to inform our support team at 9929933833 DARBAAR MART";
                         $message = urlencode($message);
                           
-                        $response = $client->request('GET',"http://login.yourbulksms.com/api/sendhttp.php?authkey=".$authkey."&mobiles=".$phone_number."&message=".$message."&sender=".$senderid."&route=4&country=91");
+                        $response = $client->request('GET',"http://login.yourbulksms.com/api/sendhttp.php?authkey=36346e6768313136333766&mobiles=".$phone_number."&message=".$message."&sender=DBINDA&route=2&country=91&DLT_TE_ID=1707169383711367474");
 
                         $statusCode = $response->getStatusCode();
                         
@@ -961,13 +962,15 @@ class OrderController extends Controller
                         }
                         $client = new Client();
                         $authkey = env('AUTHKEY');
-                        $phone_number = $user->phone_number;
+                        $phone_number = $user->country_code.$user->phone_number;
                         $senderid = env('SENDERID');
-                        $message = "Dear Customer, Your order#".$order->order_code." has been Delivered. Thanks for the order.";
-                        // $message = urlencode($message);
+                        
+                        $message = "Your order ".$order->order_code." has been successfully delivered! We appreciate your business and hope that you are satisfied with your purchase. Thanks, DARBAAR MART";
+                        $message = urlencode($message);
                           
-                        $response = $client->request('GET',"http://login.yourbulksms.com/api/sendhttp.php?authkey=".$authkey."&mobiles=".$phone_number."&message=".$message."&sender=".$senderid."&route=4&country=91");
+                        $response = $client->request('GET',"http://login.yourbulksms.com/api/sendhttp.php?authkey=36346e6768313136333766&mobiles=".$phone_number."&message=".$message."&sender=DBMAAT&route=2&country=91&DLT_TE_ID=1707169406810539271");
 
+                        
                         $statusCode = $response->getStatusCode();
                         $player_ids = array($user->device_token);
                         Helper::sendOnesignalNotification(array_values($player_ids), 'Order update', $message,array('type' => 'order', 'id' => $order->id));

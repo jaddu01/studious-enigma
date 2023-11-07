@@ -1418,4 +1418,22 @@ class Helper
 
 		return preg_match($pattern, $uuid) === 1;
 	}
+
+	public static function sendSMS($phone_number, $message, $templateId){
+		try {
+			$message = urlencode($message);
+			$url = "http://control.yourbulksms.com/api/sendhttp.php?authkey=36346e6768313136333766&mobiles=".$phone_number."&sender=DBINDA&route=2&country=91&DLT_TE_ID=".$templateId."&message=".$message;
+			$ch = curl_init($url);
+			curl_setopt($ch, CURLOPT_POST, 1);
+			curl_setopt($ch, CURLOPT_POSTFIELDS, $url);
+			curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+			$response = curl_exec($ch);
+			curl_close($ch);
+			return true;
+		} catch (\Exception $e) {
+			Log::error($e->getMessage());
+			return false;
+		}
+
+	}
 }

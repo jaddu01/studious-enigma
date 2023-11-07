@@ -41,7 +41,7 @@ class AuthController extends Controller
                 return ResponseBuilder::error('Your account has been deleted by admin.',$this->validationStatus);
             }
             //send otp
-            $otp = "123456"; //rand(100000,999999);
+            $otp = rand(100000,999999);
             try {
                 $user->update([
                     'device_token' => $request->device_token,
@@ -53,7 +53,10 @@ class AuthController extends Controller
                 //send otp
                 $phone_number = $request->phone_code . $request->phone_number;
                 try{
-                   Helper::sendOtp($phone_number, $otp);
+                //    Helper::sendOtp($phone_number, $otp);
+                $message = "Dear Customer, Please use OTP ".$otp." to log in to your DARBAAR MART App and shop from our array of products. This OTP is valid for 15 minutes. Thanks XXXX DARBAAR MART";
+                $templateId = "1707169468656689309";
+                Helper::sendSMS($phone_number, $message, $templateId);
                 }catch(\Exception $e){
                    Log::error($e);
                 }
