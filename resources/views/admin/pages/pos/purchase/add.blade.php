@@ -333,6 +333,10 @@
                                         <th scope="col" style="width:80px">Free Qty<small class="startTxt">*</small></th>
                                         <th scope="col" style="width:80px">Unit Cost<small class="startTxt">*</small>
                                         </th>
+                                        <th scope="col" style="width:80px">Measurement Class<small class="startTxt">*</small>
+                                        </th>
+                                        <th scope="col" style="width:80px">Measurement Value<small class="startTxt">*</small>
+                                        </th>
                                         <th scope="col" style="width:80px">Net Rate (With GST)<small
                                                 class="startTxt">*</small>
                                         </th>
@@ -522,6 +526,8 @@
                 placeholder: "Select Brand",
                 allowClear: true
             });
+
+            
 
 
 

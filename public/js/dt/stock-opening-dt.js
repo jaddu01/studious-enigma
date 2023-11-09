@@ -68,7 +68,6 @@ $(document).ready(function () {
         });
     }
     dbTble();
-
     $("#dttbl").on("click", '.editBtn', function () {
         $("#openingStockModal").find('input[name=product_id]').val($(this).attr('product-id'));
         $("#openingStockModal").find('input[name=product]').val($(this).attr('product'));
@@ -77,9 +76,8 @@ $(document).ready(function () {
         $("#openingStockModal").find('input[name=purchase_price]').val($(this).attr('purchase-price'));
         $("#openingStockModal").find('input[name=best_price]').val($(this).attr('selling-price'));
         $("#openingStockModal").find('input[name=price]').val($(this).attr('price'));
-
-
         $("#openingStockModal").modal('show');
+
     });
 
     //click to save btn
@@ -118,4 +116,9 @@ $(document).ready(function () {
         dbTble();
         // db_table.ajax.reload();
     }
+
+    $("#openingStockModal").find("input[type=number]").on('input',function(){
+     const positive = Math.abs($(this).val());
+     $(this).val(positive);
+    });
 })

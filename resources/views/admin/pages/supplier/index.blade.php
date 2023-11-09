@@ -53,7 +53,7 @@
                                 <thead>
                                 <tr>
                                     <th>Id</th>
-                                    <th>Company Name1</th>
+                                    <th>Company Name</th>
                                     <th>Contact Person</th>
                                     <th>Phone No.</th>
                                     <th>Address</th>

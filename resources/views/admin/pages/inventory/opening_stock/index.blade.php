@@ -95,11 +95,11 @@
                     <div class="row mt-3">
                         <div class="col-md-6">
                             <label for="barcode">Barcode No.</label>
-                            <input type="number" id="barcode" name="barcode" class="form-control">
+                            <input type="number" min="0" id="barcode" name="barcode" class="form-control">
                         </div>
                         <div class="col-md-6">
                             <label class="qty">QTY</label>
-                            <input type="number" name="qty" id="qty" class="form-control">
+                            <input type="number" min="0" name="qty"  id="qty" class="form-control">
                         </div>
                        
                     </div>
@@ -107,11 +107,11 @@
                     <div class="row mt-3">
                         <div class="col-md-6">
                             <label for="purchase_price">Purchase Price</label>
-                            <input type="number" id="purchase_price" name="purchase_price" class="form-control">
+                            <input type="number" min="0" id="purchase_price" name="purchase_price" class="form-control">
                         </div>
                         <div class="col-md-6">
                             <label for="best_price">Selling Price</label>
-                            <input type="number" id="best_price" name="best_price" class="form-control">
+                            <input type="number" min="0" id="best_price" name="best_price" class="form-control">
                         </div>
                        
                        
@@ -119,7 +119,7 @@
                     <div class="row mt-3">
                         <div class="col-md-6">
                             <label for="price">Price</label>
-                            <input type="number" id="price" name="price" class="form-control">
+                            <input type="number" min="0" id="price" name="price" class="form-control">
                         </div>
                     </div>
                     </form>
