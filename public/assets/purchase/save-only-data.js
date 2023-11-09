@@ -9,19 +9,16 @@ $(document).ready(function () {
 
     $("#saveOnlyBtn").click(function (e) {
         e.preventDefault();
-
         const formElementData = $("#supplier_form").not("#supplier_id").serializeArray();
         const data= collectData(formElementData);
-console.log(data)
+        // console.log(data)
         saveData("save_only",data);
     });
 
     function collectData(formElementData){
         const formData = convertArrayToJson(formElementData);
-        // const formData = formElementData;
-        
-        
-        formData.products = [];
+    
+        formData.products_details = [];
         formData.additional_charges=[];
         formData.total_amount=parseFloat($("#totalAmount").text());
         formData.total_additional_charge=parseFloat($("#totalAdditionalCharges").text());
@@ -39,9 +36,11 @@ console.log(data)
                 selling_price:parseFloat($(this).find(".product_selling_price").val()),
                 gst_amount:parseFloat($(this).find(".product_gst_amount").text()),
                 margin:parseFloat($(this).find(".product_margin").val()),
+                measurement_class:$(this).find(".select2-measurementclass :selected").val(),
+                
                 total:parseFloat($(this).find(".product_total").val()),
             }
-            formData.products.push(data);
+            formData.products_details.push(data);
             formData.additional_charges.push()
         })
         $("#additional_charge_body tr").not("#additionalChargeResult").each(function(indx,value){
@@ -52,9 +51,9 @@ console.log(data)
             formData.additional_charges.push(data);
         })
     
-
         return formData;
     }
+
     function saveData(type,data_) {
         ajxHeader();
     
@@ -63,10 +62,9 @@ console.log(data)
             method: 'post',
             data:{type:type, data:data_},
             beforeSend: function () {
-
             },
             success: function (res) {
-                location.reload();
+                // location.reload();
             }
         })
     }

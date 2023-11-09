@@ -41,9 +41,7 @@ function setTblData(count = null) {
     <option value="11">Pack</option>
     </select>
     </td>
-    <td><input type="number" value="0" placeholder="0"
-            class="product-tbl-column-width form-control product-field measurement_value">
-    </td>
+   
     <td><input type="number" value="0" placeholder="0"
             class="product-tbl-column-width form-control product-field product_net_rate">
     </td>
@@ -280,3 +278,4 @@ function getProductDetails(uRL, self, type = null, barcode = null) {
         }
     })
 }
+

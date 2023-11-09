@@ -105,9 +105,11 @@ class PurchaseController extends Controller
     public function SaveSupplierPurchase(Request $request){
         try {
             if($request->ajax()){
+                dd($request->all());
                 DB::beginTransaction();
-                // dd($request->data['supplier_id']);
                $supplier_id = $request->data['supplier_id'];
+               
+               $due_amount = ($request->type=='save_only')?$request->data['net_amount']:0;
                $supplier_bill_purchase_order = SupplierBillPurchase::create([
                     "supplier_id"=>$supplier_id,
                     "bill_date"=>$request->data['bill_date'],
@@ -119,14 +121,14 @@ class PurchaseController extends Controller
                     "tax_type"=>$request->data['tax_type'],
                     "tax_type"=>$request->data['tax_type'],
                     "net_amount"=>$request->data['net_amount'],
-                    "due_amount"=>$request->data['net_amount'],
+                    "due_amount"=>$due_amount,
                     "total_amount"=>$request->data['total_amount'],
                     "total_additional_charge"=>$request->data['total_additional_charge']
                 ]);
 
                 foreach($request->data['additional_charges'] as $additionalCharge){
                     SupplierPurchaseAdditionalCharge::create([
-                    'supplier_bill_id'=>$supplier_bill_purchase_order->id,
+                    'supplier_bill_purchase_id'=>$supplier_bill_purchase_order->id,
                     'supplier_id'=>$supplier_id,
                     'charge_name'=>$additionalCharge['charge_name'],
                     'charge'=>$additionalCharge['charge_value']
@@ -134,56 +136,13 @@ class PurchaseController extends Controller
                     ]);
                 }
 
-                //  SupplierPurchaseProductDetail::create([
-                //         'supplier_id'=>$supplier_id,
-                //         'supplier_bill_id'=>$supplier_bill_purchase_order->id,
-                //         'product_id'=>1,
-                //         'bar_code'=>123455,
-                //         'qty'=>1,
-                //         'free_qty'=>123,
-                //         'unit_cost'=>100,
-                //         'selling_price'=>200,
-                //         'mrp'=>10,
-                //         'net_rate'=>300,
-                //         'margin'=>500,
-                //         'total'=>300
-                //     ]);
+         
 
-                foreach($request->data['products'] as $product){
-                   
-                        echo $product['product_id'];
-                        echo "\n";
-
-                        echo $product['barcode'];
-                        echo "\n";
-
-                        echo $product['qty'];
-                        echo "\n";
-
-                        echo $product['free_qty'];
-                        echo "\n";
-
-                        echo $product['unit_cost'];
-                        echo "\n";
-
-                        echo $product['selling_price'];
-                        echo "\n";
-
-                        echo $product['mrp'];
-                        echo "\n";
-
-                        echo $product['net_rate'];
-                        echo "\n";
-
-                        echo $product['margin'];
-                        echo "\n";
-                        echo $product['total'];
-                        echo "\n";
-
-
+                foreach($request->data['products_details'] as $product){
                     SupplierPurchaseProductDetail::create([
                         'supplier_id'=>$supplier_id,
-                        'supplier_bill_id'=>$supplier_bill_purchase_order->id,
+                        'supplier_bill_purchase_id'=>$supplier_bill_purchase_order->id,
+                        'measurement_class_id'=>$product['measurement_class'],
                         'product_id'=>$product['product_id'],
                         'bar_code'=>$product['barcode'],
                         'qty'=>$product['qty'],
@@ -201,6 +160,7 @@ class PurchaseController extends Controller
                 }
               
                 DB::commit(); 
+                return response()->json(['msg'=>'Success']);
             }
             //code...
         } catch (\Throwable $th) {

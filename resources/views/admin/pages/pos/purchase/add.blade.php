@@ -335,8 +335,7 @@
                                         </th>
                                         <th scope="col" style="width:80px">Measurement Class<small class="startTxt">*</small>
                                         </th>
-                                        <th scope="col" style="width:80px">Measurement Value<small class="startTxt">*</small>
-                                        </th>
+                                       
                                         <th scope="col" style="width:80px">Net Rate (With GST)<small
                                                 class="startTxt">*</small>
                                         </th>
@@ -357,11 +356,11 @@
 
                                     <tr id="totalResult" class="display-hide">
 
-                                        <td colspan="4" style="border:none !important;">
+                                        <td colspan="3" style="border:none !important;">
                                             <div class="text-right" style="padding-right: 30px;"><span
                                                     class="dark-txt">Total</span></div>
                                         </td>
-                                        <td style="border:none !important;">
+                                        <td colspan="4" style="border:none !important;">
                                             <div class="text-center"><span class="dark-txt" id="totalQty">10</span>
                                             </div>
                                         </td>
@@ -371,11 +370,11 @@
                                         <td style="border:none !important;"></td>
                                         <td style="border:none !important;"></td>
 
+
                                         <td style="border:none !important;">
                                             <div class="text-center"><span class="dark-txt" id="totalGstAmount"></span>
                                             </div>
                                         </td>
-                                        <td style="border:none !important;"></td>
                                         <td style="border:none !important;"></td>
                                         <td style="border:none !important;">
                                             <div class="text-center"><span class="dark-txt" id="total"></span></div>
