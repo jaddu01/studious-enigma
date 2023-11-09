@@ -455,7 +455,7 @@
                                         <div class="col-md-12">
                                             <h5 class="text-primary">Total Additional Charge</h5>
                                         </div>
-                                        <div class="col-md-12">
+                                        <div class="col-md-12" style="padding-bottom: 2px;">
                                             <b style="font-size: 18px;">Net Amount</b>
                                         </div>
                                     </div>
@@ -470,7 +470,8 @@
                                     </div>
 
                                     <div class="col-md-12 text-right" style="border:1px solid #EBEDF3;">
-                                        <h4 id="NetAmount">0.00</h4>
+                                        
+                                        <b  id="NetAmount" style="font-size: 18px;">0.00</b>
                                     </div>
                                    </div>
                                 </div>

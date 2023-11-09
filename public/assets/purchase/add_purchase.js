@@ -118,6 +118,12 @@ function setTblData(count = null) {
 
 }
 
+//stop negative value
+$('#product_Details_Tbody').on('input','.product-field',function(){
+    
+    const positive_number = Math.abs($(this).val());
+    $(this).val(positive_number);
+})
 const setAdditionalChargeTblRow = (count = null) => {
     const additionalChargeTblRow = ` <tr>
     <td>
@@ -229,16 +235,16 @@ $(document).ready(function () {
                 let contact_number = res.contact_number;
                 let phone_number = res.phone_number;
                 if (contact_number != undefined) {
-                    contact_number = `${contact_number},`;
+                    contact_number = `${contact_number}`;
                 }
                 if (phone_number != undefined) {
                     phone_number = `${phone_number}`;
                 }
                 $("#supplier_address").find('#Billing-address').html('');
-                $("#supplier_address").find('#state').text(res.state)
-                $("#supplier_address").find('#gst_no').text(res.gstin);
-                $("#supplier_address").find('#Billing-address').html(`<div>${res.company_name}<br>${res.address}, ${res.pincode}, ${res.state}, ${res.country}</div>
-                <i class="fa fa-phone"></i> ${contact_number} ${phone_number}`);
+                $("#supplier_address").find('#state').text(res.state??'')
+                $("#supplier_address").find('#gst_no').text(res.gstin??'');
+                $("#supplier_address").find('#Billing-address').html(`<div>${res.company_name??''}<br>${(res.address!=null)?res.address+',':''} ${(res.pincode!=null)?res.pincode+',':''} ${(res.state!=null)?res.state+',':''} ${res.country??''}</div>
+              ${(contact_number!=null || phone_number!=null)?`<i class="fa fa-phone"></i>${contact_number??''} ${phone_number??''}`:''} `);
                 $("#supplier_address").find('#billing-not-provided').hide();
                 if ($("#product_Details_Tbody tr").length == 1) {
                     // $("#product_Details_Tbody").html('');
