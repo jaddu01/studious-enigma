@@ -49,7 +49,7 @@ class OpeningStockController extends Controller
             $d->update_date=Carbon::parse($d->updated_at)->format('d-m-y');
             $i = $i+1;
             $d->action="<button class='btn btn-warning editBtn' product='".$d->product_name."' barcode ='".$d->barcode."'
-             purchase-price='".$d->purchase_price."' product-id='".$d->id."' price='".$d->price."' selling-price='".$d->best_price."' qty='".$d->qty."'><i class='fa fa-pencil'></i></button>";
+             purchase-price='".$d->purchase_price."' sku-code='".$d->sku_code."' product-id='".$d->id."' price='".$d->price."' selling-price='".$d->best_price."' qty='".$d->qty."'><i class='fa fa-pencil'></i></button>";
         }
 
         return [

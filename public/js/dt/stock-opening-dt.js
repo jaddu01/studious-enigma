@@ -73,6 +73,8 @@ $(document).ready(function () {
         $("#openingStockModal").find('input[name=product]').val($(this).attr('product'));
         $("#openingStockModal").find('input[name=qty]').val($(this).attr('qty'));
         $("#openingStockModal").find('#barcode').val($(this).attr('barcode'));
+        $("#openingStockModal").find('#skucode').val($(this).attr('sku-code'));
+
         $("#openingStockModal").find('input[name=purchase_price]').val($(this).attr('purchase-price'));
         $("#openingStockModal").find('input[name=best_price]').val($(this).attr('selling-price'));
         $("#openingStockModal").find('input[name=price]').val($(this).attr('price'));
@@ -85,7 +87,7 @@ $(document).ready(function () {
     $("#saveBtn").click(function () {
         const formElementData = $("#openingStockForm").serializeArray();
         const data = ArrayToJson(formElementData)
-        console.log(data);
+        // console.log(data);
         updateStock(data);
     });
 

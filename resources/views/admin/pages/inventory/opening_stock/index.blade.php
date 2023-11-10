@@ -90,6 +90,10 @@
                         <div class="col-md-12">
                            <input type="text" disabled name="product"  class="form-control">
                         </div>
+                        <div class="col-md-12 mt-3">
+                            <label for="barcode">SKU Code</label>
+                            <input type="text" disabled  id="skucode" style="cursor: default;" name="sku_code" class="form-control">
+                        </div>
                     </div>
 
                     <div class="row mt-3">
