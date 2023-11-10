@@ -27,6 +27,7 @@ use App\SupplierBillPurchase;
 use App\SupplierPurchaseAdditionalCharge;
 use App\SupplierPurchaseProductDetail;
 use App\SuppliersDueAmount;
+use App\SuppliersPayment;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Validator;
 use Proengsoft\JsValidation\Facades\JsValidatorFacade;
@@ -107,10 +108,15 @@ class PurchaseController extends Controller
     {
         try {
             if ($request->ajax()) {
-
+                // dd($request->all());
                 DB::beginTransaction();
                 $supplier_id = $request->data['supplier_id'];
-                $due_amount = ($request->type == 'save_only') ? $request->data['net_amount'] : 0;
+                $due_amount =  $request->data['net_amount'];
+                if($request->type == 'save_with_payment'){
+                    $due_amount =  $request->data['net_amount']-$request->data['amount'];
+
+                }
+
                 $supplier_bill_purchase_order = SupplierBillPurchase::create([
                     "supplier_id" => $supplier_id,
                     "bill_date" => $request->data['bill_date'],
@@ -153,7 +159,8 @@ class PurchaseController extends Controller
                         ]);
                     }
                 }
-                if (count($request->data['products_details']) > 0) {
+            
+                if (isset($request->data['products_details'])) {
                    
                     foreach ($request->data['products_details'] as $product) {
                         SupplierPurchaseProductDetail::create([
@@ -173,8 +180,24 @@ class PurchaseController extends Controller
                         ]);
                     }
                 }
+                
+                if($request->type == 'save_with_payment'){
+                    SuppliersPayment::create([
+                        'supplier_id'=>$supplier_id,
+                        'supplier_bill_purchase_id'=>$supplier_bill_purchase_order->id,
+                        'payment_mode'=>$request->data['payment_mode'],
+                        'payment_date'=>$request->data['payment_date']??null,
+                        'transaction_no'=>$request->data['transaction_no']??null,
+                        'description'=>$request->data['description']??null,
+                        'amount'=>$request->data['amount']
+                    ]);
+                  $supplier_due_amount =  SuppliersDueAmount::where('supplier_id',$supplier_id);
+                  if(!is_null($supplier_due_amount->first())){
+                    $supplier_due_amount->decrement('due_amount',$request->data['amount']);
+                  }
 
-
+                }
+                
                 DB::commit();
                 return response()->json(['msg' => 'Success']);
             }

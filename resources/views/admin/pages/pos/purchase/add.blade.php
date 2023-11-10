@@ -442,13 +442,13 @@
                             <div class="col-md-12 text-center">
 
                                 <label class="radio-inline">
-                                    <input type="radio" name="payment_mode" id="cashMode" checked>Cash
+                                    <input type="radio" name="payment_mode" value="cash" id="cashMode" checked>Cash
                                 </label>
                                 <label class="radio-inline">
-                                    <input type="radio" name="payment_mode" id="onlineMode">Online
+                                    <input type="radio" name="payment_mode" value="online" id="onlineMode">Online
                                 </label>
                                 <label class="radio-inline">
-                                    <input type="radio" name="payment_mode" id="chequeMode">Cheque
+                                    <input type="radio" name="payment_mode" value="cheque" id="chequeMode">Cheque
                                 </label>
                             </div>
                         </div>
@@ -459,7 +459,7 @@
                                     {{-- <div class="input-group-prepend"><span class="input-group-text" id="basic-addon1"><i class="fa fa-inr currency_style" aria-hidden="true"></i></span></div> --}}
                                     <input type="number" min="0"
                                         class="form-control m-input m-input--air m--font-boldest m--regular-font-size-lg5"
-                                        name="amount" placeholder="Amount">
+                                        name="amount" id="amount" placeholder="Amount">
                                 </div>
                             </div>
 
@@ -468,7 +468,7 @@
                             <div class="col-md-5">
                                 <label for="payment_date">Payment Date</label>
                                 <div class="input-group input-group-lg">
-                                    <input type="form-contorl" name="payment_date form-control" id="payment_date">
+                                    <input type="form-contorl" name="payment_date" id="payment_date">
                                 </div>
                             </div>
                             <div class="col-md-6">
@@ -629,6 +629,7 @@
         let supplier_product_info_url = "{{ route('purchase.get.supplier.products.info', '') }}";
         const saveOnlyUrl = "{{ route('purchase.supplier.purchase.save') }}";
         const supplier_due_amount_url = "{{ route('purchase.supplier.due.amount') }}";
+        const view_purchase_url ="{{url('admin/pos/purchase/')}}";
     </script>
     <script src="{{ asset('public/assets/fastclick/lib/fastclick.js') }}"></script>
     <!-- NProgress -->

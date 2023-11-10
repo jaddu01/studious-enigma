@@ -43,7 +43,21 @@ $(document).ready(function () {
     $("#saveAndPaymentBtn").click(function (e) {
         e.preventDefault();
         $("#paymentModal").modal('show');
-    })
+        $("#paymentform").find('#amount').val(parseFloat($("#NetAmount").text()));
+      
+    });
+
+    //Click to modal save button
+    $("#paymentModal").find("#saveBtn").click(function(){
+
+        const formElementData = $("#supplier_form").not("#supplier_id").serializeArray();
+        const PaymentFormData = $("#paymentform").serializeArray();
+        const payementData = convertArrayToJson(PaymentFormData);
+        const data = collectData(formElementData);
+        const data_ = {...payementData,...data}
+        saveData("save_with_payment", data_);
+        
+    });
 
 
 
@@ -96,7 +110,7 @@ $(document).ready(function () {
             beforeSend: function () {
             },
             success: function (res) {
-                // location.reload();
+               location.href=view_purchase_url;
             }
         })
     }
