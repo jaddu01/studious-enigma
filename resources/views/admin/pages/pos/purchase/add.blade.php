@@ -25,7 +25,7 @@
             'method' => 'post',
             'class' => 'form-horizontal form-label-left validation',
             'enctype' => 'multipart/form-data',
-            "id"=>"supplier_form"
+            'id' => 'supplier_form',
         ]) !!}
 
         {{ csrf_field() }}
@@ -185,7 +185,6 @@
                                             ],
                                             null,
                                             [
-                                                
                                                 'class' => 'form-control col-md-7 col-xs-12 select2-product',
                                                 'id' => 'payment_term',
                                                 'dir' => $locale == 'ar' ? 'rtl' : 'ltr',
@@ -278,12 +277,12 @@
                                             ],
                                             null,
                                             [
-                                                
                                                 'class' => 'form-control col-md-7 col-xs-12 select2-product',
                                                 'id' => 'tax_type',
                                                 'dir' => $locale == 'ar' ? 'rtl' : 'ltr',
                                                 'lang' => $locale,
-                                            ]) !!}
+                                            ],
+                                        ) !!}
                                         @if ($errors->has('tax_type'))
                                             <span class="help-block">
                                                 <strong>{{ $errors->first('tax_type') }}</strong>
@@ -333,9 +332,7 @@
                                         <th scope="col" style="width:80px">Free Qty<small class="startTxt">*</small></th>
                                         <th scope="col" style="width:80px">Unit Cost<small class="startTxt">*</small>
                                         </th>
-                                        <th scope="col" style="width:80px">Measurement Class<small class="startTxt">*</small>
-                                        </th>
-                                       
+
                                         <th scope="col" style="width:80px">Net Rate (With GST)<small
                                                 class="startTxt">*</small>
                                         </th>
@@ -364,7 +361,6 @@
                                             <div class="text-center"><span class="dark-txt" id="totalQty">10</span>
                                             </div>
                                         </td>
-                                        <td style="border:none !important;"></td>
                                         <td style="border:none !important;"></td>
                                         <td style="border:none !important;"></td>
                                         <td style="border:none !important;"></td>
@@ -411,7 +407,7 @@
                                                         class="startTxt">*</small>
                                                 </th>
 
-                                                <th scope="col" style="width:100px" class="text-center">Value<small
+                                                <th scope="col" style="width:100px" class="text-center">Charge<small
                                                         class="startTxt">*</small>
                                                 </th>
                                                 {{-- <th scope="col" style="width:100px" class="text-center">Total</th> --}}
@@ -424,7 +420,8 @@
                                                 style="background-color:#EBEDF3">
                                                 <td colspan="3">
                                                     <div class="text-center dark-txt" style="padding-left: 100px;">
-                                                        <span>Total</span></div>
+                                                        <span>Total</span>
+                                                    </div>
                                                 </td>
                                                 <td>
                                                     <div class="text-center"><span id="totalAddionalChargeTbl"
@@ -440,56 +437,79 @@
 
                     </div>
                     <div class="row mt-3">
-                        <div class="col-md-8">
+                        <div class="col-md-7">
 
                         </div>
-                        <div class="col-md-4">
-                            <div class="row" style="padding-right:10px;">
-                                <div class="col-md-8" style="background-color:#EBEDF3; padding:3px;">
+                        <div class="col-md-5">
+                            <div class="row" style="padding-right:8px;">
+                                <div class="col-md-6" style="background-color:#EBEDF3; padding:3px;">
                                     <div class="row">
                                         <div class="col-md-12">
                                             <h5>Total Amount</h5>
 
                                         </div>
+
                                         <div class="col-md-12">
                                             <h5 class="text-primary">Total Additional Charge</h5>
                                         </div>
                                         <div class="col-md-12" style="padding-bottom: 2px;">
                                             <b style="font-size: 18px;">Net Amount</b>
                                         </div>
+
                                     </div>
                                 </div>
-                                <div class="col-md-4" style="padding: 3px;">
-                                   <div class="row">
-                                    <div class="col-md-12 text-right" style="border:1px solid #EBEDF3;">
-                                        <h5 id="totalAmount">0.00</h5>
-                                    </div>
-                                    <div class="col-md-12 text-right" style="border:1px solid #EBEDF3;">
-                                        <h5 id="totalAdditionalCharges" class="text-primary">0.00</h5>
-                                    </div>
+                                <div class="col-md-6" style="padding: 3px;">
+                                    <div class="row">
+                                        <div class="col-md-12 text-right" style="border:1px solid #EBEDF3;">
+                                            <h5 id="totalAmount">0.00</h5>
+                                        </div>
 
-                                    <div class="col-md-12 text-right" style="border:1px solid #EBEDF3;">
-                                        
-                                        <b  id="NetAmount" style="font-size: 18px;">0.00</b>
+                                        <div class="col-md-12 text-right" style="border:1px solid #EBEDF3;">
+                                            <h5 id="totalAdditionalCharges" class="text-primary">0.00</h5>
+                                        </div>
+
+                                        <div class="col-md-12 text-right" style="border:1px solid #EBEDF3;">
+
+                                            <b id="NetAmount" style="font-size: 18px;">0.00</b>
+                                        </div>
                                     </div>
-                                   </div>
                                 </div>
                             </div>
+
+                            <div class="row bg-warning" style="padding-right:8px;">
+                                <div class="col-md-6" style="padding:3px;">
+                                    <div class="row">
+                                        <div class="col-md-12">
+                                            <h5>Due Amount</h5>
+                                        </div>
+                                    </div>
+                                   
+                                </div>
+                                <div class="col-md-6" style="padding: 3px;" >
+                                    <div class="row">
+                                        <div class="col-md-12 text-right" style="border:1px solid #EBEDF3;">
+                                            <h5 id="totalDueAmount">0.00</h5>
+                                        </div>
+                                    </div>
+                                   
+                                </div>
+                            </div>
+
                         </div>
                     </div>
                 </div>
             </div>
             <div class="col-md-12 col-sm-12 col-xs-12 mt-3">
 
-            <div class="row">
-                <div class="col-12 text-right p-3">
-                    {{-- {!! Form::submit('Submit', ['class' => 'btn btn-success']) !!}  --}}
-                    <button class="btn btn-primary" id ="saveOnlyBtn">Save (Only)</button>
-                    <button class="btn btn-success" id ="saveAndPaymentBtn">Save & Payment</button>
+                <div class="row">
+                    <div class="col-12 text-right p-3">
+                        {{-- {!! Form::submit('Submit', ['class' => 'btn btn-success']) !!}  --}}
+                        <button class="btn btn-primary" id ="saveOnlyBtn">Save (Only)</button>
+                        <button class="btn btn-success" id ="saveAndPaymentBtn">Save & Payment</button>
 
-    
+
+                    </div>
                 </div>
-            </div>
             </div>
         </div>
         {!! Form::close() !!}
@@ -527,7 +547,7 @@
                 allowClear: true
             });
 
-            
+
 
 
 
@@ -623,15 +643,17 @@
         let supplier_address_get_url = "{{ route('purchase.get.supplier.address', '') }}";
         let search_product_url = "{{ route('purchase.get.supply.products') }}";
         let supplier_product_info_url = "{{ route('purchase.get.supplier.products.info', '') }}";
-        const saveOnlyUrl = "{{route('purchase.supplier.purchase.save')}}";
+        const saveOnlyUrl = "{{ route('purchase.supplier.purchase.save') }}";
+        const supplier_due_amount_url = "{{ route('purchase.supplier.due.amount') }}";
     </script>
     <script src="{{ asset('public/assets/fastclick/lib/fastclick.js') }}"></script>
     <!-- NProgress -->
     <script src="{{ asset('public/assets/nprogress/nprogress.js') }}"></script>
+    <script src="{{ asset('public/assets/purchase/due_amount.js') }}"></script>
     <script src="{{ asset('public/assets/purchase/add_purchase.js') }}"></script>
     <script src="{{ asset('public/assets/purchase/field-calculation.js') }}"></script>
     <script src="{{ asset('public/assets/purchase/btn-action.js') }}"></script>
-    <script src="{{asset('public/assets/purchase/save-only-data.js')}}"></script>
+    <script src="{{ asset('public/assets/purchase/save-only-data.js') }}"></script>
 
     <!-- <script src="{{ asset('public/assets/validator/validator.min.js') }}"><script> -->
 @endpush

@@ -29,18 +29,7 @@ function setTblData(count = null) {
     <td><input type="number" value="0" placeholder="0"
             class="product-tbl-column-width form-control product-field product_unit_cost">
     </td>
-    <td><select class="form-control select2-measurementclass" style="width:200px;">
-    <option value="1">gm</option>
-    <option value="2">kg</option>
-    <option value="4">pcs</option>
-    <option value="5">ml</option>
-    <option value="7">ltr</option>
-    <option value="8">mg</option>
-    <option value="9">mtr</option>
-    <option value="10">unit</option>
-    <option value="11">Pack</option>
-    </select>
-    </td>
+  
    
     <td><input type="number" value="0" placeholder="0"
             class="product-tbl-column-width form-control product-field product_net_rate">
@@ -108,10 +97,7 @@ function setTblData(count = null) {
     });
 
     
-    $("#product_Details_Tbody:last").find('.select2-measurementclass').select2({
-        placeholder:"Select Measurement",
-        allowClear:true,
-    });
+  
 
 
 }
