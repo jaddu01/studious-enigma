@@ -43,7 +43,7 @@ class ProductController extends Controller
             return ResponseBuilder::error($e->getMessage(), $this->errorStatus);
         }
     }
-    public function updateProduct(Request $request)
+    public function placeOrder(Request $request)
     {
         try {
 
@@ -55,7 +55,7 @@ class ProductController extends Controller
 
             foreach ($customer_pos_order_list as $products) {
                 $PosCustomerOrder =  PosCustomerProductOrder::orderBy('id', 'desc')->first();
-
+           
                 $order =  PosCustomerProductOrder::create([
                     'customer_id' => $products['customerID'],
                     'pos_user_id' => 1,
@@ -70,6 +70,10 @@ class ProductController extends Controller
                     'bill_amount' => $products['bill_amount'],
                     'changes' => $products['changes'],
                     'payment' => $products['payment'],
+                    'online_order_id' => $products['online_order_id'],
+                    'pos_state' => $products['pos_state'],
+
+
 
                 ]);
                 $new_customer_wallet = $products['payment'] - $products['bill_amount'] - $products['changes'];
@@ -161,7 +165,12 @@ class ProductController extends Controller
     public function orders(Request $request)
     {
         try {
+         
             $orders = PosCustomerProductOrder::get();
+            if(isset($request->date)){
+                $orders = PosCustomerProductOrder::where(DB::raw('unix_timestamp(created_at)'),'>',$request->date)->get();
+            }
+
             $this->response->order_list = PosOrderResource::collection($orders);
             return ResponseBuilder::success($this->response, 'Order List');
         } catch (\Exception $e) {

@@ -16,6 +16,7 @@ use Illuminate\Support\Facades\DB;
 
 class OrderController extends Controller
 {
+
     public function update(Request $request)
     {
         try {
@@ -32,6 +33,10 @@ class OrderController extends Controller
                 'bill_amount' => $request->bill_amount,
                 'changes' => $request->changes,
                 'payment' => $request->payment,
+                'pos_state' => $request->pos_state,
+                'online_order_id' => $request->online_order_id,
+                
+
             ]);
             $order = PosCustomerProductOrder::find($request->order_id);
 
