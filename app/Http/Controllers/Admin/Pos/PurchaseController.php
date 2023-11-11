@@ -112,9 +112,10 @@ class PurchaseController extends Controller
                 DB::beginTransaction();
                 $supplier_id = $request->data['supplier_id'];
                 $due_amount =  $request->data['net_amount'];
-                if($request->type == 'save_with_payment'){
-                    $due_amount =  $request->data['net_amount']-$request->data['amount'];
-
+                if ($request->type == 'save_with_payment') {
+                    // dd($request->data['net_amount']);
+                    // dd($request->data['amount']);
+                    $due_amount =  $request->data['net_amount'] - $request->data['amount'];
                 }
 
                 $supplier_bill_purchase_order = SupplierBillPurchase::create([
@@ -131,24 +132,23 @@ class PurchaseController extends Controller
                     "total_additional_charge" => $request->data['total_additional_charge']
                 ]);
 
-            
+
                 $supplier_due_amount = SuppliersDueAmount::where('supplier_id', $supplier_id)->first();
-
-                if (is_null($supplier_due_amount)) {
-
-        
-                 $supplier_due_amount=  SuppliersDueAmount::Create([
-                    'supplier_id'=>$supplier_id,
-                    'due_amount'=>$due_amount
-              ]);
-                }
-                 else {
-                    SuppliersDueAmount::where('supplier_id',$supplier_id)->increment('due_amount', $due_amount);
+                if ($request->type == 'save_only') {
+                    if (is_null($supplier_due_amount)) {
+                        $supplier_due_amount =  SuppliersDueAmount::Create([
+                            'supplier_id' => $supplier_id,
+                            'due_amount' => $due_amount
+                        ]);
+                    } else {
+                        SuppliersDueAmount::where('supplier_id', $supplier_id)->increment('due_amount', $due_amount);
+                    }
                 }
 
 
-                if (isset($request->data['additional_charges'])){
-                    
+
+                if (isset($request->data['additional_charges'])) {
+
                     foreach ($request->data['additional_charges'] as $additionalCharge) {
                         SupplierPurchaseAdditionalCharge::create([
                             'supplier_bill_purchase_id' => $supplier_bill_purchase_order->id,
@@ -159,9 +159,9 @@ class PurchaseController extends Controller
                         ]);
                     }
                 }
-            
+
                 if (isset($request->data['products_details'])) {
-                   
+
                     foreach ($request->data['products_details'] as $product) {
                         SupplierPurchaseProductDetail::create([
                             'supplier_id' => $supplier_id,
@@ -180,24 +180,23 @@ class PurchaseController extends Controller
                         ]);
                     }
                 }
-                
-                if($request->type == 'save_with_payment'){
+                // dd($supplier_bill_purchase_order->id);
+                if ($request->type == 'save_with_payment') {
                     SuppliersPayment::create([
-                        'supplier_id'=>$supplier_id,
-                        'supplier_bill_purchase_id'=>$supplier_bill_purchase_order->id,
-                        'payment_mode'=>$request->data['payment_mode'],
-                        'payment_date'=>$request->data['payment_date']??null,
-                        'transaction_no'=>$request->data['transaction_no']??null,
-                        'description'=>$request->data['description']??null,
-                        'amount'=>$request->data['amount']
+                        'supplier_id' => $supplier_id,
+                        'supplier_bill_purchase_id' => $supplier_bill_purchase_order->id,
+                        'payment_mode' => $request->data['payment_mode'],
+                        'payment_date' => $request->data['payment_date'] ?? null,
+                        'transaction_no' => $request->data['transaction_no'] ?? null,
+                        'description' => $request->data['description'] ?? null,
+                        'amount' => $request->data['amount']
                     ]);
-                  $supplier_due_amount =  SuppliersDueAmount::where('supplier_id',$supplier_id);
-                  if(!is_null($supplier_due_amount->first())){
-                    $supplier_due_amount->decrement('due_amount',$request->data['amount']);
-                  }
-
+                    $supplier_due_amount =  SuppliersDueAmount::where('supplier_id', $supplier_id);
+                    if (!is_null($supplier_due_amount->first())) {
+                        $supplier_due_amount->decrement('due_amount', $request->data['amount']);
+                    }
                 }
-                
+
                 DB::commit();
                 return response()->json(['msg' => 'Success']);
             }
@@ -213,8 +212,8 @@ class PurchaseController extends Controller
     {
         if ($request->ajax()) {
             // $due_amount = SupplierBillPurchase::where('supplier_id', $request->supplier_id)->sum('due_amount');
-            $SupplierDueAmount = SuppliersDueAmount::where('supplier_id',$request->supplier_id)->value('due_amount');
-            $due_amount = (is_null($SupplierDueAmount)?'0.00':$SupplierDueAmount);
+            $SupplierDueAmount = SuppliersDueAmount::where('supplier_id', $request->supplier_id)->value('due_amount');
+            $due_amount = (is_null($SupplierDueAmount) ? '0.00' : $SupplierDueAmount);
             return response()->json(['due_amount' => $due_amount]);
         }
     }

@@ -110,7 +110,7 @@ $(document).ready(function () {
             beforeSend: function () {
             },
             success: function (res) {
-               location.href=view_purchase_url;
+            //    location.href=view_purchase_url;
             }
         })
     }
