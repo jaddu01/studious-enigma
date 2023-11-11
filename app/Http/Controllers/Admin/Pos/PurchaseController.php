@@ -69,7 +69,12 @@ class PurchaseController extends Controller
         $suppliers = Supplier::where('status', '=', '1')->orderBy('id', 'DESC')->pluck('company_name', 'id');
         $payment_mode = ['cash' => 'Cash', 'cheque' => 'Cheque', 'online' => 'Online'];
         $payment_status = ['paid' => 'Paid', 'due' => 'Due'];
-        return view('admin/pages/pos/purchase/add')->with('validator', $validator)->with('brands', $brands)->with('vendors', $vendors)->with('suppliers', $suppliers)->with('payment_mode', $payment_mode)->with('payment_status', $payment_status);
+
+        $reference_invoice_no = (string)SupplierBillPurchase::orderBy('id','desc')->value('id')+1;
+        $reference_invoice_no = "Darbaar". $reference_invoice_no ;
+        // dd($reference_invoice_no);
+        return view('admin/pages/pos/purchase/add',compact('validator','brands','vendors','suppliers','payment_mode','payment_status','reference_invoice_no'));
+        // ->with('validator', $validator)->with('brands', $brands)->with('vendors', $vendors)->with('suppliers', $suppliers)->with('payment_mode', $payment_mode)->with('payment_status', $payment_status)->with('s');
     }
 
     public function store(Request $request)
@@ -108,13 +113,11 @@ class PurchaseController extends Controller
     {
         try {
             if ($request->ajax()) {
-                // dd($request->all());
+             
                 DB::beginTransaction();
                 $supplier_id = $request->data['supplier_id'];
                 $due_amount =  $request->data['net_amount'];
                 if ($request->type == 'save_with_payment') {
-                    // dd($request->data['net_amount']);
-                    // dd($request->data['amount']);
                     $due_amount =  $request->data['net_amount'] - $request->data['amount'];
                 }
 
@@ -124,7 +127,7 @@ class PurchaseController extends Controller
                     "due_date" => $request->data['bill_date'],
                     "bill_amount" => $request->data['bill_amount'],
                     "invoice_no" => $request->data['invoice_no'],
-                    "reference_bill_no" => $request->data['reference_bill_no'],
+                    "reference_invoice_no" => $request->data['reference_bill_no'],
                     "payment_term" => $request->data['payment_term'],
                     "tax_type" => $request->data['tax_type'],
                     "net_amount" => $request->data['net_amount'],
@@ -381,5 +384,49 @@ class PurchaseController extends Controller
 
             // 'best_price'=>
         ]);
+    }
+
+    public function SupplierPurchaseList(Request $request)
+    {
+        $_order = request('order');
+        $_columns = request('columns');
+        $order_by = $_columns[$_order[0]['column']]['name'];
+        $order_dir = $_order[0]['dir'];
+        $search = request('search');
+        $skip = request('start');
+        $take = request('length');
+        $query = SupplierBillPurchase::select('*',DB::raw('(select company_name from suppliers where suppliers.id= supplier_bill_purchases.supplier_id limit 1 ) as supplier'));
+        // $query = SupplierBillPurchase::query();
+        $recordsTotal = $query->count();
+        $recordsFiltered = $query->count();
+
+        // if (isset($search['value'])) {
+      
+        //     $query->whereTranslationLike('name','%'.$search['value'].'%');
+        //     };
+    
+        $data = $query
+            ->orderBy($order_by, $order_dir)->skip($skip)->take($take)->get();
+            // $data = $query->skip($skip)->take($take)->orderByRaw("$order_by $order_dir")->get();
+
+        $i = 1;
+        foreach ($data as &$d) {
+           $d->invoice_no=$d->invoice_no;
+           $d->supplier=$d->supplier;
+           $d->bill_date=$d->bill_date;
+           $d->due_date=$d->due_date;
+           $d->net_amount=$d->net_amount;
+           $d->paid_amount='paid_amount';
+           $d->due_amount='due_amount';
+           $d->total_additional_charge=$d->total_additional_charge;
+           $d->action='action';
+        }
+
+        return [
+            "draw" => request('draw'),
+            "recordsTotal" => $recordsTotal,
+            'recordsFiltered' => $recordsFiltered,
+            "data" => $data,
+        ];
     }
 }

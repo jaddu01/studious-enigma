@@ -44,16 +44,17 @@
                                             <th>Supplier</th>
                                             <th>Bill Date</th>
                                             <th>Due Date</th>
-                                            <th>Net Amount</th>
                                             <th>Paid Amount</th>
                                             <th>Due Amount</th>
-                                            <th>Tax Amount</th>
+                                            <th>Total Additional Charges</th>
+                                            <th>Net Amount</th>
+
                                             <th>Action</th>
                                         @endslot
                                     @endcomponent
                                 </div>
                             </div>
-            
+
                         </div>
                     </div>
                 </div>
@@ -83,5 +84,9 @@
     <script src="{{ asset('public/assets/datatables.net-responsive-bs/js/responsive.bootstrap.js') }}"></script>
     <script src="{{ asset('public/assets/datatables.net-scroller/js/datatables.scroller.min.js') }}"></script>
 
-    
+    <script>
+        const supplier_purchase_list_url = "{{ route('purchase.supplier.list') }}"
+    </script>
+    <script src="{{asset('public/js/dt/supplier-purchase-dt.js')}}"></script>
+
 @endpush

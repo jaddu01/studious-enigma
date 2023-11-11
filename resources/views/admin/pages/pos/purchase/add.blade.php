@@ -140,14 +140,14 @@
                                         @endif
                                     </div>
                                     <div class="col-md-4">
-                                        <label for="reference_bill_no">Reference Bill No..<small
+                                        <label for="reference_bill_no">Reference Inovice No..<small
                                                 class="startTxt">*</small></label>
-                                        {!! Form::text('reference_bill_no', null, [
-                                            'placeholder' => 'BILL2',
+                                        {!! Form::text('reference_bill_no', $reference_invoice_no, [
                                             'class' => 'form-control',
                                             'id' => 'reference_bill_no',
                                             'dir' => $locale == 'ar' ? 'rtl' : 'ltr',
                                             'lang' => $locale,
+                                            'readonly'=>'readonly',
                                         ]) !!}
                                         @if ($errors->has('reference_bill_no'))
                                             <span class="help-block">
