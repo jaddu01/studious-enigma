@@ -27,6 +27,7 @@ Route::post('login', [AuthController::class, 'login']);
         Route::post('/update',[ProductController::class,'placeOrder']);
         Route::get('/orders',[ProductController::class,'orders']);
         Route::patch('orders/update',[OrderController::class,'update']);
+        Route::get('app/orders/list',[OrderController::class,'appOrderlist']);
     });
 
    

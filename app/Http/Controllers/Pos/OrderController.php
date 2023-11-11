@@ -5,10 +5,12 @@ namespace App\Http\Controllers\Pos;
 use App\Helpers\ResponseBuilder;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Http\Resources\OrderShortResource;
 use App\Http\Resources\Pos\PosOrderResource;
 use App\PosCustomerOrderItem;
 use App\PosCustomerPayment;
 use App\PosCustomerProductOrder;
+use App\ProductOrder;
 use App\User;
 use App\UserWallet;
 use App\VendorProduct;
@@ -126,5 +128,14 @@ class OrderController extends Controller
             DB::rollBack();
             return ResponseBuilder::error($e->getMessage(), $this->errorStatus);
         }
+    }
+
+    public function appOrderlist(Request $request){
+        $orders =  ProductOrder::select(['id', 'order_status', 'order_code', 'delivery_date', 'delivery_time', 'shipping_location', 'total_amount', 'offer_total', 'delivery_charge', 'created_at', 'payment_mode_id'])
+        ->where('order_status', '!=', 'D')->where('order_status', '!=', 'C')->where('order_status', '!=', 'R')
+        ->orderBy('created_at', 'DESC')->get();
+        $this->response->orders = OrderShortResource::collection($orders);
+        return ResponseBuilder::success($this->response,"success");
+
     }
 }
