@@ -590,7 +590,11 @@ Route::group(['prefix' => 'admin', 'namespace' => 'Admin'], function () {
         // Supplier
         Route::any('supplier/datatable', 'SupplierController@anyData')->name('supplier.datatable');
         Route::any('supplier/status', 'SupplierController@changeStatus')->name('admin.supplier.status');
+        Route::get('supplier/view/{Supplier}', 'SupplierController@view')->name('admin.supplier.view');
+        Route::get('supplier/supplierviewtabs','SupplierContollers@supplierViewTabs')->name('admin.supplier.tabs');
+
         Route::resource('supplier', 'SupplierController');
+
 
         Route::any('test/update-sku', 'TestController@updateSku');
         Route::any('test/export-product-data', 'TestController@exportProductData');

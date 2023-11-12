@@ -1,6 +1,7 @@
 :root{
 --red:  #dc3545;
 --success:#26B99A;
+--blue:#4ba6ed;
 }
 .tile_count .tile_stats_count .count a{
 color:#ffffff !important;
@@ -5255,4 +5256,10 @@ tr.shown td.details-control {
   .dark-txt{
     color: #000;
     font-weight: bolder;
+  }
+  .blue-text{
+    color:var(--blue) !important;
+  }
+  .font-weight-bold{
+    font-weight: 700 !important;
   }
