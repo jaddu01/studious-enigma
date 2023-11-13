@@ -223,7 +223,9 @@ class SupplierController extends Controller
 
     public function view(Request $request, Supplier $Supplier)
     {
-        return view('admin.pages.supplier.view', compact('Supplier'));
+        $currentSection = 'sidebarContacts';
+        $states = $this->states;
+        return view('admin.pages.supplier.view', compact('Supplier','currentSection','states'));
     }
 
     public function supplierViewTabs(Request $request){

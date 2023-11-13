@@ -43,7 +43,7 @@
                        {{-- users --}}
                        @if (!Auth::guard('admin')->user()->can(['index','create','view','delete','update'], App\Product::class))
                     
-                       <li><a><i class="fa fa-user "></i>Contacts <span class="fa fa-chevron-down"></span></a>
+                       <li id="sidebarContacts"><a><i class="fa fa-user "></i>Contacts <span class="fa fa-chevron-down"></span></a>
                            <ul class="nav child_menu">
                         <li><a href="{{url('admin/customer')}}"><i class="fa fa-users"></i>Customers</a></li>
                         <li>
