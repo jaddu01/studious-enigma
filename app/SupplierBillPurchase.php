@@ -13,8 +13,18 @@ class SupplierBillPurchase extends Model
 
     protected $table = 'supplier_bill_purchases';
     protected $fillable = [
-        'supplier_id', 'bill_date', 'due_date', 'shipping_date', 'bill_amount',
+        'supplier_id', 'bill_date', 'due_date', 'shipping_date',
         'tax_amount', 'invoice_no', 'reference_invoice_no', 'payment_term', 'tax_type', 'description','net_amount','total_amount','total_additional_charge',
-        'due_amount','paid_amount'
+        'due_amount','paid_amount','paid_amount'
     ];
+
+    /**
+     * Get the user that owns the SupplierBillPurchase
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function Supplier()
+    {
+        return $this->belongsTo(Supplier::class, 'supplier_id');
+    }
 }

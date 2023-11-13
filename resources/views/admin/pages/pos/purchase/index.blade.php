@@ -44,11 +44,10 @@
                                             <th>Supplier</th>
                                             <th>Bill Date</th>
                                             <th>Due Date</th>
-                                            <th>Paid Amount</th>
-                                            <th>Due Amount</th>
-                                            <th>Total Additional Charges</th>
                                             <th>Net Amount</th>
-
+                                            <th>Paid Amount</th>
+                                            <th>Total Additional Charges</th>
+                                            <th>Due Amount</th>
                                             <th>Action</th>
                                         @endslot
                                     @endcomponent

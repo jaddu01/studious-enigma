@@ -71,7 +71,7 @@ class PurchaseController extends Controller
         $payment_status = ['paid' => 'Paid', 'due' => 'Due'];
 
         $SupplierBillPurchase = SupplierBillPurchase::orderBy('id','desc')->value('id');
-        $reference_invoice_no=0;
+        $reference_invoice_no=1;
         if(!is_null($SupplierBillPurchase)){
             $reference_invoice_no = $SupplierBillPurchase+1;
         }
@@ -118,18 +118,20 @@ class PurchaseController extends Controller
             if ($request->ajax()) {
              
                 DB::beginTransaction();
+                // dd($request->all());
                 $supplier_id = $request->data['supplier_id'];
                 $due_amount =  $request->data['net_amount'];
+                $paid_amount =0;
                 
                 if ($request->type == 'save_with_payment') {
                     $due_amount =  $request->data['net_amount'] - $request->data['amount'];
+                    $paid_amount =$request->data['amount'];
                 }
 
                 $supplier_bill_purchase_order = SupplierBillPurchase::create([
                     "supplier_id" => $supplier_id,
                     "bill_date" => $request->data['bill_date'],
                     "due_date" => $request->data['due_date'],
-                    "bill_amount" => $request->data['bill_amount'],
                     "invoice_no" => $request->data['invoice_no'],
                     "reference_invoice_no" => $request->data['reference_bill_no'],
                     "payment_term" => $request->data['payment_term'],
@@ -138,7 +140,7 @@ class PurchaseController extends Controller
                     "total_amount" => $request->data['total_amount'],
                     "total_additional_charge" => $request->data['total_additional_charge'],
                     "due_amount" => $due_amount,
-
+                    "paid_amount"=>$paid_amount
                 ]);
 
 
@@ -205,7 +207,7 @@ class PurchaseController extends Controller
                         $supplier_due_amount->decrement('due_amount', $request->data['amount']);
                     }
                 }
-
+                Session::flash('success', 'Supplier purchase bill added successful');
                 DB::commit();
                 return response()->json(['msg' => 'Success']);
             }
@@ -398,10 +400,12 @@ class PurchaseController extends Controller
         $recordsTotal = $query->count();
         $recordsFiltered = $query->count();
 
-        // if (isset($search['value'])) {
-      
-        //     $query->whereTranslationLike('name','%'.$search['value'].'%');
-        //     };
+        if (isset($search['value'])) {
+            // $query->where('supplier','%'.$search['value'].'%');
+            $query->whereHas('supplier',function($q) use($search){
+                $q->where('company_name','LIKE',"%{$search['value']}%");
+            });
+            };
     
         $data = $query
             ->orderBy($order_by, $order_dir)->skip($skip)->take($take)->get();
@@ -410,12 +414,13 @@ class PurchaseController extends Controller
         $i = 1;
         foreach ($data as &$d) {
            $d->invoice_no=$d->invoice_no;
-           $d->supplier=$d->supplier;
+           $supplier = '<a class="text-primary" href="'.route("admin.supplier.view", $d->supplier_id).'">'.$d->supplier.'</a>';
+           $d->supplier= $supplier;
            $d->bill_date=$d->bill_date;
            $d->due_date=$d->due_date;
            $d->net_amount=$d->net_amount;
-           $d->paid_amount='paid_amount';
-           $d->due_amount='due_amount';
+           $d->paid_amount=$d->paid_amount;
+           $d->due_amount=$d->due_amount;
            $d->total_additional_charge=$d->total_additional_charge;
            $d->action='action';
         }

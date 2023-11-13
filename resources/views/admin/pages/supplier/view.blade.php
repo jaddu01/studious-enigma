@@ -200,9 +200,9 @@
                                                 <th>#</th>
                                                 <th>Invoice No</th>
                                                 <th>Date </th>
-                                                <th>Total Amount</th>
                                                 <th>Paid Amount</th>
                                                 <th>Due Amount</th>
+                                                <th>Total Amount</th>
                                                 <th>Actions</th>
                                             @endslot
                                         @endcomponent

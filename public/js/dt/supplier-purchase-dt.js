@@ -8,7 +8,7 @@ $(document).ready(function () {
             stateSave: false,
             pageLength: 10,
             language: {
-                // searchPlaceholder: "Search Product Name"
+                searchPlaceholder: "Search by Supplier"
             },
             ajax: {
                 url: supplier_purchase_list_url,
@@ -44,15 +44,14 @@ $(document).ready(function () {
                 orderable: false
             },
            
-           
             {
-                name: 'paid_amount',
-                data: 'paid_amount',
+                name: 'net_amount',
+                data: 'net_amount',
                 orderable: false
             },
             {
-                name: 'due_amount',
-                data: 'due_amount',
+                name: 'paid_amount',
+                data: 'paid_amount',
                 orderable: false
             },
             {
@@ -61,10 +60,11 @@ $(document).ready(function () {
                 orderable: false
             },
             {
-                name: 'net_amount',
-                data: 'net_amount',
+                name: 'due_amount',
+                data: 'due_amount',
                 orderable: false
             },
+         
             {
                 name: 'action',
                 data: 'action',
