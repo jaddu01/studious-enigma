@@ -24,7 +24,7 @@ Route::post('login', [AuthController::class, 'login']);
     Route::group(['prefix' => 'products'], function () {
         Route::get('/', [ProductController::class, 'index']);
         Route::get('/with-quantity', [ProductController::class, 'productWithQuantity']);
-        Route::post('/update',[ProductController::class,'placeOrder']);
+        Route::post('/update',[OrderController::class,'placeOrder']);
         Route::get('/orders',[ProductController::class,'orders']);
         Route::patch('orders/update',[OrderController::class,'update']);
         Route::get('app/orders/list',[OrderController::class,'appOrderlist']);
