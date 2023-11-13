@@ -189,11 +189,15 @@
 
 
                                 </div>
-                                <div class="row tabs-details display-hide" id="supplier_bill_details">
-                                    <div class="col-md-12">
+                                <div class="tabs-details display-hide" id="supplier_bill_details">
+                                   
                                         @component('components.datatable.tablestructure')
                                             @slot('tableID')
                                                 billDttbl
+                                            @endslot
+
+                                            @slot('otherStyle')
+                                    width:100% !important;
                                             @endslot
 
                                             @slot('tableHeading')
@@ -206,15 +210,17 @@
                                                 <th>Actions</th>
                                             @endslot
                                         @endcomponent
-                                    </div>
+                                   
                                 </div>
-                                <div class="row tabs-details display-hide" id="payment_details">
-                                    <div class="col-md-12">
+                                <div class="tabs-details display-hide" id="payment_details">
+                                   
                                         @component('components.datatable.tablestructure')
                                             @slot('tableID')
-                                                billDttbl
+                                                paymentTbl
                                             @endslot
-
+                                            @slot('otherStyle')
+                                            width:100% !important;
+                                                    @endslot
                                             @slot('tableHeading')
                                                 <th>#</th>
                                                 <th>Payment No</th>
@@ -224,7 +230,7 @@
                                                 <th>Actions</th>
                                             @endslot
                                         @endcomponent
-                                    </div>
+                                  
                                 </div>
 
                             </div>
@@ -246,17 +252,23 @@
 @push('scripts')
     <!-- FastClick -->
     <script>
-        const uRL = "{{ route('admin.opening.stock.list') }}";
+        // const uRL = "{{ route('admin.opening.stock.list') }}";
+        const supplier_bill_id = "{{$Supplier->id}}";
+        const supplier_bill_details_dt_list = "{{route('admin.supplier.bill.dt.list')}}";
+        const supplier_payment_dt_list = "{{route('admin.supplier.payment.dt.list')}}";
+
     </script>
 
     <!-- Datatables -->
     <script src="{{ asset('public/assets/datatables.net/js/jquery.dataTables.min.js') }}"></script>
     <script src="{{ asset('public/assets/datatables.net-bs/js/dataTables.bootstrap.min.js') }}"></script>
     <script src="{{ asset('public/assets/datatables.net-buttons/js/dataTables.buttons.min.js') }}"></script>
-
-    <script src="{{ asset('public/js/dt/stock-opening-dt.js') }}"></script>
     <script src="{{ asset('public/js/select2.min.js') }}"></script>
     <script src="https://code.jquery.com/ui/1.13.1/jquery-ui.js"></script>
     <!-- Datatables -->
+    <script src="{{asset('public/js/dt/supplier-payment-dt-list.js')}}"></script>
+
     <script src="{{ asset('public/assets/suppliers/supplier-tabs.js') }}"></script>
+    <script src="{{asset('public/js/dt/supplier-bill-details-dt.js')}}"></script>
+
 @endpush

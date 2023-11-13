@@ -591,6 +591,9 @@ Route::group(['prefix' => 'admin', 'namespace' => 'Admin'], function () {
         Route::any('supplier/status', 'SupplierController@changeStatus')->name('admin.supplier.status');
         Route::get('supplier/view/{Supplier}', 'SupplierController@view')->name('admin.supplier.view');
         Route::get('supplier/supplierviewtabs','SupplierContollers@supplierViewTabs')->name('admin.supplier.tabs');
+        Route::get('supplier/details/bill','SupplierController@supplierBillDtList')->name('admin.supplier.bill.dt.list');
+        Route::get('supplier/details/payment','SupplierController@supplierPaymentDtList')->name('admin.supplier.payment.dt.list');
+
 
         Route::resource('supplier', 'SupplierController');
 

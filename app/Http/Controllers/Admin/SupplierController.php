@@ -15,6 +15,8 @@ use App\Scopes\StatusScope;
 use App\User;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\SupplierBillPurchase;
+use App\SuppliersPayment;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Validator;
 use Proengsoft\JsValidation\Facades\JsValidatorFacade;
@@ -232,5 +234,96 @@ class SupplierController extends Controller
         if($request->ajax()){
             dd("Working");
         }
+    }
+    public function supplierBillDtList(Request $request){
+        if($request->ajax()){
+            
+                $_order = request('order');
+                $_columns = request('columns');
+                $order_by = $_columns[$_order[0]['column']]['name'];
+                $order_dir = $_order[0]['dir'];
+                $search = request('search');
+                $skip = request('start');
+                $take = request('length');
+                $query = SupplierBillPurchase::where('supplier_id',$request->supplier_id);
+                $recordsTotal = $query->count();
+                $recordsFiltered = $query->count();
+        
+                if (isset($search['value'])) {
+                    // $query->where('supplier','%'.$search['value'].'%');
+                    $query->where('invoice_no','LIKE',"%{$search['value']}%");
+            
+                    };
+            
+                $data = $query
+                    ->orderBy($order_by, $order_dir)->skip($skip)->take($take)->get();
+                    // $data = $query->skip($skip)->take($take)->orderByRaw("$order_by $order_dir")->get();
+        
+                $i = 1;
+                foreach ($data as &$d) {
+                    $d->sr_no=$i;
+                   $d->invoice_no=$d->invoice_no;
+                   $d->bill_date=$d->bill_date;
+                   $d->due_date=$d->due_date;
+                   $d->net_amount=$d->net_amount;
+                   $d->paid_amount=$d->paid_amount;
+                   $d->due_amount=$d->due_amount;
+                   $d->action='action';
+                   $i=$i+1;
+                }
+        
+                return [
+                    "draw" => request('draw'),
+                    "recordsTotal" => $recordsTotal,
+                    'recordsFiltered' => $recordsFiltered,
+                    "data" => $data,
+                ];
+            
+        }
+    }
+
+    public function supplierPaymentDtList(Request $request){
+        if($request->ajax()){
+            
+            $_order = request('order');
+            $_columns = request('columns');
+            $order_by = $_columns[$_order[0]['column']]['name'];
+            $order_dir = $_order[0]['dir'];
+            $search = request('search');
+            $skip = request('start');
+            $take = request('length');
+            $query = SuppliersPayment::where('supplier_id',$request->supplier_id);
+            $recordsTotal = $query->count();
+            $recordsFiltered = $query->count();
+    
+            if (isset($search['value'])) {
+                // $query->where('supplier','%'.$search['value'].'%');
+                $query->where('payment_no','LIKE',"%{$search['value']}%");
+        
+                };
+        
+            $data = $query
+                ->orderBy($order_by, $order_dir)->skip($skip)->take($take)->get();
+                // $data = $query->skip($skip)->take($take)->orderByRaw("$order_by $order_dir")->get();
+    
+            $i = 1;
+            foreach ($data as &$d) {
+                $d->sr_no=$i;
+               $d->payment_no=$d->payment_no;
+               $d->payment_date=$d->payment_date;
+               $d->payment_mode=ucfirst($d->payment_mode);
+               $d->amount=$d->amount;
+               $d->action='action';
+               $i=$i+1;
+            }
+    
+            return [
+                "draw" => request('draw'),
+                "recordsTotal" => $recordsTotal,
+                'recordsFiltered' => $recordsFiltered,
+                "data" => $data,
+            ];
+        
+    }
     }
 }

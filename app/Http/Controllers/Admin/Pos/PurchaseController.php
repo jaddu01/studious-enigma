@@ -32,6 +32,7 @@ use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Validator;
 use Proengsoft\JsValidation\Facades\JsValidatorFacade;
 use DataTables;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
@@ -191,13 +192,18 @@ class PurchaseController extends Controller
                         ]);
                     }
                 }
-                // dd($supplier_bill_purchase_order->id);
+                
                 if ($request->type == 'save_with_payment') {
+                    $last_id =SuppliersPayment::orderBy('id','DESC')->value('id');
+                    if(is_null($last_id)){
+                        $last_id=1;
+                    }
                     SuppliersPayment::create([
                         'supplier_id' => $supplier_id,
                         'supplier_bill_purchase_id' => $supplier_bill_purchase_order->id,
                         'payment_mode' => $request->data['payment_mode'],
-                        'payment_date' => $request->data['payment_date'] ?? null,
+                        'payment_no'=>"PAY".$last_id,
+                        'payment_date' => $request->data['payment_date'] ?? Carbon::now()->format('Y-m-d'),
                         'transaction_no' => $request->data['transaction_no'] ?? null,
                         'description' => $request->data['description'] ?? null,
                         'amount' => $request->data['amount']
