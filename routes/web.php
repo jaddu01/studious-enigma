@@ -547,7 +547,6 @@ Route::group(['prefix' => 'admin', 'namespace' => 'Admin'], function () {
         Route::get('pos/purchase/supplier-products', 'Pos\PurchaseController@getSupplierProducts')->name('purchase.get.supply.products');
         Route::get('pos/purchase/supplier-products-info/{product?}', 'Pos\PurchaseController@getSupplierProductsInfo')->name('purchase.get.supplier.products.info');
         Route::post('pos/purchase/supplier-products-save', 'Pos\PurchaseController@SaveSupplierPurchase')->name('purchase.supplier.purchase.save');
-        Route::get('pos/purchase/supplier-due-amount','Pos\PurchaseController@supplierDueAmount')->name('purchase.supplier.due.amount');
         Route::get('pos/purchase/supplier/list','Pos\PurchaseController@SupplierPurchaseList')->name('purchase.supplier.list');
 
         Route::resource('pos/purchase', 'Pos\PurchaseController');

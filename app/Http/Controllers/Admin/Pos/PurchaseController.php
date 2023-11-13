@@ -70,9 +70,12 @@ class PurchaseController extends Controller
         $payment_mode = ['cash' => 'Cash', 'cheque' => 'Cheque', 'online' => 'Online'];
         $payment_status = ['paid' => 'Paid', 'due' => 'Due'];
 
-        $reference_invoice_no = (string)SupplierBillPurchase::orderBy('id','desc')->value('id')+1;
-        $reference_invoice_no = "Darbaar". $reference_invoice_no ;
-        // dd($reference_invoice_no);
+        $SupplierBillPurchase = SupplierBillPurchase::orderBy('id','desc')->value('id');
+        $reference_invoice_no=0;
+        if(!is_null($SupplierBillPurchase)){
+            $reference_invoice_no = $SupplierBillPurchase+1;
+        }
+        $reference_invoice_no = "Darbaar". (string)$reference_invoice_no ;
         return view('admin/pages/pos/purchase/add',compact('validator','brands','vendors','suppliers','payment_mode','payment_status','reference_invoice_no'));
         // ->with('validator', $validator)->with('brands', $brands)->with('vendors', $vendors)->with('suppliers', $suppliers)->with('payment_mode', $payment_mode)->with('payment_status', $payment_status)->with('s');
     }
@@ -117,6 +120,7 @@ class PurchaseController extends Controller
                 DB::beginTransaction();
                 $supplier_id = $request->data['supplier_id'];
                 $due_amount =  $request->data['net_amount'];
+                
                 if ($request->type == 'save_with_payment') {
                     $due_amount =  $request->data['net_amount'] - $request->data['amount'];
                 }
@@ -124,7 +128,7 @@ class PurchaseController extends Controller
                 $supplier_bill_purchase_order = SupplierBillPurchase::create([
                     "supplier_id" => $supplier_id,
                     "bill_date" => $request->data['bill_date'],
-                    "due_date" => $request->data['bill_date'],
+                    "due_date" => $request->data['due_date'],
                     "bill_amount" => $request->data['bill_amount'],
                     "invoice_no" => $request->data['invoice_no'],
                     "reference_invoice_no" => $request->data['reference_bill_no'],
@@ -132,7 +136,9 @@ class PurchaseController extends Controller
                     "tax_type" => $request->data['tax_type'],
                     "net_amount" => $request->data['net_amount'],
                     "total_amount" => $request->data['total_amount'],
-                    "total_additional_charge" => $request->data['total_additional_charge']
+                    "total_additional_charge" => $request->data['total_additional_charge'],
+                    "due_amount" => $due_amount,
+
                 ]);
 
 
@@ -211,15 +217,7 @@ class PurchaseController extends Controller
         }
     }
 
-    public function supplierDueAmount(Request $request)
-    {
-        if ($request->ajax()) {
-            // $due_amount = SupplierBillPurchase::where('supplier_id', $request->supplier_id)->sum('due_amount');
-            $SupplierDueAmount = SuppliersDueAmount::where('supplier_id', $request->supplier_id)->value('due_amount');
-            $due_amount = (is_null($SupplierDueAmount) ? '0.00' : $SupplierDueAmount);
-            return response()->json(['due_amount' => $due_amount]);
-        }
-    }
+  
     public function edit($id)
     {
         $purchase = $this->model->findOrFail($id);

@@ -103,42 +103,6 @@
                                         @endif
 
                                     </div>
-
-                                    <div class="col-md-4">
-                                        <label for="bill_amount">Bill Amount<small class="startTxt">*</small></label>
-                                        {!! Form::number('bill_amount', null, [
-                                            'step' => '0.01',
-                                            'placeholder' => 'Bill Amount',
-                                            'class' => 'form-control col-md-7 col-xs-12',
-                                            'dir' => $locale == 'ar' ? 'rtl' : 'ltr',
-                                            'id' => 'bill_amount',
-                                            'lang' => $locale,
-                                        ]) !!}
-                                        @if ($errors->has('bill_amount'))
-                                            <span class="help-block">
-                                                <strong>{{ $errors->first('bill_amount') }}</strong>
-                                            </span>
-                                        @endif
-                                    </div>
-                                </div>
-
-                                <div class="row mt-3">
-
-                                    <div class="col-md-4">
-                                        <label for="">Invoice No.<small class="startTxt">*</small></label>
-                                        {!! Form::text('invoice_no', null, [
-                                            'placeholder' => 'Invoice no',
-                                            'id' => 'invoice_no',
-                                            'class' => 'form-control',
-                                            'dir' => $locale == 'ar' ? 'rtl' : 'ltr',
-                                            'lang' => $locale,
-                                        ]) !!}
-                                        @if ($errors->has('invoice_no'))
-                                            <span class="help-block">
-                                                <strong>{{ $errors->first('invoice_no') }}</strong>
-                                            </span>
-                                        @endif
-                                    </div>
                                     <div class="col-md-4">
                                         <label for="reference_bill_no">Reference Inovice No..<small
                                                 class="startTxt">*</small></label>
@@ -155,6 +119,44 @@
                                             </span>
                                         @endif
                                     </div>
+
+                                    {{-- <div class="col-md-4">
+                                        <label for="bill_amount">Bill Amount<small class="startTxt">*</small></label>
+                                        {!! Form::number('bill_amount', null, [
+                                            'step' => '0.01',
+                                            'placeholder' => 'Bill Amount',
+                                            'class' => 'form-control col-md-7 col-xs-12',
+                                            'dir' => $locale == 'ar' ? 'rtl' : 'ltr',
+                                            'id' => 'bill_amount',
+                                            'lang' => $locale,
+                                        ]) !!}
+                                        @if ($errors->has('bill_amount'))
+                                            <span class="help-block">
+                                                <strong>{{ $errors->first('bill_amount') }}</strong>
+                                            </span>
+                                        @endif
+                                    </div> --}}
+                                  
+                                </div>
+
+                                <div class="row mt-3">
+                                    <div class="col-md-4">
+                                        <label for="">Invoice No.<small class="startTxt">*</small></label>
+                                        {!! Form::text('invoice_no', null, [
+                                            'placeholder' => 'Invoice no',
+                                            'id' => 'invoice_no',
+                                            'class' => 'form-control',
+                                            'dir' => $locale == 'ar' ? 'rtl' : 'ltr',
+                                            'lang' => $locale,
+                                        ]) !!}
+                                        @if ($errors->has('invoice_no'))
+                                            <span class="help-block">
+                                                <strong>{{ $errors->first('invoice_no') }}</strong>
+                                            </span>
+                                        @endif
+                                    </div>
+                                  
+                                  
                                     <div class="col-md-4">
                                         <label for="payment_term">Payment Term<small class="startTxt">*</small></label>
                                         {!! Form::select(
@@ -182,16 +184,6 @@
                                             </span>
                                         @endif
                                     </div>
-                                </div>
-
-
-
-                                <div class="row mt-3">
-
-                                    <div class="col-md-4">
-                                    </div>
-                                    <div class="col-md-4">
-                                    </div>
                                     <div class="col-md-4">
                                         <label for="tax_type">Tax Type<small class="startTxt">*</small></label>
                                         {!! Form::select(
@@ -217,6 +209,9 @@
                                         @endif
                                     </div>
                                 </div>
+
+
+
 
 
 
@@ -387,26 +382,6 @@
                                     </div>
                                 </div>
                             </div>
-
-                            <div class="row bg-warning" style="padding-right:8px;">
-                                <div class="col-md-6" style="padding:3px;">
-                                    <div class="row">
-                                        <div class="col-md-12">
-                                            <h5>Due Amount</h5>
-                                        </div>
-                                    </div>
-
-                                </div>
-                                <div class="col-md-6" style="padding: 3px;">
-                                    <div class="row">
-                                        <div class="col-md-12 text-right" style="border:1px solid #EBEDF3;">
-                                            <h5 id="totalDueAmount">0.00</h5>
-                                        </div>
-                                    </div>
-
-                                </div>
-                            </div>
-
                         </div>
                     </div>
                 </div>
@@ -628,13 +603,12 @@
         let search_product_url = "{{ route('purchase.get.supply.products') }}";
         let supplier_product_info_url = "{{ route('purchase.get.supplier.products.info', '') }}";
         const saveOnlyUrl = "{{ route('purchase.supplier.purchase.save') }}";
-        const supplier_due_amount_url = "{{ route('purchase.supplier.due.amount') }}";
+        
         const view_purchase_url ="{{url('admin/pos/purchase/')}}";
     </script>
     <script src="{{ asset('public/assets/fastclick/lib/fastclick.js') }}"></script>
     <!-- NProgress -->
     <script src="{{ asset('public/assets/nprogress/nprogress.js') }}"></script>
-    <script src="{{ asset('public/assets/purchase/due_amount.js') }}"></script>
     <script src="{{ asset('public/assets/purchase/add_purchase.js') }}"></script>
     <script src="{{ asset('public/assets/purchase/field-calculation.js') }}"></script>
     <script src="{{ asset('public/assets/purchase/btn-action.js') }}"></script>
