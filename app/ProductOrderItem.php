@@ -13,6 +13,10 @@ class ProductOrderItem extends BaseModel
         'vendor_product_id','order_id', 'is_offer','offer_value','offer_type','offer_data','price', 'qty','status','data','return_status','return_resion'
     ];
 
+    protected $casts = [
+        'data' => 'json'
+    ];
+
     public function __construct(array $attributes = [])
     {
         parent::__construct($attributes);

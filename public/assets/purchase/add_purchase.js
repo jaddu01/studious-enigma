@@ -13,7 +13,8 @@ function setTblData(count = null) {
     </td>
     <td><input type="text" placeholder="Barcode" style="width:130px;"
             class="form-control product_barcode"></td>
-    <td><select class="form-control select2-product" style="width:200px;"></select>
+    <td><div class="inline-flx"><select class="form-control select2-product" style="width:200px;"></select>
+    <button class="btn btn-success btn-sm add_new_product_btn display-hide">Add New</button></div>
     </td>
     <td class="display-hide">
         <input type="text" class="form-control select2-product2 "
@@ -69,10 +70,15 @@ function setTblData(count = null) {
 
             processResults: function (res, params) {
                 params.page = params.page || 1;
+                // console.log(res.data.length);
+                // if(res.data.length==0){
+                //     $("#product_Details_Tbody:last").find(".add_new_product_btn").first().removeClass('display-hide');
+                // }else{
+                //     $("#product_Details_Tbody:last").find(".add_new_product_btn").first().addClass('display-hide');
 
+                // }
                 return {
                     results: res.data,
-
                 };
             },
         },

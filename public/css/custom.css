@@ -5263,3 +5263,10 @@ tr.shown td.details-control {
   .font-weight-bold{
     font-weight: 700 !important;
   }
+  .inline-flx{
+    display:inline-flex;
+  }
+  .add_new_product_btn{
+    margin-left: 3px;
+    margin-top: 5px;
+  }
