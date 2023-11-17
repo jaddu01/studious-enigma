@@ -161,7 +161,7 @@
                                         <label for="payment_term">Payment Term<small class="startTxt">*</small></label>
                                         {!! Form::select(
                                             'payment_term',
-                                            [
+                                            [''=>'Select Payment Term',
                                                 '90 Days' => '90 Days',
                                                 '60 Days' => '60 Days',
                                                 '30 Days' => '30 Days',

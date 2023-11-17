@@ -13,14 +13,10 @@ function setTblData(count = null) {
     </td>
     <td><input type="text" placeholder="Barcode" style="width:130px;"
             class="form-control product_barcode"></td>
-    <td><div class="inline-flx"><select class="form-control select2-product" style="width:200px;"></select>
+    < <td><div class="inline-flx"><select class="form-control select2-product" style="width:200px;"></select>
     <button class="btn btn-success btn-sm add_new_product_btn display-hide">Add New</button></div>
     </td>
-    <td class="display-hide">
-        <input type="text" class="form-control select2-product2 "
-            style="width:200px;" product_id="">
-    </td>
-    
+   
     <td><input type="number" value="0" placeholder="0"
             class="product-tbl-column-width form-control product_qty product-field">
     </td>
@@ -248,12 +244,17 @@ $(document).ready(function () {
 });
 
 function getProductDetails(uRL, self, type = null, barcode = null) {
+    // console.log("type:",type)
     $.ajax({
         url: uRL,
         data: { 'type': type, 'barcode': barcode },
         success: function (res) {
 
-            const parent = self.parent().parent();
+            let parent = self.parent().parent();
+            if(type!='barcode'){
+            parent = self.parent().parent().parent();
+
+            }
             parent.find(".product-field").val('');
             parent.find('.product_mrp').val(res.mrp);
 
@@ -264,7 +265,6 @@ function getProductDetails(uRL, self, type = null, barcode = null) {
             if (type == 'barcode') {
                 const newOption = new Option(res.name, res.id, false, false);
                 parent.find(".select2-product").append(newOption).trigger('change');
-
             }
 
         }

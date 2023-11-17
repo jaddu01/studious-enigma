@@ -76,9 +76,8 @@ class PurchaseController extends Controller
         if(!is_null($SupplierBillPurchase)){
             $reference_invoice_no = $SupplierBillPurchase+1;
         }
-        $reference_invoice_no = "Darbaar". (string)$reference_invoice_no ;
+        $reference_invoice_no = config('constant.reference_invoice_no'). (string)sprintf("%03d",$reference_invoice_no) ;
         return view('admin/pages/pos/purchase/add',compact('validator','brands','vendors','suppliers','payment_mode','payment_status','reference_invoice_no'));
-        // ->with('validator', $validator)->with('brands', $brands)->with('vendors', $vendors)->with('suppliers', $suppliers)->with('payment_mode', $payment_mode)->with('payment_status', $payment_status)->with('s');
     }
 
     public function store(Request $request)
@@ -135,7 +134,7 @@ class PurchaseController extends Controller
                     "due_date" => $request->data['due_date'],
                     "invoice_no" => $request->data['invoice_no'],
                     "reference_invoice_no" => $request->data['reference_bill_no'],
-                    "payment_term" => $request->data['payment_term'],
+                    "payment_term" => ($request->data['payment_term']!=''?$request->data['payment_term']:null),
                     "tax_type" => $request->data['tax_type'],
                     "net_amount" => $request->data['net_amount'],
                     "total_amount" => $request->data['total_amount'],
