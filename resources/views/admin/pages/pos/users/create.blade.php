@@ -78,7 +78,8 @@
 
                                 <div class="col-sm-2">
                                     <div class="form-group {{ $errors->has('phone_code') ? ' has-error' : '' }}">
-                                        {!!  Form::select('phone_code', $countryPhoneCode,null, array('class' => 'form-control custom_input','placeholder'=>'phone code')) !!}
+                                        {{-- {!!  Form::select('phone_code', $countryPhoneCode,null, array('class' => 'form-control custom_input','placeholder'=>'phone code')) !!} --}}
+                                        <input type="text"  value="91" placeholder="+91" readonly style="cursor: default" name="phone_code" class="form-control custom_input">
                                         @if( $errors->has('phone_code'))
                                             {{ Form::filedError('phone_code') }}
                                         @endif
