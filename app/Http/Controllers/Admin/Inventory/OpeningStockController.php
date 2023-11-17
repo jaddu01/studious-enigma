@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin\Inventory;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Product;
+use App\Scopes\StatusScope;
 use App\VendorProduct;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -28,7 +29,7 @@ class OpeningStockController extends Controller
         $search = request('search');
         $skip = request('start');
         $take = request('length');
-        $query = Product::select('*',DB::raw('(select name from product_translations where product_translations.product_id= products.id limit 1 ) as product_name'));
+        $query = Product::withoutGlobalScopes([StatusScope::class])->select('*',DB::raw('(select name from product_translations where product_translations.product_id= products.id limit 1 ) as product_name'));
         $recordsTotal = $query->count();
         $recordsFiltered = $query->count();
 
@@ -46,10 +47,13 @@ class OpeningStockController extends Controller
             $d->sr_no = $i;
             $d->price = $d->price;
             $d->date=Carbon::parse($d->created_at)->format('d-m-Y');
+            $status = ($d->status)?'<span class="text-success">Active</span>':'<span class="text-danger">Inactive</span>';
             $d->update_date=Carbon::parse($d->updated_at)->format('d-m-y');
             $i = $i+1;
             $d->action="<button class='btn btn-warning editBtn' product='".$d->product_name."' barcode ='".$d->barcode."'
-             purchase-price='".$d->purchase_price."' sku-code='".$d->sku_code."' product-id='".$d->id."' price='".$d->price."' selling-price='".$d->best_price."' qty='".$d->qty."'><i class='fa fa-pencil'></i></button>";
+             purchase-price='".$d->purchase_price."' status='".$d->status."' sku-code='".$d->sku_code."' product-id='".$d->id."' price='".$d->price."' selling-price='".$d->best_price."' qty='".$d->qty."'><i class='fa fa-pencil'></i></button>";
+            $d->status = $status;
+
         }
 
         return [
@@ -61,35 +65,42 @@ class OpeningStockController extends Controller
     }
 
     public function updateStock(Request $request){
+
         try {
-            
             DB::beginTransaction();
+            $status = ($request->status=='on'?'1':'0');
+
+            
             if($request->barcode!=''){
-                Product::where('id',$request->product_id)->update([
+                Product::withoutGlobalScopes()->where('id',$request->product_id)->update([
                     'barcode'=>$request->barcode,
                     'qty'=>$request->qty,
                     'purchase_price'=>$request->purchase_price,
                     'best_price'=>$request->best_price,
                     'price'=>$request->price,
+                    'status'=>$status,
                 ]);
             }
-          Product::where('id',$request->product_id)->update([
+          Product::withoutGlobalScopes()->where('id',$request->product_id)->update([
                 'qty'=>$request->qty,
                 'purchase_price'=>$request->purchase_price,
                 'best_price'=>$request->best_price,
                 'price'=>$request->price,
+                'status'=>$status,
+
             ]);
             
 
-          VendorProduct::where('product_id',$request->product_id)->update([
+          VendorProduct::withoutGlobalScopes()->where('product_id',$request->product_id)->update([
                 'best_price'=>$request->best_price,
                 'price'=>$request->price,
                 'qty'=>$request->qty,
+                'status'=>$status,
             ]);
             DB::commit();
           
             return response()->json([
-                'msg'=>'Updated Successfully !'
+                'msg'=>"Product Updated Successfully"
             ]);
 
 

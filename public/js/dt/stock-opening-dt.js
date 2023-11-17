@@ -44,6 +44,11 @@ $(document).ready(function () {
                 orderable: false
             },
             {
+                name: 'status',
+                data: 'status',
+                orderable: false
+            },
+            {
                 name: 'created_at',
                 data: 'date',
                 orderable: false
@@ -74,6 +79,9 @@ $(document).ready(function () {
         $("#openingStockModal").find('input[name=qty]').val($(this).attr('qty'));
         $("#openingStockModal").find('#barcode').val($(this).attr('barcode'));
         $("#openingStockModal").find('#skucode').val($(this).attr('sku-code'));
+        const status = ($(this).attr('status')==1)?true:false;
+        $('#statusBtn').prop('checked', status).change()
+        // statusBtn
 
         $("#openingStockModal").find('input[name=purchase_price]').val($(this).attr('purchase-price'));
         $("#openingStockModal").find('input[name=best_price]').val($(this).attr('selling-price'));
@@ -100,7 +108,16 @@ $(document).ready(function () {
             data: data_,
             success: function (res) {
                 // console.log(res)
+            
                 $("#openingStockModal").modal('hide');
+                new PNotify({
+                    title: 'Success',
+                    text: res.msg,
+                    type: 'success',
+                    styling: 'bootstrap3',
+                    delay: 1000,
+
+                });
                 refreshTbl();
 
 

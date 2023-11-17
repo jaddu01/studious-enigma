@@ -59,6 +59,7 @@
                                 <th>Product Name</th>
                                 <th>Price</th>
                                 <th>Qty</th>
+                                <th>Status</th>
                                 <th>Created On</th>
                                 <th>Updated On</th>
                                 <th>Actions</th>
@@ -86,46 +87,52 @@
                 <div class="modal-body">
                     <form id="openingStockForm">
                         <input type="hidden" name="product_id" id="product_id">
-                    <div class="row">
-                        <div class="col-md-12">
-                           <input type="text" disabled name="product"  class="form-control">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <input type="text" disabled name="product" class="form-control">
+                            </div>
+                            <div class="col-md-12 mt-3">
+                                <label for="barcode">SKU Code</label>
+                                <input type="text" disabled id="skucode" style="cursor: default;" name="sku_code"
+                                    class="form-control">
+                            </div>
                         </div>
-                        <div class="col-md-12 mt-3">
-                            <label for="barcode">SKU Code</label>
-                            <input type="text" disabled  id="skucode" style="cursor: default;" name="sku_code" class="form-control">
-                        </div>
-                    </div>
 
-                    <div class="row mt-3">
-                        <div class="col-md-6">
-                            <label for="barcode">Barcode No.</label>
-                            <input type="number" min="0" id="barcode" name="barcode" class="form-control">
-                        </div>
-                        <div class="col-md-6">
-                            <label class="qty">QTY</label>
-                            <input type="number" min="0" name="qty"  id="qty" class="form-control">
-                        </div>
-                       
-                    </div>
+                        <div class="row mt-3">
+                            <div class="col-md-6">
+                                <label for="barcode">Barcode No.</label>
+                                <input type="number" min="0" id="barcode" name="barcode" class="form-control">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="qty">QTY</label>
+                                <input type="number" min="0" name="qty" id="qty" class="form-control">
+                            </div>
 
-                    <div class="row mt-3">
-                        <div class="col-md-6">
-                            <label for="purchase_price">Purchase Price</label>
-                            <input type="number" min="0" id="purchase_price" name="purchase_price" class="form-control">
                         </div>
-                        <div class="col-md-6">
-                            <label for="best_price">Selling Price</label>
-                            <input type="number" min="0" id="best_price" name="best_price" class="form-control">
+
+                        <div class="row mt-3">
+                            <div class="col-md-6">
+                                <label for="purchase_price">Purchase Price</label>
+                                <input type="number" min="0" id="purchase_price" name="purchase_price"
+                                    class="form-control">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="best_price">Selling Price</label>
+                                <input type="number" min="0" id="best_price" name="best_price" class="form-control">
+                            </div>
+
+
                         </div>
-                       
-                       
-                    </div>
-                    <div class="row mt-3">
-                        <div class="col-md-6">
-                            <label for="price">Price</label>
-                            <input type="number" min="0" id="price" name="price" class="form-control">
+                        <div class="row mt-3">
+                            <div class="col-md-6">
+                                <label for="price">Price</label>
+                                <input type="number" min="0" id="price" name="price" class="form-control">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="status">Status</label><br>
+                                <input type="checkbox" id="statusBtn" name="status" checked>
+                            </div>
                         </div>
-                    </div>
                     </form>
 
                 </div>
@@ -145,23 +152,55 @@
     <!-- FastClick -->
     <script>
         const uRL = "{{ route('admin.opening.stock.list') }}";
-        const openingStockUpdateUrl = "{{route('admin.opening.stock.update')}}";
+        const openingStockUpdateUrl = "{{ route('admin.opening.stock.update') }}";
     </script>
- 
+
+    <!-- Datatables -->
+    <script src="{{ asset('public/assets/fastclick/lib/fastclick.js') }}"></script>
+
     <!-- Datatables -->
     <script src="{{ asset('public/assets/datatables.net/js/jquery.dataTables.min.js') }}"></script>
     <script src="{{ asset('public/assets/datatables.net-bs/js/dataTables.bootstrap.min.js') }}"></script>
     <script src="{{ asset('public/assets/datatables.net-buttons/js/dataTables.buttons.min.js') }}"></script>
+    <script src="{{ asset('public/assets/datatables.net-buttons-bs/js/buttons.bootstrap.min.js') }}"></script>
+    <script src="{{ asset('public/assets/datatables.net-buttons/js/buttons.flash.min.js') }}"></script>
+    <script src="{{ asset('public/assets/datatables.net-buttons/js/buttons.html5.min.js') }}"></script>
+    <script src="{{ asset('public/assets/datatables.net-buttons/js/buttons.print.min.js') }}"></script>
+    <script src="{{ asset('public/assets/datatables.net-fixedheader/js/dataTables.fixedHeader.min.js') }}"></script>
+    <script src="{{ asset('public/assets/datatables.net-keytable/js/dataTables.keyTable.min.js') }}"></script>
+    <script src="{{ asset('public/assets/datatables.net-responsive/js/dataTables.responsive.min.js') }}"></script>
+    <script src="{{ asset('public/assets/datatables.net-responsive-bs/js/responsive.bootstrap.js') }}"></script>
+    {{-- <script src="{{asset('public/assets/datatables.net-scroller/js/datatables.scroller.min.js')}}"></script> --}}
+    <script src="{{ asset('public/assets/jszip/dist/jszip.min.js') }}"></script>
+    <script src="{{ asset('public/assets/pdfmake/build/pdfmake.min.js') }}"></script>
+    <script src="{{ asset('public/assets/pdfmake/build/vfs_fonts.js') }}"></script>
+    <script src="{{ asset('public/assets/pnotify/dist/pnotify.js') }}"></script>
+    <script src="{{ asset('public/assets/pnotify/dist/pnotify.buttons.js') }}"></script>
+    <script src="{{ asset('public/assets/pnotify/dist/pnotify.nonblock.js') }}"></script>
+    <script src="{{ asset('public/js/bootstrap-toggle.min.js') }}"></script>
+    <script src="{{ asset('public/js/bootstrap-datepicker.js') }}"></script>
+    <script src="{{ asset('public/js/select2.min.js') }}"></script>
+    <script src="https://www.jqueryscript.net/demo/Creating-A-Live-Editable-Table-with-jQuery-Tabledit/jquery.tabledit.js">
+    </script>
+
 
     <script src="{{ asset('public/js/dt/stock-opening-dt.js') }}"></script>
-    <script src="{{ asset('public/js/select2.min.js') }}"></script>
-    <script src="https://code.jquery.com/ui/1.13.1/jquery-ui.js"></script>
+
     <!-- Datatables -->
     <script>
+        $('.data-toggle-coustom').bootstrapToggle();
+
         $('.prodcut-select2').select2({
             width: '60%',
             placeholder: "Select Product",
             allowClear: true,
         });
+        $(function() {
+            $('#statusBtn').bootstrapToggle({
+                width:100,
+                on: 'Active',
+                off: 'Inactive'
+            });
+        })
     </script>
 @endpush
