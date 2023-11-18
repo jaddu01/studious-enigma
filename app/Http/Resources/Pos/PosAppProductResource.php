@@ -15,7 +15,8 @@ class PosAppProductResource extends JsonResource
      */
     public function toArray($request){
     //   $vendor_product = VendorProduct::find($this->vendor_product_id);
-    $data = $this->data;
+    // $data = $this->data;
+    $data = json_decode($this->data, true);
       
         return [
             'vendor_product_id'=>$data['vendor_product']['id'],
