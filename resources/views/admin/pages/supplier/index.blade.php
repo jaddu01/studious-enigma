@@ -31,20 +31,20 @@
                         <div class="x_title">
                             <h2>{{ $title }}</h2>
                             <!--  <ul class="nav navbar-right panel_toolbox">
-                                    <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
-                                    </li>
-                                    <li class="dropdown">
-                                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><i class="fa fa-wrench"></i></a>
-                                        <ul class="dropdown-menu" role="menu">
-                                            <li><a href="#">Settings 1</a>
-                                            </li>
-                                            <li><a href="#">Settings 2</a>
-                                            </li>
-                                        </ul>
-                                    </li>
-                                    <li><a class="close-link"><i class="fa fa-close"></i></a>
-                                    </li>
-                                </ul> -->
+                                        <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                                        </li>
+                                        <li class="dropdown">
+                                            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><i class="fa fa-wrench"></i></a>
+                                            <ul class="dropdown-menu" role="menu">
+                                                <li><a href="#">Settings 1</a>
+                                                </li>
+                                                <li><a href="#">Settings 2</a>
+                                                </li>
+                                            </ul>
+                                        </li>
+                                        <li><a class="close-link"><i class="fa fa-close"></i></a>
+                                        </li>
+                                    </ul> -->
                             <div class="clearfix"></div>
                         </div>
                         <div class="x_content">
@@ -103,7 +103,6 @@
 
     <!-- Datatables -->
     <script>
-     
         $(function() {
 
             window.table = $('#users-table').DataTable({
@@ -126,11 +125,25 @@
                 serverSide: false,
                 ajax: '{!! route('supplier.datatable') !!}',
                 fnDrawCallback: function() {
-                    $('.data-toggle-coustom').bootstrapToggle();
-                    $('.data-toggle-coustom').change(function() {
+                    $('[data-toggle="tooltip"]').tooltip({
+                        container: '#users-table',
+                    });
+
+
+                    $('.data-toggle-coustom').bootstrapToggle({
+                        width: "5px",
+                        size: "small",
+                        on: '<i class="fa fa-check"></i>',
+                        off: '<i class="fa fa-times "></i>',
+                        offstyle: 'danger'
+
+                    });
+                    $('.data-toggle-coustom').unbind().change(function() {
                         var supplier_id = $(this).attr('supplier-id');
                         changeStatus(supplier_id, $(this).val());
+
                     })
+
 
                 },
                 columns: [{
@@ -139,7 +152,7 @@
                     },
                     {
                         name: 'company_name',
-                        data:'company_name'
+                        data: 'company_name'
                     },
                     {
                         data: 'contact_person',
@@ -184,7 +197,8 @@
                         data: 'action',
                         name: 'action',
                         orderable: false,
-                        searchable: false
+                        searchable: false,
+                        width: '150px'
                     }
                 ]
             });
@@ -206,7 +220,8 @@
                         title: 'Success',
                         text: data.message,
                         type: 'success',
-                        styling: 'bootstrap3'
+                        styling: 'bootstrap3',
+                        delay: 800,
                     });
 
                 },
@@ -215,7 +230,10 @@
                         title: 'Error',
                         text: 'something is wrong',
                         type: "error",
-                        styling: 'bootstrap3'
+                        styling: 'bootstrap3',
+                        delay: 800,
+
+
                     });
                 }
             });

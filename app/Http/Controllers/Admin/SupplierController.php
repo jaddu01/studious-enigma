@@ -184,7 +184,9 @@ class SupplierController extends Controller
                 return date('d/m/Y', strtotime($user->created_at));
             })
             ->addColumn('action', function ($supplier) {
-                return '<a href="' . route("supplier.edit", $supplier->id) . '" class="btn btn-success">Edit</a><button type="button" onclick="deleteRow(' . $supplier->id . ')" class="btn btn-danger">Delete</button><input class="data-toggle-coustom"  data-toggle="toggle" type="checkbox" supplier-id="' . $supplier->id . '" ' . (($supplier->status == 1) ? "checked" : "") . ' value="' . $supplier->status . '" >';
+                // return '<a href="' . route("supplier.edit", $supplier->id) . '" class="btn btn-success">Edit</a><button type="button" onclick="deleteRow(' . $supplier->id . ')" class="btn btn-danger">Delete</button><input class="data-toggle-coustom"  data-toggle="toggle" type="checkbox" supplier-id="' . $supplier->id . '" ' . (($supplier->status == 1) ? "checked" : "") . ' value="' . $supplier->status . '" >';
+                return '<div class="d-flex justify-content-center"><a href="' . route("supplier.edit", $supplier->id) . '" class="btn btn-success btn-sm" data-toggle="tooltip" data-placement="top" title="Edit"><i class="fa fa-pencil"></i></a> <button class="btn btn-danger btn-sm"  data-toggle="tooltip" data-placement="top" title="Delete" onclick="deleteRow(' . $supplier->id . ')"><i  class="fa fa-trash text-light"></i></button><input class="data-toggle-coustom"  data-toggle="toggle" type="checkbox" supplier-id="' . $supplier->id . '" ' . (($supplier->status == 1) ? "checked" : "") . ' value="' . $supplier->status . '"  ></div>';
+           
             })
             ->addColumn('state', function ($supplier) {
                 if ($supplier->state != '' && $supplier->state != null) {
