@@ -108,10 +108,6 @@ function setTblData(count = null) {
         getProductDetails(uRL, self, type = 'barcode', barcode);
     });
 
-
-
-
-
 }
 
 //stop negative value
@@ -251,6 +247,71 @@ $(document).ready(function () {
             }
         })
     }
+
+    //add variant and products in pop modal
+    
+        $(".select2-related-products").select2({
+            tags: true,
+            multiple: true,
+            width:'100%',
+            tokenSeparators: [','],
+            minimumInputLength: 2,
+            minimumResultsForSearch: 10,
+            ajax: {
+                url: product_list_search,
+                dataType: "json",
+                type: "GET",
+                data: function (params) {
+                    var queryParameters = {
+                        term: params.term
+                    }
+                    return queryParameters;
+                },
+                processResults: function (data) {
+                    return {
+                        results: $.map(data, function (item) {
+                            return {
+                                text: item.name,
+                                id: item.id
+                            }
+                        })
+                    };
+                }
+            }
+        });
+
+        //variant products list
+        $(".select2-variant-products").select2({
+            tags: true,
+            multiple: true,
+            width:'100%',
+            tokenSeparators: [','],
+            minimumInputLength: 2,
+            minimumResultsForSearch: 10,
+            ajax: {
+                url: varient_product_list_search,
+                dataType: "json",
+                type: "GET",
+                data: function (params) {
+                    var queryParameters = {
+                        term: params.term
+                    }
+                    return queryParameters;
+                },
+                processResults: function (data) {
+                    return {
+                        results: $.map(data, function (item) {
+                            return {
+                                text: item.name,
+                                id: item.id
+                            }
+                        })
+                    };
+                }
+            }
+        });
+  
+
 });
 
 function getProductDetails(uRL, self, type = null, barcode = null) {
