@@ -5270,3 +5270,8 @@ tr.shown td.details-control {
     margin-left: 3px;
     margin-top: 5px;
   }
+  .custom-form-input{
+    height: 38px !important;
+    border-radius: 4px !important;
+    border: 1px solid #aaa !important;
+  }

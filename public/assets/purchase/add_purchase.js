@@ -50,6 +50,7 @@ function setTblData(count = null) {
 
     $(tableRow).insertBefore('#totalResult');
     $('#product_Details_Tbody:last').find('.select2-product').select2({
+
         placeholder: "Search Product",
         allowClear: true,
         minimumInputLength: 3,
@@ -65,14 +66,19 @@ function setTblData(count = null) {
             },
 
             processResults: function (res, params) {
+                const self = $(this)[0].$element[0];
+                const btn = $(self).parent().find('.add_new_product_btn');
                 params.page = params.page || 1;
-                // console.log(res.data.length);
-                // if(res.data.length==0){
-                //     $("#product_Details_Tbody:last").find(".add_new_product_btn").first().removeClass('display-hide');
-                // }else{
-                //     $("#product_Details_Tbody:last").find(".add_new_product_btn").first().addClass('display-hide');
+                if (res.data.length == 0) {
+                    btn.removeClass('display-hide');
+                } else {
+                    btn.addClass('display-hide');
 
-                // }
+                }
+                btn.click(function (e) {
+                    e.preventDefault();
+                    AddNewProductBtnClick();
+                });
                 return {
                     results: res.data,
                 };
@@ -82,9 +88,13 @@ function setTblData(count = null) {
     },
 
     );
+
+    const AddNewProductBtnClick = () => {
+        $("#addProductModal").modal('show');
+    }
+
     $("#product_Details_Tbody:last").find(".select2-product").on('change', function () {
         const product_id = $(this).val();
-        // console.log(product_id);
         const self = $(this);
         const uRL = supplier_product_info_url + '/' + product_id;
         getProductDetails(uRL, self);
@@ -98,15 +108,15 @@ function setTblData(count = null) {
         getProductDetails(uRL, self, type = 'barcode', barcode);
     });
 
-    
-  
+
+
 
 
 }
 
 //stop negative value
-$('#product_Details_Tbody').on('input','.product-field',function(){
-    
+$('#product_Details_Tbody').on('input', '.product-field', function () {
+
     const positive_number = Math.abs($(this).val());
     $(this).val(positive_number);
 })
@@ -141,7 +151,7 @@ const setResult = () => {
     if ($("#totalAddionalChargeTbl").text()) {
         additionalCharge = parseFloat($("#totalAddionalChargeTbl").text());
         $("#totalAdditionalCharges").text(additionalCharge.toFixed(2));
-    }else{
+    } else {
         $("#totalAdditionalCharges").text(0.00);
 
     }
@@ -227,10 +237,10 @@ $(document).ready(function () {
                     phone_number = `${phone_number}`;
                 }
                 $("#supplier_address").find('#Billing-address').html('');
-                $("#supplier_address").find('#state').text(res.state??'')
-                $("#supplier_address").find('#gst_no').text(res.gstin??'');
-                $("#supplier_address").find('#Billing-address').html(`<div>${res.company_name??''}<br>${(res.address!=null)?res.address+',':''} ${(res.pincode!=null)?res.pincode+',':''} ${(res.state!=null)?res.state+',':''} ${res.country??''}</div>
-              ${(contact_number!=null || phone_number!=null)?`<i class="fa fa-phone"></i>${contact_number??''} ${phone_number??''}`:''} `);
+                $("#supplier_address").find('#state').text(res.state ?? '')
+                $("#supplier_address").find('#gst_no').text(res.gstin ?? '');
+                $("#supplier_address").find('#Billing-address').html(`<div>${res.company_name ?? ''}<br>${(res.address != null) ? res.address + ',' : ''} ${(res.pincode != null) ? res.pincode + ',' : ''} ${(res.state != null) ? res.state + ',' : ''} ${res.country ?? ''}</div>
+              ${(contact_number != null || phone_number != null) ? `<i class="fa fa-phone"></i>${contact_number ?? ''} ${phone_number ?? ''}` : ''} `);
                 $("#supplier_address").find('#billing-not-provided').hide();
                 if ($("#product_Details_Tbody tr").length == 1) {
                     // $("#product_Details_Tbody").html('');
@@ -250,9 +260,10 @@ function getProductDetails(uRL, self, type = null, barcode = null) {
         data: { 'type': type, 'barcode': barcode },
         success: function (res) {
 
+            console.log("type:", type);
             let parent = self.parent().parent();
-            if(type!='barcode'){
-            parent = self.parent().parent().parent();
+            if (type != 'barcode' || type == null) {
+                parent = self.parent().parent().parent();
 
             }
             parent.find(".product-field").val('');

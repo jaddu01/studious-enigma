@@ -11,7 +11,6 @@ $(document).ready(function () {
         e.preventDefault();
         const formElementData = $("#supplier_form").not("#supplier_id").serializeArray();
         const data = collectData(formElementData);
-        // console.log(data)
         saveData("save_only", data);
     });
 

@@ -12,6 +12,7 @@ namespace App\Http\Controllers\Admin\Pos;
 use App\Purchase;
 use App\BrandTranslation;
 use App\Brand;
+use App\Category;
 use App\ProductTranslation;
 use App\Product;
 use App\VendorProduct;
@@ -23,6 +24,7 @@ use App\User;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\SupplierProductResource;
+use App\MeasurementClass;
 use App\SupplierBillPurchase;
 use App\SupplierPurchaseAdditionalCharge;
 use App\SupplierPurchaseProductDetail;
@@ -71,13 +73,25 @@ class PurchaseController extends Controller
         $payment_mode = ['cash' => 'Cash', 'cheque' => 'Cheque', 'online' => 'Online'];
         $payment_status = ['paid' => 'Paid', 'due' => 'Due'];
 
-        $SupplierBillPurchase = SupplierBillPurchase::orderBy('id','desc')->value('id');
-        $reference_invoice_no=1;
-        if(!is_null($SupplierBillPurchase)){
-            $reference_invoice_no = $SupplierBillPurchase+1;
+        $product_categories = Category::where('status','1')->notTranslatedIn('ar')->get()->pluck('name','id');
+        $SupplierBillPurchase = SupplierBillPurchase::orderBy('id', 'desc')->value('id');
+        $measurementClass =MeasurementClass::where('status','1')->listsTranslations('name','id')->pluck('name','id')->all();
+        $reference_invoice_no = 1;
+        if (!is_null($SupplierBillPurchase)) {
+            $reference_invoice_no = $SupplierBillPurchase + 1;
         }
-        $reference_invoice_no = config('constant.reference_invoice_no'). (string)sprintf("%03d",$reference_invoice_no) ;
-        return view('admin/pages/pos/purchase/add',compact('validator','brands','vendors','suppliers','payment_mode','payment_status','reference_invoice_no'));
+        $reference_invoice_no = config('constant.reference_invoice_no') . (string)sprintf("%03d", $reference_invoice_no);
+        return view('admin/pages/pos/purchase/add', compact(
+            'validator',
+            'measurementClass',
+            'brands',
+            'vendors',
+            'suppliers',
+            'payment_mode',
+            'payment_status',
+            'reference_invoice_no',
+            'product_categories'
+        ));
     }
 
     public function store(Request $request)
@@ -116,16 +130,16 @@ class PurchaseController extends Controller
     {
         try {
             if ($request->ajax()) {
-             
+
                 DB::beginTransaction();
                 // dd($request->all());
                 $supplier_id = $request->data['supplier_id'];
                 $due_amount =  $request->data['net_amount'];
-                $paid_amount =0;
-                
+                $paid_amount = 0;
+
                 if ($request->type == 'save_with_payment') {
                     $due_amount =  $request->data['net_amount'] - $request->data['amount'];
-                    $paid_amount =$request->data['amount'];
+                    $paid_amount = $request->data['amount'];
                 }
 
                 $supplier_bill_purchase_order = SupplierBillPurchase::create([
@@ -134,13 +148,13 @@ class PurchaseController extends Controller
                     "due_date" => $request->data['due_date'],
                     "invoice_no" => $request->data['invoice_no'],
                     "reference_invoice_no" => $request->data['reference_bill_no'],
-                    "payment_term" => ($request->data['payment_term']!=''?$request->data['payment_term']:null),
+                    "payment_term" => ($request->data['payment_term'] != '' ? $request->data['payment_term'] : null),
                     "tax_type" => $request->data['tax_type'],
                     "net_amount" => $request->data['net_amount'],
                     "total_amount" => $request->data['total_amount'],
                     "total_additional_charge" => $request->data['total_additional_charge'],
                     "due_amount" => $due_amount,
-                    "paid_amount"=>$paid_amount
+                    "paid_amount" => $paid_amount
                 ]);
 
 
@@ -191,17 +205,17 @@ class PurchaseController extends Controller
                         ]);
                     }
                 }
-                
+
                 if ($request->type == 'save_with_payment') {
-                    $last_id =SuppliersPayment::orderBy('id','DESC')->value('id');
-                    if(is_null($last_id)){
-                        $last_id=1;
+                    $last_id = SuppliersPayment::orderBy('id', 'DESC')->value('id');
+                    if (is_null($last_id)) {
+                        $last_id = 1;
                     }
                     SuppliersPayment::create([
                         'supplier_id' => $supplier_id,
                         'supplier_bill_purchase_id' => $supplier_bill_purchase_order->id,
                         'payment_mode' => $request->data['payment_mode'],
-                        'payment_no'=>"PAY".$last_id,
+                        'payment_no' => "PAY" . $last_id,
                         'payment_date' => $request->data['payment_date'] ?? Carbon::now()->format('Y-m-d'),
                         'transaction_no' => $request->data['transaction_no'] ?? null,
                         'description' => $request->data['description'] ?? null,
@@ -224,7 +238,7 @@ class PurchaseController extends Controller
         }
     }
 
-  
+
     public function edit($id)
     {
         $purchase = $this->model->findOrFail($id);
@@ -400,34 +414,34 @@ class PurchaseController extends Controller
         $search = request('search');
         $skip = request('start');
         $take = request('length');
-        $query = SupplierBillPurchase::select('*',DB::raw('(select company_name from suppliers where suppliers.id= supplier_bill_purchases.supplier_id limit 1 ) as supplier'));
+        $query = SupplierBillPurchase::select('*', DB::raw('(select company_name from suppliers where suppliers.id= supplier_bill_purchases.supplier_id limit 1 ) as supplier'));
         // $query = SupplierBillPurchase::query();
         $recordsTotal = $query->count();
         $recordsFiltered = $query->count();
 
         if (isset($search['value'])) {
             // $query->where('supplier','%'.$search['value'].'%');
-            $query->whereHas('supplier',function($q) use($search){
-                $q->where('company_name','LIKE',"%{$search['value']}%");
+            $query->whereHas('supplier', function ($q) use ($search) {
+                $q->where('company_name', 'LIKE', "%{$search['value']}%");
             });
-            };
-    
+        };
+
         $data = $query
             ->orderBy($order_by, $order_dir)->skip($skip)->take($take)->get();
-            // $data = $query->skip($skip)->take($take)->orderByRaw("$order_by $order_dir")->get();
+        // $data = $query->skip($skip)->take($take)->orderByRaw("$order_by $order_dir")->get();
 
         $i = 1;
         foreach ($data as &$d) {
-           $d->invoice_no=$d->invoice_no;
-           $supplier = '<a class="text-primary" href="'.route("admin.supplier.view", $d->supplier_id).'">'.$d->supplier.'</a>';
-           $d->supplier= $supplier;
-           $d->bill_date=$d->bill_date;
-           $d->due_date=$d->due_date;
-           $d->net_amount=$d->net_amount;
-           $d->paid_amount=$d->paid_amount;
-           $d->due_amount=$d->due_amount;
-           $d->total_additional_charge=$d->total_additional_charge;
-           $d->action='action';
+            $d->invoice_no = $d->invoice_no;
+            $supplier = '<a class="text-primary" href="' . route("admin.supplier.view", $d->supplier_id) . '">' . $d->supplier . '</a>';
+            $d->supplier = $supplier;
+            $d->bill_date = $d->bill_date;
+            $d->due_date = $d->due_date;
+            $d->net_amount = $d->net_amount;
+            $d->paid_amount = $d->paid_amount;
+            $d->due_amount = $d->due_amount;
+            $d->total_additional_charge = $d->total_additional_charge;
+            $d->action = 'action';
         }
 
         return [

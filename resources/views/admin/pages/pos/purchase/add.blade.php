@@ -111,7 +111,7 @@
                                             'id' => 'reference_bill_no',
                                             'dir' => $locale == 'ar' ? 'rtl' : 'ltr',
                                             'lang' => $locale,
-                                            'readonly'=>'readonly',
+                                            'readonly' => 'readonly',
                                         ]) !!}
                                         @if ($errors->has('reference_bill_no'))
                                             <span class="help-block">
@@ -120,23 +120,7 @@
                                         @endif
                                     </div>
 
-                                    {{-- <div class="col-md-4">
-                                        <label for="bill_amount">Bill Amount<small class="startTxt">*</small></label>
-                                        {!! Form::number('bill_amount', null, [
-                                            'step' => '0.01',
-                                            'placeholder' => 'Bill Amount',
-                                            'class' => 'form-control col-md-7 col-xs-12',
-                                            'dir' => $locale == 'ar' ? 'rtl' : 'ltr',
-                                            'id' => 'bill_amount',
-                                            'lang' => $locale,
-                                        ]) !!}
-                                        @if ($errors->has('bill_amount'))
-                                            <span class="help-block">
-                                                <strong>{{ $errors->first('bill_amount') }}</strong>
-                                            </span>
-                                        @endif
-                                    </div> --}}
-                                  
+
                                 </div>
 
                                 <div class="row mt-3">
@@ -155,13 +139,14 @@
                                             </span>
                                         @endif
                                     </div>
-                                  
-                                  
+
+
                                     <div class="col-md-4">
                                         <label for="payment_term">Payment Term<small class="startTxt">*</small></label>
                                         {!! Form::select(
                                             'payment_term',
-                                            [''=>'Select Payment Term',
+                                            [
+                                                '' => 'Select Payment Term',
                                                 '90 Days' => '90 Days',
                                                 '60 Days' => '60 Days',
                                                 '30 Days' => '30 Days',
@@ -402,8 +387,189 @@
         {!! Form::close() !!}
 
     </div>
+    {{-- add product modal --}}
+    <div class="modal fade" id="addProductModal" data-controls-modal="addProductModal" role="dialog"
+        data-backdrop="static" data-keyboard="false">
+        <div class="modal-dialog modal-lg">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <b class="modal-title" style="font-size: 18px">Add New Product</b>
+                </div>
+                <div class="modal-body">
+                    <form id="addNewProductForm">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label for="prodcutName">Name</label>
+                                <input type="text" class="form-control custom-form-input" placeholder="Product Name"
+                                    name="name:en" id="prodcutName">
+                            </div>
 
-    <div class="modal fade" id="paymentModal" data-controls-modal="paymentModal" role="dialog" data-backdrop="static" data-keyboard="false">
+                            <div class="col-md-6">
+                                <label for="printName">Print Name</label>
+                                <input type="text" class="form-control custom-form-input" placeholder="Print Name"
+                                    name="print_name:en" id="printName">
+                            </div>
+                        </div>
+
+                        <div class="row mt-3">
+                            <div class="col-md-4">
+                                <label for="productCategories">Category</label><br>
+                                {!! Form::select('category_id[]', $product_categories, null, [
+                                    'placeholder' => 'Select Category',
+                                    'class' => 'form-control',
+                                    'id' => 'productCategories',
+                                ]) !!}
+                            </div>
+                            <div class="col-md-4">
+                                <label for="brandsList">Brands</label><br>
+                                {!! Form::select('brand_id', $brands, null, [
+                                    'placeholder' => 'Select Brand',
+                                    'class' => 'form-control',
+                                    'id' => 'brandsList',
+                                ]) !!}
+                            </div>
+
+                            <div class="col-md-4">
+                                <label for="gstList">Measurement Class</label><br>
+                                {!! Form::select(
+                                    'gst',
+                                    [
+                                        0 => '0%',
+                                        5 => '5%',
+                                        12 => '12%',
+                                        18 => '18%',
+                                    ],
+                                    null,
+                                    [
+                                        'placeholder' => 'Select GST',
+                                        'class' => 'form-control custom-form-input',
+                                        'id' => 'gstList',
+                                    ],
+                                ) !!}
+                            </div>
+
+                        </div>
+                        <div class="row mt-3">
+                            <div class="col-md-4">
+                                <label for="measurementClass">Measurement Class</label><br>
+                                {!! Form::select('measurement_class', $measurementClass, null, [
+                                    'placeholder' => 'Select Measurement',
+                                    'class' => 'form-control',
+                                    'id' => 'measurementClass',
+                                ]) !!}
+                            </div>
+                            <div class="col-md-4">
+                                <label for="measurement_value">Measurement Value</label>
+                                {!! Form::text('measurement_value', null, [
+                                    'placeholder' => 'keyword',
+                                    'class' => 'form-control custom-form-input',
+                                    'id' => 'measurement_value',
+                                ]) !!}
+                            </div>
+
+                            <div class="col-md-4">
+                                <label for="hsn_code">HSN Code</label>
+                                {!! Form::text('hsn_code', null, [
+                                    'placeholder' => 'DAR-0000',
+                                    'class' => 'form-control custom-form-input',
+                                    'id' => 'hsn_code',
+                                ]) !!}
+                            </div>
+                        </div>
+
+                        <div class="row mt-3">
+                            <div class="col-md-4">
+                                <label for="status">Status</label>
+                                {!! Form::select(
+                                    'status',
+                                    [
+                                        1 => 'Active',
+                                        0 => 'Inactive',
+                                    ],
+                                    1,
+                                    [
+                                        'class' => 'form-control custom-form-input',
+                                        'id' => 'status',
+                                    ],
+                                ) !!}
+                            </div>
+
+                            <div class="col-md-4">
+                                <label for="show_in_cart_page">Show In Cart Page</label>
+                                {!! Form::select(
+                                    'show_in_cart_page',
+                                    [
+                                        0 => 'No',
+                                        1 => 'Yes',
+                                    ],
+                                    0,
+                                    [
+                                        'class' => 'form-control custom-form-input',
+                                        'id' => 'show_in_cart_page',
+                                    ],
+                                ) !!}
+                            </div>
+
+                            <div class="col-md-4">
+                                <label for="returnable">Returnable</label>
+                                {!! Form::select(
+                                    'returnable',
+                                    [
+                                        0 => 'No',
+                                        1 => 'Yes',
+                                    ],
+                                    0,
+                                    [
+                                        'class' => 'form-control custom-form-input',
+                                        'id' => 'returnable',
+                                    ],
+                                ) !!}
+                            </div>
+                        </div>
+
+                        <div class="row mt-3">
+                            <div class="col-md-4">
+                                <label for="expire_date">Expire Date</label>
+                                {!! Form::date('expire_date', null, [
+                                    'class'=>'form-control custom-form-input',
+                                    'id'=>'expire_date'
+                                ]) !!}
+                            </div>
+
+                            <div class="col-md-4">
+                                <label for="add_new_product_barcode">Barcode</label>
+                                {!! Form::text('barcode', null, [
+                                    'class'=>'form-control custom-form-input',
+                                    'id'=>'add_new_product_barcode',   
+                                    'placeholder'=>'890000000000',
+                                ]) !!}
+                            </div>
+
+                            <div class="col-md-4">
+                                <label for="product_qty">Qty</label>
+                                {!! Form::text('qty', null, [
+                                    'class'=>'form-control custom-form-input',
+                                    'id'=>'product_qty',   
+                                    'placeholder'=>'Quantity',
+                                ]) !!}
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="butotn" class="btn btn-success" id="addproductModalBtn">Add Product</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    {{-- payment modal --}}
+    <div class="modal fade" id="paymentModal" data-controls-modal="paymentModal" role="dialog" data-backdrop="static"
+        data-keyboard="false">
         <div class="modal-dialog">
             <!-- Modal content-->
             <div class="modal-content">
@@ -474,6 +640,9 @@
 
         </div>
     </div>
+
+
+
     <script type="text/javascript" src="{{ asset('public/vendor/jsvalidation/js/jsvalidation.js') }}"></script>
     {!! $validator !!}
     <!-- /page content -->
@@ -493,20 +662,16 @@
 
         }
         $(document).ready(function() {
-            $('.select2-vendor').select2({
-                placeholder: "Select Store",
-                allowClear: true
-            });
-            $('.select2-supplier').select2({
+
+            $('.select2-supplier,.select2-vendor').select2({
                 placeholder: "Select Supplier",
                 allowClear: true
             });
-            $('.select2-brand').select2({
-                placeholder: "Select Brand",
-                allowClear: true
+            $("#productCategories,#brandsList,#measurementClass").select2({
+                allowClear: true,
+                width: '100%',
+
             });
-
-
 
 
 
@@ -603,8 +768,8 @@
         let search_product_url = "{{ route('purchase.get.supply.products') }}";
         let supplier_product_info_url = "{{ route('purchase.get.supplier.products.info', '') }}";
         const saveOnlyUrl = "{{ route('purchase.supplier.purchase.save') }}";
-        
-        const view_purchase_url ="{{url('admin/pos/purchase/')}}";
+
+        const view_purchase_url = "{{ url('admin/pos/purchase/') }}";
     </script>
     <script src="{{ asset('public/assets/fastclick/lib/fastclick.js') }}"></script>
     <!-- NProgress -->
