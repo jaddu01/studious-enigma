@@ -343,3 +343,5 @@ function getProductDetails(uRL, self, type = null, barcode = null) {
     })
 }
 
+
+

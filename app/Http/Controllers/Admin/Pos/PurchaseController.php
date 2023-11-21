@@ -23,6 +23,7 @@ use App\Scopes\StatusScope;
 use App\User;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\AddNewProductRequest;
 use App\Http\Resources\SupplierProductResource;
 use App\MeasurementClass;
 use App\SupplierBillPurchase;
@@ -35,6 +36,7 @@ use Illuminate\Support\Facades\Validator;
 use Proengsoft\JsValidation\Facades\JsValidatorFacade;
 use DataTables;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
@@ -238,6 +240,62 @@ class PurchaseController extends Controller
         }
     }
 
+    public function getSku() {
+        $data = Product::select('sku_code')->latest()->first();
+        $old_sku = $data->sku_code;
+        $sku_num = str_replace('DAR-', '', $old_sku);
+        $new_sku_num = $sku_num + 1;
+        $new_sku_num = str_pad($new_sku_num,6,"0",STR_PAD_LEFT);
+        echo $new_sku_num;
+        $sku = 'DAR-'.$new_sku_num;
+        return $sku;
+      }
+
+
+    public function addNewProduct(AddNewProductRequest $request){
+        
+            $input = $request->all();
+            // $model = Product::class;
+            // $model = new Product;
+            // $validator = Validator::make($request->all(),$model->rules($this->method),$model->messages($this->method));
+    
+            // if ($validator->fails()) {
+    
+            //     // Session::flash('danger',$validator->errors()->first());
+            //     // return redirect('admin/product/create')->withErrors($validator)->withInput();
+            // }
+            
+ 
+                DB::beginTransaction();
+                try {
+                    $input['vendor_id'] = Auth::guard('admin')->user()->id;
+                    $input['sku_code'] = $this->getSku();
+                    $input['disclaimer:en'] = 'While we work to ensure that product information is correct, on occasion manufacturers may alter their ingredient lists. Actual product packaging and materials may contain more and/or different information than that shown on our web site. We recommend that you do not solely rely on the information presented and that you always read labels, warnings, and directions before using or consuming a product. For additional information about a product, please contact the manufacturer.';
+                    $product = $this->model->create($input);
+                    if($request->hasFile('image')){
+                        $imageName = Helper::fileUpload($request->file('image'),true);
+                        $product->images()->createMany($imageName);
+                    }
+    
+                    //add vendor product
+                    $vendorProduct = $product->VendorProduct->create(['vendor_id'=>Auth::guard('admin')->user()->id,'price'=>$input['price'],'qty'=>$input['qty'],'status'=>1, 'offer_id'=>$input['offer_id'], 'per_order'=>$input['per_order'], 'best_price' => $input['best_price'], 'memebership_p_price' => $input['memebership_p_price']]);
+    
+                    DB::commit();
+                    return response()->json([
+                        'msg'=>'New product added successfully'
+                    ],200);
+                    Session::flash('success','product create successful');
+                } catch (\Exception $e) {
+                    dd($e);
+                    Session::flash('danger',$e->getMessage());
+                    DB::rollBack();
+    
+                }
+    
+    
+            }
+        
+    
 
     public function edit($id)
     {

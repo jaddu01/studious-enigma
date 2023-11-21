@@ -393,8 +393,9 @@
    @endcomponent
 
 
-
     <script type="text/javascript" src="{{ asset('public/vendor/jsvalidation/js/jsvalidation.js') }}"></script>
+    {{-- <script src="{{ asset('public/assets/validator/validator.min.js') }}"><script> --}}
+
     {!! $validator !!}
     <!-- /page content -->
 @endsection
@@ -522,6 +523,7 @@
         const product_list_search = "{!! route('autocomplete.search') !!}";
         const varient_product_list_search = "{!! route('autocomplete.search') !!}";
         const view_purchase_url = "{{ url('admin/pos/purchase/') }}";
+        const addNewProductUrl = "{{route('purchase.suppliers.addnewproduct')}}";
     </script>
     <script src="{{ asset('public/assets/fastclick/lib/fastclick.js') }}"></script>
     <!-- NProgress -->
@@ -530,6 +532,8 @@
     <script src="{{ asset('public/assets/purchase/field-calculation.js') }}"></script>
     <script src="{{ asset('public/assets/purchase/btn-action.js') }}"></script>
     <script src="{{ asset('public/assets/purchase/save-only-data.js') }}"></script>
+    <script src="{{asset('public/assets/purchase/product-image-uploader.js')}}"></script>
+    <script src="{{asset('public/assets/purchase/save-new-product.js')}}"></script>
 
-    <!-- <script src="{{ asset('public/assets/validator/validator.min.js') }}"><script> -->
+        
 @endpush
