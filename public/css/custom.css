@@ -6224,6 +6224,9 @@ tr.shown td.details-control {
   border-radius: 4px !important;
   border: 1px solid #aaa !important;
 }
+.error{
+  color:var(--red);
+}
 
 .description-size {
   height: 108px !important;
@@ -6274,4 +6277,7 @@ tr.shown td.details-control {
 
 .blurImg {
   filter: opacity(0.6);
+}
+.is-invalid{
+  border-color: var(--red) !important;
 }

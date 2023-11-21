@@ -10,15 +10,24 @@
             <form id="addNewProductForm">
                 <div class="modal-body">
                     <div class="row">
-                        <div class="col-md-6">
-                            <div class="item form-group">
+                        <div class="col-md-12 item form-group">
+                            <label for="productCategories">Category<small class="startTxt">*</small></label>
+                            {!! Form::select('category_id[]', $product_categories, null, [
+                                'class' => 'form-control',
+                                'id' => 'productCategories',
+                            ]) !!}
+                        </div>
+                    </div>
+                    <div class="row mt-3">
+                        <div class="col-md-6 item form-group">
+                        
                                 <label for="prodcutName">Name<small class="startTxt">*</small></label>
                                 <input type="text" class="form-control custom-form-input" placeholder="Product Name"
                                     name="name:en" id="prodcutName">
-                            </div>
+                           
                         </div>
 
-                        <div class="col-md-6">
+                        <div class="col-md-6 item form-group">
                             <label for="printName">Print Name</label>
                             <input type="text" class="form-control custom-form-input" placeholder="Print Name"
                                 name="print_name:en" id="printName">
@@ -26,14 +35,6 @@
                     </div>
 
                     <div class="row mt-3">
-                        <div class="col-md-4">
-                            <label for="productCategories">Category<small class="startTxt">*</small></label>
-                            {!! Form::select('category_id[]', $product_categories, null, [
-                                'placeholder' => 'Select Category',
-                                'class' => 'form-control',
-                                'id' => 'productCategories',
-                            ]) !!}
-                        </div>
                         <div class="col-md-4">
                             <label for="brandsList">Brands</label><br>
                             {!! Form::select('brand_id', $brands, null, [
@@ -62,9 +63,18 @@
                             ) !!}
                         </div>
 
+                        <div class="col-md-4 item form-group">
+                            <label for="membership_p_price">Membership Price <small class="startTxt">*</small></label>
+                            {!! Form::text('membership_p_price', null, [
+                                'class' => 'form-control custom-form-input',
+                                'id' => 'membership_p_price',
+                                'placeholder' => 'Enter membership price',
+                            ]) !!}
+                        </div>
+
                     </div>
                     <div class="row mt-3">
-                        <div class="col-md-4">
+                        <div class="col-md-4 item form-group">
 
                             <label for="measurementClass">Measurement Class<small class="startTxt">*</small></label><br>
                             {!! Form::select('measurement_class', $measurementClass, null, [
@@ -73,7 +83,7 @@
                                 'id' => 'measurementClass',
                             ]) !!}
                         </div>
-                        <div class="col-md-4">
+                        <div class="col-md-4 item form-group">
                             <label for="measurement_value">Measurement Value<small class="startTxt">*</small></label>
                             {!! Form::text('measurement_value', null, [
                                 'placeholder' => 'keyword',
@@ -160,7 +170,7 @@
                             ]) !!}
                         </div>
 
-                        <div class="col-md-4">
+                        <div class="col-md-4 item form-group">
                             <label for="product_qty">Qty<small class="startTxt">*</small></label>
                             {!! Form::text('qty', null, [
                                 'class' => 'form-control custom-form-input',
@@ -171,7 +181,7 @@
                     </div>
 
                     <div class="row mt-3">
-                        <div class="col-md-4">
+                        <div class="col-md-4 item form-group">
                             <label for="prodcut_price">MRP<small class="startTxt">*</small></label>
                             {!! Form::text('price', null, [
                                 'class' => 'form-control custom-form-input',
@@ -180,7 +190,7 @@
                             ]) !!}
                         </div>
 
-                        <div class="col-md-4">
+                        <div class="col-md-4 item form-group">
                             <label for="best_price">Best Price<small class="startTxt">*</small></label>
                             {!! Form::text('best_price', null, [
                                 'class' => 'form-control custom-form-input',
@@ -200,15 +210,7 @@
                     </div>
 
                     <div class="row mt-3">
-                        <div class="col-md-4">
-                            <label for="membership_p_price">Membership Price <small class="startTxt">*</small></label>
-                            {!! Form::text('membership_p_price', null, [
-                                'class' => 'form-control custom-form-input',
-                                'id' => 'membership_p_price',
-                                'placeholder' => 'Enter membership price',
-                            ]) !!}
-                        </div>
-
+                      
                         <div class="col-md-4">
                             <label for="per_order">Max. per order <small class="startTxt">*</small></label>
                             {!! Form::text('per_order', null, [
@@ -222,13 +224,13 @@
                     </div>
 
                     <div class="row mt-3">
-                        <div class="col-md-6">
+                        <div class="col-md-6 item form-group">
                             <label for="product_description">Description<small class="startTxt">*</small></label>
                             <textarea class="form-control custom-form-input description-size" id="product_description" name="description:en"
                                 placeholder="Enter description"></textarea>
                         </div>
 
-                        <div class="col-md-6">
+                        <div class="col-md-6 item form-group">
                             <label for="prodcut_disclaimer">Disclaimer<small class="startTxt">*</small></label>
                             <textarea class="form-control custom-form-input description-size" id="prodcut_disclaimer" name="disclaimer:en"
                                 placeholder="Enter disclaimer"></textarea>
@@ -268,7 +270,7 @@
                                 <img src="" id="prodcutImageViewer">
                                 <i class="fa fa-pencil text-dark display-hide" id="productImgUpdateIconBtn"></i>
                             </div>
-                            <input type="file" class="display-hide" accept="image/*"
+                            <input type="file" name="image" class="display-hide" accept="image/*"
                                 id="productImgFileUplaodBtn">
                         </div>
                     </div>

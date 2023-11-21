@@ -384,13 +384,13 @@
     @component('components.addpurchase.AddNewProductsModal', [
         'product_categories' => $product_categories,
         'brands' => $brands,
-        'measurementClass'=>$measurementClass
+        'measurementClass' => $measurementClass,
     ])
     @endcomponent
 
     {{-- payment modal --}}
-   @component('components.addpurchase.PaymentModal')
-   @endcomponent
+    @component('components.addpurchase.PaymentModal')
+    @endcomponent
 
 
     <script type="text/javascript" src="{{ asset('public/vendor/jsvalidation/js/jsvalidation.js') }}"></script>
@@ -419,11 +419,24 @@
                 placeholder: "Select Supplier",
                 allowClear: true
             });
-            $("#productCategories,#brandsList,#measurementClass").select2({
+            $("#brandsList,#measurementClass").select2({
                 allowClear: true,
                 width: '100%',
 
             });
+            $("#productCategories").select2({
+                placeholder:'Select Category',
+                tags: false,
+                multiple: true,
+                width: '100%',
+                tokenSeparators: [','],
+                minimumInputLength: 2,
+                minimumResultsForSearch: 10,
+            });
+            $("#productCategories").on('select2:select',function(e){
+                console.log(e);
+            });
+
 
 
 
@@ -523,7 +536,7 @@
         const product_list_search = "{!! route('autocomplete.search') !!}";
         const varient_product_list_search = "{!! route('autocomplete.search') !!}";
         const view_purchase_url = "{{ url('admin/pos/purchase/') }}";
-        const addNewProductUrl = "{{route('purchase.suppliers.addnewproduct')}}";
+        const addNewProductUrl = "{{ route('purchase.suppliers.addnewproduct') }}";
     </script>
     <script src="{{ asset('public/assets/fastclick/lib/fastclick.js') }}"></script>
     <!-- NProgress -->
@@ -532,8 +545,13 @@
     <script src="{{ asset('public/assets/purchase/field-calculation.js') }}"></script>
     <script src="{{ asset('public/assets/purchase/btn-action.js') }}"></script>
     <script src="{{ asset('public/assets/purchase/save-only-data.js') }}"></script>
-    <script src="{{asset('public/assets/purchase/product-image-uploader.js')}}"></script>
-    <script src="{{asset('public/assets/purchase/save-new-product.js')}}"></script>
-
-        
+    <script src="{{ asset('public/assets/purchase/product-image-uploader.js') }}"></script>
+    <script src="{{ asset('public/assets/purchase/save-new-product.js') }}"></script>
+    <script src="{{ asset('public/assets/pnotify/dist/pnotify.js') }}"></script>
+    <script src="{{ asset('public/assets/pnotify/dist/pnotify.buttons.js') }}"></script>
+    <script src="{{ asset('public/assets/pnotify/dist/pnotify.nonblock.js') }}"></script>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.20.0/jquery.validate.min.js"
+        integrity="sha512-WMEKGZ7L5LWgaPeJtw9MBM4i5w5OSBlSjTjCtSnvFJGSVD26gE5+Td12qN5pvWXhuWaWcVwF++F7aqu9cvqP0A=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 @endpush

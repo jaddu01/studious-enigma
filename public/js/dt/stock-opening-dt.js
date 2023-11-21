@@ -107,23 +107,15 @@ $(document).ready(function () {
             method: 'post',
             data: data_,
             success: function (res) {
-                // console.log(res)
-            
                 $("#openingStockModal").modal('hide');
-                new PNotify({
-                    title: 'Success',
-                    text: res.msg,
-                    type: 'success',
-                    styling: 'bootstrap3',
-                    delay: 1000,
-
-                });
+                successMsg(res.msg);
                 refreshTbl();
 
 
             },
             error: function (err) {
                 // console.error(err);
+                errorMsg(err);
                 $("#openingStockModal").modal('hide');
 
             }

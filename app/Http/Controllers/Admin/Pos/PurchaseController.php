@@ -75,9 +75,9 @@ class PurchaseController extends Controller
         $payment_mode = ['cash' => 'Cash', 'cheque' => 'Cheque', 'online' => 'Online'];
         $payment_status = ['paid' => 'Paid', 'due' => 'Due'];
 
-        $product_categories = Category::where('status','1')->notTranslatedIn('ar')->get()->pluck('name','id');
+        $product_categories = Category::where('status', '1')->notTranslatedIn('ar')->get()->pluck('name', 'id');
         $SupplierBillPurchase = SupplierBillPurchase::orderBy('id', 'desc')->value('id');
-        $measurementClass =MeasurementClass::where('status','1')->listsTranslations('name','id')->pluck('name','id')->all();
+        $measurementClass = MeasurementClass::where('status', '1')->listsTranslations('name', 'id')->pluck('name', 'id')->all();
         $reference_invoice_no = 1;
         if (!is_null($SupplierBillPurchase)) {
             $reference_invoice_no = $SupplierBillPurchase + 1;
@@ -240,62 +240,67 @@ class PurchaseController extends Controller
         }
     }
 
-    public function getSku() {
+    public function getSku()
+    {
         $data = Product::select('sku_code')->latest()->first();
         $old_sku = $data->sku_code;
         $sku_num = str_replace('DAR-', '', $old_sku);
         $new_sku_num = $sku_num + 1;
-        $new_sku_num = str_pad($new_sku_num,6,"0",STR_PAD_LEFT);
+        $new_sku_num = str_pad($new_sku_num, 6, "0", STR_PAD_LEFT);
         echo $new_sku_num;
-        $sku = 'DAR-'.$new_sku_num;
+        $sku = 'DAR-' . $new_sku_num;
         return $sku;
-      }
+    }
 
 
-    public function addNewProduct(AddNewProductRequest $request){
-        
-            $input = $request->all();
-            // $model = Product::class;
-            // $model = new Product;
-            // $validator = Validator::make($request->all(),$model->rules($this->method),$model->messages($this->method));
-    
-            // if ($validator->fails()) {
-    
-            //     // Session::flash('danger',$validator->errors()->first());
-            //     // return redirect('admin/product/create')->withErrors($validator)->withInput();
-            // }
-            
- 
-                DB::beginTransaction();
-                try {
-                    $input['vendor_id'] = Auth::guard('admin')->user()->id;
-                    $input['sku_code'] = $this->getSku();
-                    $input['disclaimer:en'] = 'While we work to ensure that product information is correct, on occasion manufacturers may alter their ingredient lists. Actual product packaging and materials may contain more and/or different information than that shown on our web site. We recommend that you do not solely rely on the information presented and that you always read labels, warnings, and directions before using or consuming a product. For additional information about a product, please contact the manufacturer.';
-                    $product = $this->model->create($input);
-                    if($request->hasFile('image')){
-                        $imageName = Helper::fileUpload($request->file('image'),true);
-                        $product->images()->createMany($imageName);
-                    }
-    
-                    //add vendor product
-                    $vendorProduct = $product->VendorProduct->create(['vendor_id'=>Auth::guard('admin')->user()->id,'price'=>$input['price'],'qty'=>$input['qty'],'status'=>1, 'offer_id'=>$input['offer_id'], 'per_order'=>$input['per_order'], 'best_price' => $input['best_price'], 'memebership_p_price' => $input['memebership_p_price']]);
-    
-                    DB::commit();
-                    return response()->json([
-                        'msg'=>'New product added successfully'
-                    ],200);
-                    Session::flash('success','product create successful');
-                } catch (\Exception $e) {
-                    dd($e);
-                    Session::flash('danger',$e->getMessage());
-                    DB::rollBack();
-    
-                }
-    
-    
+    public function addNewProduct(Request $request)
+    {
+
+        $input = $request->all();
+        dd($input);
+       
+
+
+        DB::beginTransaction();
+        try {
+            $input['vendor_id'] = Auth::guard('admin')->user()->id;
+            $input['sku_code'] = $this->getSku();
+            $input['disclaimer:en'] = 'While we work to ensure that product information is correct, on occasion manufacturers may alter their ingredient lists. Actual product packaging and materials may contain more and/or different information than that shown on our web site. We recommend that you do not solely rely on the information presented and that you always read labels, warnings, and directions before using or consuming a product. For additional information about a product, please contact the manufacturer.';
+            // dd($input);
+            $product = Product::create($input);
+            // dd($product);
+            if ($request->hasFile('image')) {
+                $imageName = Helper::fileUpload($request->file('image'), true);
+                $product->images()->createMany($imageName);
             }
-        
-    
+
+$data =[
+    'vendor_id' => Auth::guard('admin')->user()->id,
+    'user_id'=>Auth::guard('admin')->user()->id,
+    'product_id'=>$product->id,
+    'price' => $input['price'],
+    'qty' => $input['qty'],
+    'status' => 1,
+    'per_order' => $input['per_order'],
+    'best_price' => $input['best_price'],
+    'memebership_p_price' => $input['membership_p_price']
+];
+
+            //add vendor product
+            VendorProduct::create($data);
+            DB::commit();
+            return response()->json([
+                'msg' => 'New product added successfully'
+            ], 200);
+            // Session::flash('success','product create successful');
+        } catch (\Exception $e) {
+            dd($e);
+            Session::flash('danger', $e->getMessage());
+            DB::rollBack();
+        }
+    }
+
+
 
     public function edit($id)
     {
