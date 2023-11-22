@@ -12,6 +12,11 @@
     @parent
 @endsection
 @push('css')
+    <link href="{{ asset('public/css/bootstrap-toggle.min.css') }}" rel="stylesheet">
+    <link href="{{ asset('public/assets/pnotify/dist/pnotify.css') }}" rel="stylesheet">
+    <link href="{{ asset('public/assets/pnotify/dist/pnotify.buttons.css') }}" rel="stylesheet">
+    <link href="{{ asset('public/assets/pnotify/dist/pnotify.nonblock.css') }}" rel="stylesheet">
+    <link href="{{ asset('public/assets/pnotify/dist/pnotify.nonblock.css') }}" rel="stylesheet">
     <link href="{{ asset('public/css/select2.min.css') }}" rel="stylesheet" />
     <link rel="stylesheet" href="//code.jquery.com/ui/1.13.1/themes/base/jquery-ui.css">
 @endpush
@@ -25,8 +30,7 @@
             'method' => 'post',
             'class' => 'form-horizontal form-label-left validation',
             'enctype' => 'multipart/form-data',
-            'id' => 'supplier_form',
-        ]) !!}
+            'id' => 'supplier_form']) !!}
 
         {{ csrf_field() }}
         <div class="row">
@@ -42,8 +46,7 @@
                                         {!! Form::select('supplier_id', $suppliers, null, [
                                             'placeholder' => 'Supplier',
                                             'class' => 'form-control select2-supplier',
-                                            'id' => 'supplier_id',
-                                        ]) !!}
+                                            'id' => 'supplier_id']) !!}
                                         @if ($errors->has('supplier_id'))
                                             <span class="help-block">
                                                 <strong>{{ $errors->first('supplier_id') }}</strong>
@@ -76,8 +79,7 @@
                                             'class' => 'form-control',
                                             'autocomplete' => 'off',
                                             'dir' => $locale == 'ar' ? 'rtl' : 'ltr',
-                                            'lang' => $locale,
-                                        ]) !!}
+                                            'lang' => $locale]) !!}
                                         @if ($errors->has('bill_date'))
                                             <span class="help-block">
                                                 <strong>{{ $errors->first('bill_date') }}</strong>
@@ -94,8 +96,7 @@
                                             'class' => 'form-control',
                                             'autocomplete' => 'off',
                                             'dir' => $locale == 'ar' ? 'rtl' : 'ltr',
-                                            'lang' => $locale,
-                                        ]) !!}
+                                            'lang' => $locale]) !!}
                                         @if ($errors->has('due_date'))
                                             <span class="help-block">
                                                 <strong>{{ $errors->first('due_date') }}</strong>
@@ -111,8 +112,7 @@
                                             'id' => 'reference_bill_no',
                                             'dir' => $locale == 'ar' ? 'rtl' : 'ltr',
                                             'lang' => $locale,
-                                            'readonly' => 'readonly',
-                                        ]) !!}
+                                            'readonly' => 'readonly']) !!}
                                         @if ($errors->has('reference_bill_no'))
                                             <span class="help-block">
                                                 <strong>{{ $errors->first('reference_bill_no') }}</strong>
@@ -131,8 +131,7 @@
                                             'id' => 'invoice_no',
                                             'class' => 'form-control',
                                             'dir' => $locale == 'ar' ? 'rtl' : 'ltr',
-                                            'lang' => $locale,
-                                        ]) !!}
+                                            'lang' => $locale]) !!}
                                         @if ($errors->has('invoice_no'))
                                             <span class="help-block">
                                                 <strong>{{ $errors->first('invoice_no') }}</strong>
@@ -159,9 +158,7 @@
                                                 'class' => 'form-control col-md-7 col-xs-12 select2-product',
                                                 'id' => 'payment_term',
                                                 'dir' => $locale == 'ar' ? 'rtl' : 'ltr',
-                                                'lang' => $locale,
-                                            ],
-                                        ) !!}
+                                                'lang' => $locale]) !!}
 
                                         @if ($errors->has('payment_term'))
                                             <span class="help-block">
@@ -184,9 +181,7 @@
                                                 'class' => 'form-control col-md-7 col-xs-12 select2-product',
                                                 'id' => 'tax_type',
                                                 'dir' => $locale == 'ar' ? 'rtl' : 'ltr',
-                                                'lang' => $locale,
-                                            ],
-                                        ) !!}
+                                                'lang' => $locale]) !!}
                                         @if ($errors->has('tax_type'))
                                             <span class="help-block">
                                                 <strong>{{ $errors->first('tax_type') }}</strong>
@@ -547,11 +542,11 @@
     <script src="{{ asset('public/assets/purchase/save-only-data.js') }}"></script>
     <script src="{{ asset('public/assets/purchase/product-image-uploader.js') }}"></script>
     <script src="{{ asset('public/assets/purchase/save-new-product.js') }}"></script>
-    <script src="{{ asset('public/assets/pnotify/dist/pnotify.js') }}"></script>
-    <script src="{{ asset('public/assets/pnotify/dist/pnotify.buttons.js') }}"></script>
-    <script src="{{ asset('public/assets/pnotify/dist/pnotify.nonblock.js') }}"></script>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.20.0/jquery.validate.min.js"
         integrity="sha512-WMEKGZ7L5LWgaPeJtw9MBM4i5w5OSBlSjTjCtSnvFJGSVD26gE5+Td12qN5pvWXhuWaWcVwF++F7aqu9cvqP0A=="
         crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+        <script src="{{ asset('public/assets/pnotify/dist/pnotify.js') }}"></script>
+        <script src="{{ asset('public/assets/pnotify/dist/pnotify.buttons.js') }}"></script>
+        <script src="{{ asset('public/assets/pnotify/dist/pnotify.nonblock.js') }}"></script>
 @endpush

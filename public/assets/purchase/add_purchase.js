@@ -66,18 +66,21 @@ function setTblData(count = null) {
             },
 
             processResults: function (res, params) {
+                // console.log(res.term);
+                const searchText = params.term;
                 const self = $(this)[0].$element[0];
                 const btn = $(self).parent().find('.add_new_product_btn');
                 params.page = params.page || 1;
                 if (res.data.length == 0) {
                     btn.removeClass('display-hide');
+                    btn.attr('value',searchText);
                 } else {
                     btn.addClass('display-hide');
 
                 }
                 btn.click(function (e) {
                     e.preventDefault();
-                    AddNewProductBtnClick();
+                    AddNewProductBtnClick(searchText);
                 });
                 return {
                     results: res.data,
@@ -89,8 +92,12 @@ function setTblData(count = null) {
 
     );
 
-    const AddNewProductBtnClick = () => {
+    const AddNewProductBtnClick = (searchTxt) => {
+        $("#addNewProductForm").trigger('reset');
+        $('#productCategories,#brandsList,#measurementClass,#related_products,#variant_products').val(null).trigger('change');
         $("#addProductModal").modal('show');
+        $("#prodcutName").val(searchTxt);
+
     }
 
     $("#product_Details_Tbody:last").find(".select2-product").on('change', function () {

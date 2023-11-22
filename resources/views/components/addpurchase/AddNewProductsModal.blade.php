@@ -15,6 +15,7 @@
                             {!! Form::select('category_id[]', $product_categories, null, [
                                 'class' => 'form-control',
                                 'id' => 'productCategories',
+                                'multiple'=>'multiple'
                             ]) !!}
                         </div>
                     </div>
@@ -40,8 +41,7 @@
                             {!! Form::select('brand_id', $brands, null, [
                                 'placeholder' => 'Select Brand',
                                 'class' => 'form-control',
-                                'id' => 'brandsList',
-                            ]) !!}
+                                'id' => 'brandsList']) !!}
                         </div>
 
                         <div class="col-md-4">
@@ -58,9 +58,7 @@
                                 [
                                     'placeholder' => 'Select GST',
                                     'class' => 'form-control custom-form-input',
-                                    'id' => 'gstList',
-                                ],
-                            ) !!}
+                                    'id' => 'gstList']) !!}
                         </div>
 
                         <div class="col-md-4 item form-group">
@@ -68,8 +66,7 @@
                             {!! Form::text('membership_p_price', null, [
                                 'class' => 'form-control custom-form-input',
                                 'id' => 'membership_p_price',
-                                'placeholder' => 'Enter membership price',
-                            ]) !!}
+                                'placeholder' => 'Enter membership price']) !!}
                         </div>
 
                     </div>
@@ -80,16 +77,14 @@
                             {!! Form::select('measurement_class', $measurementClass, null, [
                                 'placeholder' => 'Select Measurement',
                                 'class' => 'form-control',
-                                'id' => 'measurementClass',
-                            ]) !!}
+                                'id' => 'measurementClass']) !!}
                         </div>
                         <div class="col-md-4 item form-group">
                             <label for="measurement_value">Measurement Value<small class="startTxt">*</small></label>
                             {!! Form::text('measurement_value', null, [
                                 'placeholder' => 'keyword',
                                 'class' => 'form-control custom-form-input',
-                                'id' => 'measurement_value',
-                            ]) !!}
+                                'id' => 'measurement_value']) !!}
                         </div>
 
                         <div class="col-md-4">
@@ -97,8 +92,7 @@
                             {!! Form::text('hsn_code', null, [
                                 'placeholder' => 'DAR-0000',
                                 'class' => 'form-control custom-form-input',
-                                'id' => 'hsn_code',
-                            ]) !!}
+                                'id' => 'hsn_code']) !!}
                         </div>
                     </div>
 
@@ -114,9 +108,7 @@
                                 1,
                                 [
                                     'class' => 'form-control custom-form-input',
-                                    'id' => 'status',
-                                ],
-                            ) !!}
+                                    'id' => 'status']) !!}
                         </div>
 
                         <div class="col-md-4">
@@ -130,9 +122,7 @@
                                 0,
                                 [
                                     'class' => 'form-control custom-form-input',
-                                    'id' => 'show_in_cart_page',
-                                ],
-                            ) !!}
+                                    'id' => 'show_in_cart_page']) !!}
                         </div>
 
                         <div class="col-md-4">
@@ -146,9 +136,7 @@
                                 0,
                                 [
                                     'class' => 'form-control custom-form-input',
-                                    'id' => 'returnable',
-                                ],
-                            ) !!}
+                                    'id' => 'returnable']) !!}
                         </div>
                     </div>
 
@@ -157,8 +145,7 @@
                             <label for="expire_date">Expire Date</label>
                             {!! Form::date('expire_date', null, [
                                 'class' => 'form-control custom-form-input',
-                                'id' => 'expire_date',
-                            ]) !!}
+                                'id' => 'expire_date']) !!}
                         </div>
 
                         <div class="col-md-4">
@@ -166,8 +153,7 @@
                             {!! Form::text('barcode', null, [
                                 'class' => 'form-control custom-form-input',
                                 'id' => 'add_new_product_barcode',
-                                'placeholder' => '890000000000',
-                            ]) !!}
+                                'placeholder' => '890000000000']) !!}
                         </div>
 
                         <div class="col-md-4 item form-group">
@@ -175,8 +161,7 @@
                             {!! Form::text('qty', null, [
                                 'class' => 'form-control custom-form-input',
                                 'id' => 'product_qty',
-                                'placeholder' => 'Quantity',
-                            ]) !!}
+                                'placeholder' => 'Quantity']) !!}
                         </div>
                     </div>
 
@@ -186,8 +171,7 @@
                             {!! Form::text('price', null, [
                                 'class' => 'form-control custom-form-input',
                                 'id' => 'prodcut_price',
-                                'placeholder' => 'Enter Mrp',
-                            ]) !!}
+                                'placeholder' => 'Enter Mrp']) !!}
                         </div>
 
                         <div class="col-md-4 item form-group">
@@ -195,16 +179,14 @@
                             {!! Form::text('best_price', null, [
                                 'class' => 'form-control custom-form-input',
                                 'id' => 'best_price',
-                                'placeholder' => 'Enter Best Price',
-                            ]) !!}
+                                'placeholder' => 'Enter Best Price']) !!}
                         </div>
                         <div class="col-md-4">
                             <label for="purchase_price">Purchase Price<small class="startTxt">*</small></label>
                             {!! Form::text('purchase_price', null, [
                                 'class' => 'form-control custom-form-input',
                                 'id' => 'purchase_price',
-                                'placeholder' => 'Enter Purchase Price',
-                            ]) !!}
+                                'placeholder' => 'Enter Purchase Price']) !!}
                         </div>
 
                     </div>
@@ -216,8 +198,7 @@
                             {!! Form::text('per_order', null, [
                                 'class' => 'form-control custom-form-input',
                                 'id' => 'per_order',
-                                'placeholder' => 'Enter max. per order ',
-                            ]) !!}
+                                'placeholder' => 'Enter max. per order ']) !!}
                         </div>
 
 

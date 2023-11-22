@@ -1,5 +1,6 @@
 $(document).ready(function(){
-    
+ 
+
     $("#addNewProductForm").submit(function(e){
         e.preventDefault();
     }).validate({
@@ -107,7 +108,6 @@ $(document).ready(function(){
             beforeSend: function () {
             },
             success: function (res) {
-                // $("#addNewProductForm").trigger('reset');
                 successMsg(res.msg);
                 $("#addProductModal").modal('hide');
 
