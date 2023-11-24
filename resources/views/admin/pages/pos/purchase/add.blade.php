@@ -199,9 +199,22 @@
 
             <div class="col-md-12 col-sm-12 col-xs-12 mt-3">
                 <div class="x_panel ">
-                    <span class="section">Product Details</span>
+                        <span class="section">Product Details</span>
+                    
                     <div class="row">
-                        <div class="col-md-12 table-responsive">
+                       <div class="col-md-2">
+                        <select id="gstSelected" class="form-control custom-form-input" disabled>
+                            <option selected disabled>Select GST/Without GST</option>
+                            <option value="1">With GST</option>
+                            <option value="0">Without GST</option>
+                        </select>
+                       </div>
+                        
+                    </div>
+
+                    
+                    <div class="row mt-3">
+                        <div class="col-md-12 table-responsive display-hide" id="productTbl">
                             <table class="table table-bordered">
                                 <thead class="thead-dark">
                                     <tr>
@@ -221,8 +234,8 @@
                                         <th scope="col" style="width:80px">MRP<small class="startTxt">*</small></th>
                                         <th scope="col" style="width:80px">Selling Price<small class="startTxt">*</small>
                                         </th>
-                                        <th scope="col">GST Amount<small class="startTxt">*</small></th>
-                                        <th scope="col">GST(%)<small class="startTxt">*</small></th>
+                                        <th scope="col" id="gstAmountID">GST Amount<small class="startTxt">*</small></th>
+                                        <th scope="col" id="gst_percentage">GST(%)<small class="startTxt">*</small></th>
 
                                         <th scope="col" style="width:80px">Margin (%)<small class="startTxt">*</small>
                                         </th>
@@ -245,8 +258,8 @@
                                         </td>
                                         <td style="border:none !important;"></td>
                                         <td style="border:none !important;"></td>
-                                        <td style="border:none !important;"></td>
-                                        <td style="border:none !important;"></td>
+                                        <td style="border:none !important;" class="tempcolum"></td>
+                                        <td style="border:none !important;" class="tempcolum"></td>
 
 
                                         <td style="border:none !important;">
@@ -429,7 +442,7 @@
                 minimumResultsForSearch: 10,
             });
             $("#productCategories").on('select2:select',function(e){
-                console.log(e);
+            
             });
 
 

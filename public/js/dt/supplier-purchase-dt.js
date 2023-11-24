@@ -74,6 +74,7 @@ $(document).ready(function () {
             order: [0, 'asc'],
             drawCallback: function (settings, json) {
                 // $('[rel="tooltip"]').tooltip();
+                $('[data-toggle="tooltip"]').tooltip();
                 // hideLoader();
             },
 

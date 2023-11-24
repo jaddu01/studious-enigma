@@ -2,6 +2,7 @@ $(document).ready(function(){
  
 
     $("#addNewProductForm").submit(function(e){
+        console.log("123");
         e.preventDefault();
     }).validate({
         rules:{
@@ -108,6 +109,7 @@ $(document).ready(function(){
             beforeSend: function () {
             },
             success: function (res) {
+                console.log("working...");
                 successMsg(res.msg);
                 $("#addProductModal").modal('hide');
 

@@ -1,6 +1,11 @@
 
+function setTblData(count = null, isSelectedWithGst) {
+    let gst_amount_And_gst_percentage_column = '';
+    if (isSelectedWithGst) {
+        gst_amount_And_gst_percentage_column = `<td><span class="product_gst_amount">0</span></td>
+        <td><span class="product_gst_percentage amount="">0</span></td>`;
+    }
 
-function setTblData(count = null) {
     const tableRow = `<tr>
     <td>
     <div style="width:70px;" class="text-center">
@@ -37,8 +42,8 @@ function setTblData(count = null) {
     <td><input type="number" value="0" placeholder="0"
             class="product-tbl-column-width form-control product-field  product_selling_price">
     </td>
-    <td><span class="product_gst_amount">0</span></td>
-    <td><span class="product_gst_percentage" amount="">0</span></td>
+    ${gst_amount_And_gst_percentage_column}
+
     <td><input type="number" value="0" placeholder="0"
             class="product-tbl-column-width form-control product-field product_margin">
     </td>
@@ -73,7 +78,7 @@ function setTblData(count = null) {
                 params.page = params.page || 1;
                 if (res.data.length == 0) {
                     btn.removeClass('display-hide');
-                    btn.attr('value',searchText);
+                    btn.attr('value', searchText);
                 } else {
                     btn.addClass('display-hide');
 
@@ -97,6 +102,8 @@ function setTblData(count = null) {
         $('#productCategories,#brandsList,#measurementClass,#related_products,#variant_products').val(null).trigger('change');
         $("#addProductModal").modal('show');
         $("#prodcutName").val(searchTxt);
+        $("#productImgUploader").parent().removeClass('display-hide');
+        $("#prodcutImageViewer").removeAttr('src').parent().addClass('display-hide');
 
     }
 
@@ -214,13 +221,40 @@ const showAdditionalChargeTblResult = () => {
 }
 
 $(document).ready(function () {
-
+    //click to select supplier dropdown
     $("#supplier_id").on('change', function () {
         const supplier_id = $(this).val();
         const url = supplier_address_get_url + '/' + supplier_id;
 
         getSupplierAddress(url);
     });
+
+    //click to with gst and without gst dropdown
+    $("#gstSelected").on('change', function () {
+        let isSelectedWithGst = true;
+
+        $("#productTbl").removeClass('display-hide');
+        isSelectedWithGst = ($(this).val() == 1 ? true : false);
+
+        $(this).prop('disabled', true);
+        setTblData(1, isSelectedWithGst);
+        showTblResult();
+
+        if (!isSelectedWithGst) {
+            $("#gstAmountID,#gst_percentage,.tempcolum").addClass('display-hide');
+            $("#totalGstAmount").parent().addClass('display-hide');
+        } else {
+            $("#gstAmountID,#gst_percentage,.tempcolum").removeClass('display-hide');
+            $("#totalGstAmount").parent().removeClass('display-hide');
+
+            // $(this).prop('disabled',false);
+
+
+        }
+        // console.log('selected gst:',isSelectedWithGst);
+
+    })
+
 
     function getSupplierAddress(url) {
         ajxHeader();
@@ -245,79 +279,79 @@ $(document).ready(function () {
                 $("#supplier_address").find('#Billing-address').html(`<div>${res.company_name ?? ''}<br>${(res.address != null) ? res.address + ',' : ''} ${(res.pincode != null) ? res.pincode + ',' : ''} ${(res.state != null) ? res.state + ',' : ''} ${res.country ?? ''}</div>
               ${(contact_number != null || phone_number != null) ? `<i class="fa fa-phone"></i>${contact_number ?? ''} ${phone_number ?? ''}` : ''} `);
                 $("#supplier_address").find('#billing-not-provided').hide();
-                if ($("#product_Details_Tbody tr").length == 1) {
-                    // $("#product_Details_Tbody").html('');
-                    setTblData(1);
-                    showTblResult();
-                }
+                $("#gstSelected").prop('disabled', false);
+                // if ($("#product_Details_Tbody tr").length == 1) {
+                //     setTblData(1);
+                //     showTblResult();
+                // }
 
             }
         })
     }
 
     //add variant and products in pop modal
-    
-        $(".select2-related-products").select2({
-            tags: true,
-            multiple: true,
-            width:'100%',
-            tokenSeparators: [','],
-            minimumInputLength: 2,
-            minimumResultsForSearch: 10,
-            ajax: {
-                url: product_list_search,
-                dataType: "json",
-                type: "GET",
-                data: function (params) {
-                    var queryParameters = {
-                        term: params.term
-                    }
-                    return queryParameters;
-                },
-                processResults: function (data) {
-                    return {
-                        results: $.map(data, function (item) {
-                            return {
-                                text: item.name,
-                                id: item.id
-                            }
-                        })
-                    };
-                }
-            }
-        });
 
-        //variant products list
-        $(".select2-variant-products").select2({
-            tags: true,
-            multiple: true,
-            width:'100%',
-            tokenSeparators: [','],
-            minimumInputLength: 2,
-            minimumResultsForSearch: 10,
-            ajax: {
-                url: varient_product_list_search,
-                dataType: "json",
-                type: "GET",
-                data: function (params) {
-                    var queryParameters = {
-                        term: params.term
-                    }
-                    return queryParameters;
-                },
-                processResults: function (data) {
-                    return {
-                        results: $.map(data, function (item) {
-                            return {
-                                text: item.name,
-                                id: item.id
-                            }
-                        })
-                    };
+    $(".select2-related-products").select2({
+        tags: true,
+        multiple: true,
+        width: '100%',
+        tokenSeparators: [','],
+        minimumInputLength: 2,
+        minimumResultsForSearch: 10,
+        ajax: {
+            url: product_list_search,
+            dataType: "json",
+            type: "GET",
+            data: function (params) {
+                var queryParameters = {
+                    term: params.term
                 }
+                return queryParameters;
+            },
+            processResults: function (data) {
+                return {
+                    results: $.map(data, function (item) {
+                        return {
+                            text: item.name,
+                            id: item.id
+                        }
+                    })
+                };
             }
-        });
-  
+        }
+    });
+
+    //variant products list
+    $(".select2-variant-products").select2({
+        tags: true,
+        multiple: true,
+        width: '100%',
+        tokenSeparators: [','],
+        minimumInputLength: 2,
+        minimumResultsForSearch: 10,
+        ajax: {
+            url: varient_product_list_search,
+            dataType: "json",
+            type: "GET",
+            data: function (params) {
+                var queryParameters = {
+                    term: params.term
+                }
+                return queryParameters;
+            },
+            processResults: function (data) {
+                return {
+                    results: $.map(data, function (item) {
+                        return {
+                            text: item.name,
+                            id: item.id
+                        }
+                    })
+                };
+            }
+        }
+    });
+
 
 });
 

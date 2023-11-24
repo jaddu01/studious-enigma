@@ -134,7 +134,7 @@ class PurchaseController extends Controller
             if ($request->ajax()) {
 
                 DB::beginTransaction();
-                // dd($request->all());
+                
                 $supplier_id = $request->data['supplier_id'];
                 $due_amount =  $request->data['net_amount'];
                 $paid_amount = 0;
@@ -247,7 +247,7 @@ class PurchaseController extends Controller
         $sku_num = str_replace('DAR-', '', $old_sku);
         $new_sku_num = $sku_num + 1;
         $new_sku_num = str_pad($new_sku_num, 6, "0", STR_PAD_LEFT);
-        echo $new_sku_num;
+        // echo $new_sku_num;
         $sku = 'DAR-' . $new_sku_num;
         return $sku;
     }
@@ -257,9 +257,6 @@ class PurchaseController extends Controller
     {
 
         $input = $request->all();
-        dd($input);
-       
-
 
         DB::beginTransaction();
         try {
@@ -274,28 +271,29 @@ class PurchaseController extends Controller
                 $product->images()->createMany($imageName);
             }
 
-$data =[
-    'vendor_id' => Auth::guard('admin')->user()->id,
-    'user_id'=>Auth::guard('admin')->user()->id,
-    'product_id'=>$product->id,
-    'price' => $input['price'],
-    'qty' => $input['qty'],
-    'status' => 1,
-    'per_order' => $input['per_order'],
-    'best_price' => $input['best_price'],
-    'memebership_p_price' => $input['membership_p_price']
-];
+            $data = [
+                'vendor_id' => Auth::guard('admin')->user()->id,
+                'user_id' => Auth::guard('admin')->user()->id,
+                'product_id' => $product->id,
+                'price' => $input['price'],
+                'qty' => $input['qty'],
+                'status' => 1,
+                'per_order' => $input['per_order'],
+                'best_price' => $input['best_price'],
+                'memebership_p_price' => $input['membership_p_price']
+            ];
 
             //add vendor product
             VendorProduct::create($data);
             DB::commit();
+            
             return response()->json([
                 'msg' => 'New product added successfully'
             ], 200);
             // Session::flash('success','product create successful');
         } catch (\Exception $e) {
-            dd($e);
-            Session::flash('danger', $e->getMessage());
+            // dd($e);
+            // Session::flash('danger', $e->getMessage());
             DB::rollBack();
         }
     }
@@ -504,7 +502,8 @@ $data =[
             $d->paid_amount = $d->paid_amount;
             $d->due_amount = $d->due_amount;
             $d->total_additional_charge = $d->total_additional_charge;
-            $d->action = 'action';
+            $deleteBtn = "<button class='btn btn-danger' data-toggle='tooltip' title='Delete'><i class='fa fa-trash'></i></button>";
+            $d->action = $deleteBtn;
         }
 
         return [
