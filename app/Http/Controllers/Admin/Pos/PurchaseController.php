@@ -501,7 +501,8 @@ class PurchaseController extends Controller
             $d->net_amount = $d->net_amount;
             $d->paid_amount = $d->paid_amount;
             $d->due_amount = $d->due_amount;
-            $d->total_additional_charge = $d->total_additional_charge;
+            // $d->total_additional_charge = $d->total_additional_charge;
+            $d->status ='N/A';
             $deleteBtn = "<button class='btn btn-danger' data-toggle='tooltip' title='Delete'><i class='fa fa-trash'></i></button>";
             $d->action = $deleteBtn;
         }

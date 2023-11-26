@@ -46,7 +46,8 @@
                                             <th>Due Date</th>
                                             <th>Net Amount</th>
                                             <th>Paid Amount</th>
-                                            <th>Total Additional Charges</th>
+                                            <th>Status</th>
+                                            {{-- <th>Total Additional Charges</th> --}}
                                             <th>Due Amount</th>
                                             <th>Action</th>
                                         @endslot

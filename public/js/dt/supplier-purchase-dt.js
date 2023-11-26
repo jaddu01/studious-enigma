@@ -55,8 +55,8 @@ $(document).ready(function () {
                 orderable: false
             },
             {
-                name: 'total_additional_charge',
-                data: 'total_additional_charge',
+                name: 'status',
+                data: 'status',
                 orderable: false
             },
             {

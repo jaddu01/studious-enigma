@@ -747,40 +747,9 @@
                                     </ul>
                                 </li>
                             @endif
-                           <!-- Settings -->
-                           @if (!Auth::guard('admin')->user()->can(['index','create','view','delete','update'], App\Product::class))
-                                <li><a><i class="fa fa-gear"></i>Settings <span class="fa fa-chevron-down"></span></a>
-                                    <ul class="nav child_menu">
-                                        <li>
-                                            <a href="{{url('admin/setting/general')}}">General</a>
-                                        </li>
-                                         <li>
-                                            <a href="{{url('admin/setting/site_setting')}}">Site Setting</a>
-                                        </li>
-                                        <li>
-                                            <a href="{{url('admin/setting/social_media')}}">social media</a>
-                                        </li>
-                                        <li>
-                                            <a href="{{url('admin/setting/api_setting')}}">api setting</a>
-                                        </li>
-                                        <li>
-                                            <a href="{{url('admin/setting/app_setting')}}">app setting</a>
-                                        </li>
-                                        <li>
-                                            <a href="{{url('admin/setting/payment')}}">payment</a>
-                                        </li>
-                                        <li>
-                                            <a href="{{url('admin/setting/app_version')}}">app version</a>
-                                        </li>
-                                      <!--   <li>
-                                            <a href="{{url('admin/setting/address_setting')}}">Address Setting</a>
-                                        </li> -->
-
-                                    </ul>
-                                </li>
-                            @endif
+                          
                            <!-- Financial Management -->
-                            @if (!Auth::guard('admin')->user()->can(['index','create','view','revenue'], App\VendorCommission::class))
+                            {{-- @if (!Auth::guard('admin')->user()->can(['index','create','view','revenue'], App\VendorCommission::class))
                                 <li>
                                     <a><i class="fa fa-money "></i>Financial Management <span class="fa fa-chevron-down"></span></a>
                                     <ul class="nav child_menu">
@@ -801,7 +770,7 @@
                                         @endif
                                      </ul>
                                 </li>
-                            @endif
+                            @endif --}}
                      
                            <!-- Analytic & Reports -->
                            @if (!Auth::guard('admin')->user()->can(['index','order','customer','product','slotTimes','zone','vendor','shopper','driver'], App\Revenue::class))
@@ -954,6 +923,39 @@
                         </ul>
                     </li>
                     @endif
+
+                     <!-- Settings -->
+                     @if (!Auth::guard('admin')->user()->can(['index','create','view','delete','update'], App\Product::class))
+                     <li><a><i class="fa fa-gear"></i>Settings <span class="fa fa-chevron-down"></span></a>
+                         <ul class="nav child_menu">
+                             <li>
+                                 <a href="{{url('admin/setting/general')}}">General</a>
+                             </li>
+                              <li>
+                                 <a href="{{url('admin/setting/site_setting')}}">Site Setting</a>
+                             </li>
+                             <li>
+                                 <a href="{{url('admin/setting/social_media')}}">social media</a>
+                             </li>
+                             <li>
+                                 <a href="{{url('admin/setting/api_setting')}}">api setting</a>
+                             </li>
+                             {{-- <li>
+                                 <a href="{{url('admin/setting/app_setting')}}">app setting</a>
+                             </li> --}}
+                             {{-- <li>
+                                 <a href="{{url('admin/setting/payment')}}">payment</a>
+                             </li> --}}
+                             {{-- <li>
+                                 <a href="{{url('admin/setting/app_version')}}">app version</a>
+                             </li> --}}
+                           <!--   <li>
+                                 <a href="{{url('admin/setting/address_setting')}}">Address Setting</a>
+                             </li> -->
+
+                         </ul>
+                     </li>
+                 @endif
                 </ul>
                 <ul class="nav side-menu">
                     
