@@ -587,6 +587,11 @@ Route::group(['prefix' => 'admin', 'namespace' => 'Admin'], function () {
             Route::get('delete/{id}', 'Pos\UserController@destroy')->name('pos.users.delete');
         });
 
+        //barcode generator
+        Route::prefix('barcode-generator')->group(function(){
+            Route::get('/','BarcodeController@index')->name('barcode.generator');
+        });
+
         // Supplier
         Route::any('supplier/datatable', 'SupplierController@anyData')->name('supplier.datatable');
         Route::any('supplier/status', 'SupplierController@changeStatus')->name('admin.supplier.status');

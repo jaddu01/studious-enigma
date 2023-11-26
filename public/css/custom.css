@@ -6281,3 +6281,14 @@ tr.shown td.details-control {
 .is-invalid{
   border-color: var(--red) !important;
 }
+.barcode-display{
+  display: flex;
+    height: 135px;
+    border: 1px solid #aaa;
+    border-radius: 4px;
+    padding: 10px;
+    text-align: center;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-content: flex-end;
+}

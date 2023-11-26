@@ -223,6 +223,11 @@
                     </li>
                 @endif
 
+                @if (!Auth::guard('admin')->user()->can(['index'], App\FirstOrder::class))
+                <li><a href="{{route('barcode.generator')}}"><i class="fa fa-barcode"></i>Barcode Generator </a></li>
+               @endif
+
+
                     {{-- <!-- Customer -->
                     @if (!Auth::guard('admin')->user()->can(['index'], App\User::class))
                     @endif --}}
