@@ -509,7 +509,7 @@ code {
 }
 
 .img-circle.profile_img {
-  width: 70%;
+  width: 60%;
   background: #fff;
   margin-left: 15%;
   z-index: 1000;
@@ -522,6 +522,8 @@ code {
 .profile_info {
   padding: 25px 10px 10px;
   width: 65%;
+  position: relative;
+  top: 35px;
   /* float: left; */
 }
 
