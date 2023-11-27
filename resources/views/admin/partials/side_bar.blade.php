@@ -9,28 +9,32 @@
 <div class="col-md-3 left_col">
     <div class="left_col scroll-view">
         <div class="navbar nav_title" style="border: 0;">
-            <a href="{{url('/admin/dashboard')}}" class="site_title"><i class="fa fa-paw"></i>
-                <span>{{config('setting.name')}}</span></a>
-        </div>
-
-        <div class="clearfix"></div>
-
-        <!-- menu profile quick info -->
-        <div class="profile">
-
-            <div class="profile_pic">
+            {{-- <a href="{{url('/admin/dashboard')}}" class="site_title"><i class="fa fa-paw"></i>
+                <span>{{config('setting.name')}}</span></a> --}}
                 <?php  if(Auth::guard('admin')->user()->image){$image = Auth::guard('admin')->user()->image;} ?>
                     @if(Auth::guard('admin')->user()->image)
                       <img src="{{ url('storage/app/public/upload/'.$image) }}" alt="..." class="img-circle profile_img">
                     @else
                      <img src="{{asset('public/images/img.jpg')}}" alt="..." class="img-circle profile_img">
                     @endif
+                   
+        </div>
+      
+        <div class="profile_info">
+            <span>Welcome,</span>
+            <h2>{{ Auth::guard('admin')->user()->name }}</h2>
+            <div class="clearfix"></div>
+        </div>
+        <!-- menu profile quick info -->
+        {{-- <div class="profile">
+
+            <div class="profile_pic">
+               
             </div>
             <div class="profile_info">
-                <span>Welcome,</span>
-                <h2>{{ Auth::guard('admin')->user()->name }}</h2>
+          
             </div>
-        </div>
+        </div> --}}
         <!-- /menu profile quick info -->
 
         <br/>

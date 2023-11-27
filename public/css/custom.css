@@ -522,7 +522,7 @@ code {
 .profile_info {
   padding: 25px 10px 10px;
   width: 65%;
-  float: left;
+  /* float: left; */
 }
 
 .profile_info span {
