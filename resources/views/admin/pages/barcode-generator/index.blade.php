@@ -60,7 +60,7 @@
                                                 </div>
                                                 <div class="col-md-12 mt-3">
                                                     <label>Barcode Size</label>
-                                                    <select class="form-control custom-form-input">
+                                                    <select class="form-control custom-form-input" id="barcode-size-dropdown">
                                                         <option value="50">50 &times;25</option>
                                                         <option value="38">38 &times;25</option>
                                                     </select>
@@ -75,7 +75,7 @@
                                                     <b>Darbaar</b><br>
                                                     <b>MRP: 2500</b>
                                                   <img src="data:image/png;base64,{{ $DNSID->getBarcodePNG('DAR-0001', 'C128', 2, 50, [0, 0, 0, 0], true) }}"
-                                                        alt="barcode" /><br>
+                                                        alt="barcode" id="barcode-sample-img" /><br>
 
                                                 </div>
                                             </div>
@@ -110,21 +110,31 @@
                                                 <tr>
                                                     <th>Sr. No</th>
                                                     <th>Product Name</th>
-                                                    <th>Product Name</th>
-                                                    <th>Qty</th>
+                                                    <th class="text-center  ">Qty</th>
                                                     <th>Mrp</th>
-                                                    <th>Selling Price</th>
+                                                    <th class="text-center">Selling Price</th>
                                                 </tr>
                                             </thead>
+                                            <tbody id="product-tbl-body">
+                                                
+                                            </tbody>
                                         </table>
                                     </div>
                                 </div>
                             </div>
                         </div>
+
+                       
                     </div>
 
 
 
+                </div>
+            </div>
+
+            <div class="row mt-3">
+                <div class="col-md-12 text-right">
+                    <button class="btn btn-success" id="barcode-generator-btn" disabled>Genrate Barcode</button>
                 </div>
             </div>
         </div>
@@ -151,7 +161,6 @@
     <script src="{{ asset('public/assets/datatables.net-keytable/js/dataTables.keyTable.min.js') }}"></script>
     <script src="{{ asset('public/assets/datatables.net-responsive/js/dataTables.responsive.min.js') }}"></script>
     <script src="{{ asset('public/assets/datatables.net-responsive-bs/js/responsive.bootstrap.js') }}"></script>
-    <script src="{{ asset('public/assets/datatables.net-scroller/js/datatables.scroller.min.js') }}"></script>
 
     <script>
         function ajxHeader() {
@@ -163,9 +172,12 @@
 
         }
         const search_product_url = "{{ route('purchase.get.supply.products') }}";
+        const barcodesize_url = "{{route('barcode.img')}}";
+        let supplier_product_info_url = "{{ route('purchase.get.supplier.products.info', '') }}";
 
         // const supplier_purchase_list_url = "{{ route('purchase.supplier.list') }}"
     </script>
     <script src="{{ asset('public/assets/barcode-generator/barcode.js') }}"></script>
+    <script src="{{asset('public/assets/barcode-generator/barcode-product-tbl.js')}}"></script>
     {{-- <script src="{{asset('public/js/dt/supplier-purchase-dt.js')}}"></script> --}}
 @endpush

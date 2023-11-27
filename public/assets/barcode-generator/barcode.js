@@ -1,4 +1,5 @@
 $(document).ready(function(){
+    //get products
     $('.select2-product').select2({
         placeholder: "Search Product",
         allowClear: true,
@@ -17,18 +18,6 @@ $(document).ready(function(){
             processResults: function (res, params) {
              
                 params.page = params.page || 1;
-                // if (res.data.length == 0) {
-                //     btn.removeClass('display-hide');
-                //     btn.attr('value', searchText);
-                // } else {
-                //     btn.addClass('display-hide');
-
-                // }
-                // btn.click(function (e) {
-                //     e.preventDefault();
-                //     AddNewProductBtnClick(searchText);
-                // });
-                console.log(res.data);
                 return {
                     results: res.data,
                 };
@@ -38,4 +27,23 @@ $(document).ready(function(){
     },
 
     );
+    //select barcode size
+    $("#barcode-size-dropdown").on('change',function(){
+        const size = $(this).val();
+        console.log("Sieze",size);
+        getBarcodeSizeSample(size);
+    });
+
+    function getBarcodeSizeSample(size){
+        ajxHeader();
+        $.ajax({
+            url:barcodesize_url,
+            type:'POST',
+            data:{'barcodeSize':size},
+            success:function(res){
+                console.log(res);
+                $("#barcode-sample-img").attr('src',res.barcodeImg);
+            }
+        })
+    }
 });

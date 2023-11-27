@@ -6294,3 +6294,6 @@ tr.shown td.details-control {
     flex-wrap: wrap;
     align-content: flex-end;
 }
+.barcode-selling-price-deleteBtn{
+  width: 50px;display: inline-flex;flex-direction: row;justify-content: space-between;align-items: stretch;
+}

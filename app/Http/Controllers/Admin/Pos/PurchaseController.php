@@ -453,7 +453,7 @@ class PurchaseController extends Controller
         }
         return response()->json([
             'id' => $product->id,
-            // 'qty'=>$product->qty,
+            'qty'=>$product->qty,
             'name' => $product->ProductTranslation()->first()->name,
             'mrp' => $product->price,
             'unit_cost' => $product->per_order,
