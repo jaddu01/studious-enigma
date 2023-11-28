@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Helpers\Milon\Barcode\DNS1D;
+use PDF;
 
 class BarcodeController extends Controller
 {
@@ -29,5 +30,34 @@ class BarcodeController extends Controller
         } catch (\Exception $e) {
             
         }
+    }
+
+    public function barcodePrint(Request $request){
+      
+        $barcodeSize = $request->barcodeSize;
+        $productName = $request->productName;
+        $qty = $request->qty;
+        $mrp = $request->mrp;
+        $barcode= $request->barcode;
+        $printsize=$request->printsize;
+        // dd($request->all());
+
+        $pdf = PDF::loadView('admin.pages.barcode-generator.pdf.barcodes',compact('barcodeSize','productName',
+    'qty','mrp','barcode'));
+    // if($printsize=='A4'){
+
+    // }else{
+    //     // $pdf->setPaper([0,0,500,230])->setWarnings(false);
+
+    // }
+
+    $pdf->setPaper('a4', 'landscape')->setWarnings(false);
+
+
+    $pdf->setPaper('a4', 'portrait')->setWarnings(false);
+
+
+        return $pdf->stream();
+        return view('admin.pages.barcode-generator.pdf.barcodes');
     }
 }

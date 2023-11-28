@@ -31,13 +31,15 @@ $(document).ready(function(){
 //table rows
     const tableData = (product)=>{
         const html = `<tr><td><span class="SR_no">${SR_no}</span></td>
-        <td><span>${product.name}</span></td>
-        <td class="text-center"><input type="number" class="qty-field" min="0" value="${product.qty}"></input></td>
-        <td><span>${product.mrp}</span></td>
+        <td  class="text-center"><span>${product.name}</span> <input type="hidden" value="${product.name}" name="productName[]"></td>
+        <td  class="text-center"><span>${product.barcode}</span></td>
+        <td class="text-center"><input type="number" class="qty-field" min="1" name="qty[]" value="${product.qty}"></td>
+        <td><span>${product.mrp}</span><input type="hidden" name="mrp[]" value="${product.mrp}"></td>
         <td class="text-center">
         <div style="width:70px;" class="text-center barcode-selling-price-deleteBtn">
         <span>${product.selling_price}</span>
         <i class="fa fa-times-circle btn-pill1 product_delete_field_row_btn ml-1" aria-hidden="true"></i>
+        <input type="hidden" name="barcode[]" value="${product.barcode}">
     </div>
         </td></tr>
         `;
@@ -76,4 +78,11 @@ $(document).ready(function(){
 
     }
 
-})
+
+    //click to barcode generator btn
+// $("#barcode-generator-btn").click(function(){
+//     alert("working...");
+//     barcodePrint();
+// });
+
+});
