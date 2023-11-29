@@ -591,7 +591,7 @@ Route::group(['prefix' => 'admin', 'namespace' => 'Admin'], function () {
         Route::prefix('barcode-generator')->group(function(){
             Route::get('/','BarcodeController@index')->name('barcode.generator');
             Route::post('barcodeimg','BarcodeController@barcodeSize')->name('barcode.img');
-            // Route::get('barcode-print','BarcodeController@barcodePrint')->name('barcode.print');
+            Route::get('barcode-view','BarcodeController@pdfView');
             Route::post('barcode-print','BarcodeController@barcodePrint')->name('barcode.print');
 
         });
