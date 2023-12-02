@@ -56,8 +56,9 @@
                                                     <select class="form-control custom-form-input" name="printsize">
                                                         <option value="1_ups">1 UPS</option>
                                                         <option value="2_ups">2 UPS</option>
-                                                        <option value="3_ups">3 UPS</option>
-                                                        <option value="A4">A4</option>
+                                                        <option value="A4_84">A4 (84)</option>
+                                                        <option value="A4_65">A4 (65)</option>
+
                                                     </select>
                                                 </div>
                                                 <div class="col-md-12 mt-3">

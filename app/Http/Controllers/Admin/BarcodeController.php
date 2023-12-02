@@ -28,44 +28,72 @@ class BarcodeController extends Controller
                 ]);
             }
         } catch (\Exception $e) {
-            
         }
     }
 
-    public function barcodePrint(Request $request){
+    public function barcodePrint(Request $request)
+    {
         $barcodeSize = $request->barcodeSize;
         $productName = $request->productName;
         $qty = $request->qty;
         $mrp = $request->mrp;
-        $barcode= $request->barcode;
-        $printsize=$request->printsize;
-      
+        $barcode = $request->barcode;
+        $printsize = $request->printsize;
 
-    
-    $pdf= PDF::loadView('admin.pages.barcode-generator.pdf.barcodes',compact('barcodeSize','productName',
-    'qty','mrp','barcode','printsize'));
-    $pdf->setOptions(['dpi'=>88,'defaultFont'=>'Courier']);
 
-   
-    switch($printsize){
-        case '1_ups':
-            $pdf->setPaper([25,0,249,165])->setWarnings(false);
-            break;
-            break;
-        case '2_ups':
-          
-            $pdf->setPaper([22,0,498,165])->setWarnings(false);
-            break;
-        case '3_ups':
-            break;
-        case 'A4':
-            $pdf->setPaper('a4', 'portrait')->setWarnings(false);
-            
-            break;
-    }
-    return $pdf->stream();
 
-    // $pdf->setPaper('a4', 'landscape')->setWarnings(false);
+  
+
+        switch ($printsize) {
+            case '1_ups':
+                $pdf = PDF::loadView('admin.pages.barcode-generator.pdf.1_ups', compact(
+                    'barcodeSize',
+                    'productName',
+                    'qty',
+                    'mrp',
+                    'barcode',
+                    'printsize'
+                ));
+                $pdf->setOptions(['dpi' => 88, 'defaultFont' => 'Courier']);
+                $pdf->setPaper([70, 15, 311, 183])->setWarnings(false);
+                break;
+                break;
+            case '2_ups':
+                $pdf = PDF::loadView('admin.pages.barcode-generator.pdf.2_ups', compact(
+                    'barcodeSize',
+                    'productName',
+                    'qty',
+                    'mrp',
+                    'barcode',
+                    'printsize'
+                ));
+                $pdf->setOptions(['dpi' => 150, 'defaultFont' => 'Courier']);
+                $pdf->setPaper([43, 14, 311, 150])->setWarnings(false);
+                
+                break;
+            case '3_ups':
+                break;
+            case 'A4_84':
+                $pdf = PDF::loadView('admin.pages.barcode-generator.pdf.a4_85', compact(
+                    'barcodeSize',
+                    'productName',
+                    'qty',
+                    'mrp',
+                    'barcode',
+                    'printsize'
+                ));
+                // $pdf->setOptions(['dpi' => 88, 'defaultFont' => 'Courier']);
+                $pdf->setOptions(['dpi' =>203, 'defaultFont' => 'Courier']);
+                $pdf->setPaper('a4', 'portrait')->setWarnings(false);
+                // $pdf->setPaper([22, 0, 130, 31])->setWarnings(false);
+                break;
+            case 'A4_65':
+                // $pdf->setPaper('a4', 'portrait')->setWarnings(false);
+                break;
+        }
+        return $pdf->stream();
+
+        // $pdf->setPaper('a4', 'landscape')->setWarnings(false);
 
 
 
@@ -74,10 +102,9 @@ class BarcodeController extends Controller
     }
 
 
-    public function pdfView(){
+    public function pdfView()
+    {
 
         return view('admin.pages.barcode-generator.pdf.barcodes1');
-
-
     }
 }

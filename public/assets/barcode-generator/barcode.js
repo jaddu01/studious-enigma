@@ -30,7 +30,11 @@ $(document).ready(function(){
     //select barcode size
     $("#barcode-size-dropdown").on('change',function(){
         const size = $(this).val();
-        console.log("Sieze",size);
+        // if(size==='A4_84'){
+        //     $("#product-tbl-body").find(".qty-field").val(84);
+        // }else if(size==='A4_65'){
+        //     $("#product-tbl-body").find(".qty-field").val(65);
+        // }
         getBarcodeSizeSample(size);
     });
 
@@ -41,7 +45,6 @@ $(document).ready(function(){
             type:'POST',
             data:{'barcodeSize':size},
             success:function(res){
-                console.log(res);
                 $("#barcode-sample-img").attr('src',res.barcodeImg);
             }
         })
