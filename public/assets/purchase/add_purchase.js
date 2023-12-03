@@ -200,7 +200,7 @@ const showTblResult = () => {
 
     $("#totalQty").text(totalQty.toFixed(2));
     $("#totalGstAmount").text(gstAmount.toFixed(2));
-    $("#total").text(total.toFixed(2));
+    $("#total").text(total.toFixed(2)).attr('aria-valuetext',total);
     setResult();
 }
 
@@ -221,6 +221,7 @@ const showAdditionalChargeTblResult = () => {
 }
 
 $(document).ready(function () {
+    
     //click to select supplier dropdown
     $("#supplier_id").on('change', function () {
         const supplier_id = $(this).val();
@@ -239,6 +240,7 @@ $(document).ready(function () {
         $(this).prop('disabled', true);
         setTblData(1, isSelectedWithGst);
         showTblResult();
+        $("#supplier_id").prop('disabled', true);
 
         if (!isSelectedWithGst) {
             $("#gstAmountID,#gst_percentage,.tempcolum").addClass('display-hide');
@@ -251,7 +253,6 @@ $(document).ready(function () {
 
 
         }
-        // console.log('selected gst:',isSelectedWithGst);
 
     })
 
@@ -290,7 +291,6 @@ $(document).ready(function () {
     }
 
     //add variant and products in pop modal
-
     $(".select2-related-products").select2({
         tags: true,
         multiple: true,

@@ -5,7 +5,9 @@ const count = (selector) => {
 $(document).ready(function () {
 
         $("#product_Details_Tbody").on("click", ".product_add_new_field_row_btn", function () {
-                setTblData();
+                let isSelectedWithGst = ($("#gstSelected :selected").val()==1?true:false);
+                
+                setTblData(null, isSelectedWithGst);
                 $(this).addClass('display-hide');
                 $(this).parent().find('.product_delete_field_row_btn').removeClass('display-hide');
                 increaseNo();
@@ -23,6 +25,9 @@ $(document).ready(function () {
                         $("#product_Details_Tbody:first").find('.product_delete_field_row_btn').addClass('display-hide');
                         $("#product_Details_Tbody:first").find('.product_add_new_field_row_btn').removeClass('display-hide');
                 }
+                showTblResult();
+
+
 
         });
 

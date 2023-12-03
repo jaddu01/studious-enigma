@@ -41,7 +41,7 @@
                         <div class="row">
                             <div class="col-md-4">
                                 <div class="row">
-                                    <div class="col-md-12">
+                                    <div class="col-md-12 item form-group">
                                         <label for="">Select Supplier<small class="startTxt">*</small></label>
                                         {!! Form::select('supplier_id', $suppliers, null, [
                                             'placeholder' => 'Supplier',
@@ -71,12 +71,12 @@
 
                             <div class="col-md-8">
                                 <div class="row">
-                                    <div class="col-md-4">
+                                    <div class="col-md-4 item form-group">
                                         <label for="bill_date">Supplier Bill Date<small class="startTxt">*</small></label>
                                         {!! Form::text('bill_date', null, [
                                             'placeholder' => 'Billing Date',
                                             'id' => 'bill_date',
-                                            'class' => 'form-control',
+                                            'class' => 'form-control custom-form-input',
                                             'autocomplete' => 'off',
                                             'dir' => $locale == 'ar' ? 'rtl' : 'ltr',
                                             'lang' => $locale]) !!}
@@ -88,12 +88,12 @@
 
                                     </div>
 
-                                    <div class="col-md-4">
+                                    <div class="col-md-4 item form-group">
                                         <label for="due_date">Due Date<small class="startTxt">*</small></label>
                                         {!! Form::text('due_date', null, [
                                             'placeholder' => 'Due Date',
                                             'id' => 'due_date',
-                                            'class' => 'form-control',
+                                            'class' => 'form-control custom-form-input',
                                             'autocomplete' => 'off',
                                             'dir' => $locale == 'ar' ? 'rtl' : 'ltr',
                                             'lang' => $locale]) !!}
@@ -108,7 +108,7 @@
                                         <label for="reference_bill_no">Reference Inovice No..<small
                                                 class="startTxt">*</small></label>
                                         {!! Form::text('reference_bill_no', $reference_invoice_no, [
-                                            'class' => 'form-control',
+                                            'class' => 'form-control custom-form-input',
                                             'id' => 'reference_bill_no',
                                             'dir' => $locale == 'ar' ? 'rtl' : 'ltr',
                                             'lang' => $locale,
@@ -124,12 +124,12 @@
                                 </div>
 
                                 <div class="row mt-3">
-                                    <div class="col-md-4">
+                                    <div class="col-md-4 item form-group">
                                         <label for="">Invoice No.<small class="startTxt">*</small></label>
                                         {!! Form::text('invoice_no', null, [
                                             'placeholder' => 'Invoice no',
                                             'id' => 'invoice_no',
-                                            'class' => 'form-control',
+                                            'class' => 'form-control custom-form-input',
                                             'dir' => $locale == 'ar' ? 'rtl' : 'ltr',
                                             'lang' => $locale]) !!}
                                         @if ($errors->has('invoice_no'))
@@ -140,7 +140,7 @@
                                     </div>
 
 
-                                    <div class="col-md-4">
+                                    <div class="col-md-4 item form-group">
                                         <label for="payment_term">Payment Term<small class="startTxt">*</small></label>
                                         {!! Form::select(
                                             'payment_term',
@@ -155,7 +155,7 @@
                                             ],
                                             null,
                                             [
-                                                'class' => 'form-control col-md-7 col-xs-12 select2-product',
+                                                'class' => 'form-control custom-form-input col-md-7 col-xs-12 select2-product',
                                                 'id' => 'payment_term',
                                                 'dir' => $locale == 'ar' ? 'rtl' : 'ltr',
                                                 'lang' => $locale]) !!}
@@ -178,7 +178,7 @@
                                             ],
                                             null,
                                             [
-                                                'class' => 'form-control col-md-7 col-xs-12 select2-product',
+                                                'class' => 'form-control custom-form-input col-md-7 col-xs-12 select2-product',
                                                 'id' => 'tax_type',
                                                 'dir' => $locale == 'ar' ? 'rtl' : 'ltr',
                                                 'lang' => $locale]) !!}
@@ -268,7 +268,7 @@
                                         </td>
                                         <td style="border:none !important;"></td>
                                         <td style="border:none !important;">
-                                            <div class="text-center"><span class="dark-txt" id="total"></span></div>
+                                            <div class="text-center"><span class="dark-txt" id="total" aria-valuetext=""></span></div>
                                         </td>
 
 
@@ -380,7 +380,7 @@
                     <div class="col-12 text-right p-3">
                         {{-- {!! Form::submit('Submit', ['class' => 'btn btn-success']) !!}  --}}
                         <button class="btn btn-primary" id ="saveOnlyBtn">Save (Only)</button>
-                        <button class="btn btn-success" id ="saveAndPaymentBtn">Save & Payment</button>
+                        <button class="btn btn-success" id ="saveAndPaymentBtn" >Save & Payment</button>
                     </div>
                 </div>
             </div>
@@ -546,7 +546,7 @@
         const view_purchase_url = "{{ url('admin/pos/purchase/') }}";
         const addNewProductUrl = "{{ route('purchase.suppliers.addnewproduct') }}";
     </script>
-    <script src="{{ asset('public/assets/fastclick/lib/fastclick.js') }}"></script>
+    <script src="{{ asset('public/assets/fastclick/lib/fastclick.js') }}"></script Termript>
     <!-- NProgress -->
     <script src="{{ asset('public/assets/nprogress/nprogress.js') }}"></script>
     <script src="{{ asset('public/assets/purchase/add_purchase.js') }}"></script>

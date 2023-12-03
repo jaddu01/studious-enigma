@@ -14,8 +14,8 @@ $(document).ready(function () {
         saveData("save_only", data);
     });
 
-      //Checked to online radio button
-      $("#cashMode").click(function () {
+    //Checked to online radio button
+    $("#cashMode").click(function () {
         const isChecked = $(this).is(':checked');
         if (isChecked) {
             $("#paymentDateSection").addClass('display-hide');
@@ -37,25 +37,78 @@ $(document).ready(function () {
             $("#paymentDateSection").removeClass('display-hide');
         }
     });
+    // $("#supplier_form").validate(
+    //     {
+    //     rules: {
+    //         "bill_date": {
+    //             required: true,
+    //         }
+
+    //     },
+    //     messages: {
+    //         "bill_date": {
+    //             required: "Supplier bill date is required",
+    //         }
+    //     },
+    //     errorElement: 'span',
+    //     errorPlacement: function (err, element) {
+    //         err.addClass('invalid-feedback');
+    //         element.closest('.form-group').append(err);
+    //     },
+    //     highlight: function (element, errorClass, validClass) {
+    //         $(element).addClass('is-invalid');
+
+    //     },
+    //     unhighlight: function (element, errorClass, validClass) {
+    //         $(element).removeClass('is-invalid');
+
+    //     },
+    //     submitHandler: function () {
+    //     }
+    // });
 
     //Click to Save & Payment Button
+    // $("#saveAndPaymentBtn").click(function (e) {
+    //     e.preventDefault();
+
+    //     $("#supplier_form").valid();
+
+    //     $("#supplier_form").submit();
+
+
+
+    // })
+    
     $("#saveAndPaymentBtn").click(function (e) {
+
         e.preventDefault();
-        $("#paymentModal").modal('show');
-        $("#paymentform").find('#amount').val(parseFloat($("#NetAmount").text()));
-      
+
+        const numberOfAddedProductRow = $("#product_Details_Tbody >tr").length;
+        const totalProductPrice = $("#total").attr('aria-valuetext');
+
+        if (numberOfAddedProductRow > 1 && totalProductPrice > 0) {
+            $("#paymentModal").modal('show');
+            $("#paymentform").find('#amount').val(parseFloat($("#NetAmount").text()));
+
+        } else {
+
+            errorMsg("Please Add Minimum one product");
+            document.getElementById("gstSelected").scrollIntoView();
+        }
+
+
     });
 
     //Click to modal save button
-    $("#paymentModal").find("#saveBtn").click(function(){
+    $("#paymentModal").find("#saveBtn").click(function () {
 
         const formElementData = $("#supplier_form").not("#supplier_id").serializeArray();
         const PaymentFormData = $("#paymentform").serializeArray();
         const payementData = convertArrayToJson(PaymentFormData);
         const data = collectData(formElementData);
-        const data_ = {...payementData,...data}
+        const data_ = { ...payementData, ...data }
         saveData("save_with_payment", data_);
-        
+
     });
 
 
@@ -109,7 +162,7 @@ $(document).ready(function () {
             beforeSend: function () {
             },
             success: function (res) {
-               location.href=view_purchase_url;
+                location.href = view_purchase_url;
             }
         })
     }

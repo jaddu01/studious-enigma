@@ -6,6 +6,7 @@ $(document).ready(function () {
         calculation(self);
         showTblResult();
     })
+  
     // .on("keyup",".product-field",function(){
     //     const self = $(this);
     //     calculation(self);
@@ -14,7 +15,7 @@ $(document).ready(function () {
     //click to gst radio button
     $("#gstSelected").on('change',function () {
         selectedGst = $(this).val();
-        console.log("selected gst:", selectedGst);
+        // console.log("selected gst:", selectedGst);
         $("#product_Details_Tbody").trigger('blur');
     })
 
