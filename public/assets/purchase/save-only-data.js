@@ -6,14 +6,42 @@ $(document).ready(function () {
         });
         return data;
     }
-
+  
     $("#saveOnlyBtn").click(function (e) {
         e.preventDefault();
-        const formElementData = $("#supplier_form").not("#supplier_id").serializeArray();
-        const data = collectData(formElementData);
-        saveData("save_only", data);
+        if(!validation()){
+            const formElementData = $("#supplier_form").not("#supplier_id").serializeArray();
+            const data = collectData(formElementData);
+            saveData("save_only", data);
+        }
+     
     });
 
+    $(".validation-input").on("input",function(e){
+        console.log("date:",$(this).val())
+        if($(this).val().length > 0){
+            $(this).removeClass('is-invalid');
+            $(this).parent().find('.error').addClass('display-hide');
+        }
+    }).on('change',function(){
+        console.log("date:",$(this).val())
+        if($(this).val().length > 0){
+            $(this).removeClass('is-invalid');
+            $(this).parent().find('.error').addClass('display-hide');
+        }
+    });
+    const validation=()=>{
+        if($("#bill_date").val()==''){
+            $("#bill_date").addClass('is-invalid');
+            $("#bill-date-error").removeClass('display-hide');
+            document.getElementById('bill_date').scrollIntoView();
+            
+        }else{
+            $("#bill_date").removeClass('is-invalid');
+            $("#bill-date-error").addClass('display-hide');
+        }
+        return true;
+    }
     //Checked to online radio button
     $("#cashMode").click(function () {
         const isChecked = $(this).is(':checked');
@@ -37,37 +65,10 @@ $(document).ready(function () {
             $("#paymentDateSection").removeClass('display-hide');
         }
     });
-    // $("#supplier_form").validate(
-    //     {
-    //     rules: {
-    //         "bill_date": {
-    //             required: true,
-    //         }
 
-    //     },
-    //     messages: {
-    //         "bill_date": {
-    //             required: "Supplier bill date is required",
-    //         }
-    //     },
-    //     errorElement: 'span',
-    //     errorPlacement: function (err, element) {
-    //         err.addClass('invalid-feedback');
-    //         element.closest('.form-group').append(err);
-    //     },
-    //     highlight: function (element, errorClass, validClass) {
-    //         $(element).addClass('is-invalid');
 
-    //     },
-    //     unhighlight: function (element, errorClass, validClass) {
-    //         $(element).removeClass('is-invalid');
 
-    //     },
-    //     submitHandler: function () {
-    //     }
-    // });
-
-    //Click to Save & Payment Button
+    // Click to Save & Payment Button
     // $("#saveAndPaymentBtn").click(function (e) {
     //     e.preventDefault();
 
@@ -75,10 +76,8 @@ $(document).ready(function () {
 
     //     $("#supplier_form").submit();
 
-
-
     // })
-    
+
     $("#saveAndPaymentBtn").click(function (e) {
 
         e.preventDefault();

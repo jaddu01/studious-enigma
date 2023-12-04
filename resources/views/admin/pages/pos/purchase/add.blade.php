@@ -76,10 +76,11 @@
                                         {!! Form::text('bill_date', null, [
                                             'placeholder' => 'Billing Date',
                                             'id' => 'bill_date',
-                                            'class' => 'form-control custom-form-input',
+                                            'class' => 'form-control custom-form-input validation-input',
                                             'autocomplete' => 'off',
                                             'dir' => $locale == 'ar' ? 'rtl' : 'ltr',
                                             'lang' => $locale]) !!}
+                                            <span class="error invalid-feedback display-hide" id="bill-date-error">Bill date is required</span>
                                         @if ($errors->has('bill_date'))
                                             <span class="help-block">
                                                 <strong>{{ $errors->first('bill_date') }}</strong>

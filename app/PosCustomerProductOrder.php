@@ -8,7 +8,7 @@ class PosCustomerProductOrder extends Model
 {
     protected $table = 'pos_customer_product_orders';
     protected $fillable =['customer_id','pos_user_id','invoice_no','extra_discount','delivery_charge','due_amount','mode',
-    'description','order_date','order_time','bill_amount','changes','payment','online_order_id','pos_state'];
+    'description','order_date','order_time','bill_amount','changes','payment','online_order_id','pos_state','discount'];
 
    
     public function PosCustomerPayment()

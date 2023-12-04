@@ -37,6 +37,7 @@ class OrderController extends Controller
                     'pos_user_id' => 1,
                     'invoice_no' => (is_null($PosCustomerOrder) ? 'D_BEAW0' : 'D_BEAW' . $PosCustomerOrder->id),
                     'extra_discount' => $products['extraDiscount'],
+                    'discount' => $products['discount'],
                     'delivery_charge' => $products['deliveryCharge'],
                     'due_amount' => $products['due_amount'],
                     'mode' => $products['mode'],
@@ -134,6 +135,7 @@ class OrderController extends Controller
 
     public function update(Request $request)
     {
+        // dd("working..");
         try {
             DB::beginTransaction();
             $order_ids =[];
@@ -143,6 +145,7 @@ class OrderController extends Controller
                 $order_ids[]=($products['order_id']);
                 PosCustomerProductOrder::where('id', $products['order_id'])->update([
                     'extra_discount' => $products['extraDiscount'],
+                    'discount' => $products['discount'],
                     'delivery_charge' => $products['deliveryCharge'],
                     'due_amount' => $products['due_amount'],
                     'mode' => $products['mode'],
